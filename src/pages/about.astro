@@ -1,0 +1,37 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Link from '@/components/Link.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+---
+
+<Layout containerType="reading">
+  <PageHead slot="head" title="About" />
+  <Breadcrumbs items={[{ label: 'About', icon: 'lucide:info' }]} />
+
+  <section>
+    <div class="min-w-full">
+      <div class="prose mb-8">
+        <p class="mt-0">
+          Astro Sumi is a clean, minimal template specifically designed for
+          novel and book writing projects. Built with <Link
+            href="https://astro.build"
+            external
+            underline>Astro</Link
+          >,
+          <Link href="https://tailwindcss.com" external underline>Tailwind</Link
+          >, and
+          <Link href="https://ui.shadcn.com" external underline>shadcn/ui</Link
+          >, it provides an excellent foundation for creative writers to
+          showcase their work online.
+        </p>
+        <p>
+          This template supports hierarchical content organization with novels,
+          volumes, and chapters, making it perfect for long-form storytelling.
+          The reading interface is optimized for distraction-free reading with
+          clean typography and intuitive navigation.
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>

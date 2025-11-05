@@ -1,0 +1,79 @@
+---
+import { Icon } from '@/components/Icon'
+import Link from '@/components/Link.astro'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+
+const { previousChapter, nextChapter, novel } = Astro.props
+---
+
+<nav class="col-start-2 grid grid-cols-1 gap-4 sm:grid-cols-3">
+  <Link
+    href={previousChapter
+      ? `/novels/${novel.id}/volume-${previousChapter.data.volume}-${previousChapter.data.volumeTitle || 'volume'}/chapter-${previousChapter.data.chapter}-${previousChapter.id.split('-').slice(-1)[0]}`
+      : '#'}
+    class={cn(
+      buttonVariants({ variant: 'outline' }),
+      'rounded-lg group flex items-center justify-start size-full',
+      !previousChapter && 'pointer-events-none opacity-50 cursor-not-allowed',
+    )}
+    aria-disabled={!previousChapter}
+  >
+    <Icon
+      name="arrow-left"
+      className="mr-2 size-4 transition-transform group-hover:-translate-x-1"
+    />
+    <div class="flex flex-col items-start overflow-hidden text-wrap">
+      <span class="text-muted-foreground text-left text-xs">
+        Previous Chapter
+      </span>
+      <span class="w-full text-left text-sm text-balance text-ellipsis">
+        {previousChapter?.data.title || "You're at the first chapter!"}
+      </span>
+    </div>
+  </Link>
+
+  <Link
+    href={`/novels/${novel.id}`}
+    class={cn(
+      buttonVariants({ variant: 'outline' }),
+      'group flex size-full items-center justify-center rounded-lg',
+    )}
+  >
+    <Icon
+      name="book-open"
+      className="mr-2 size-4 transition-transform group-hover:scale-110"
+    />
+    <div class="flex flex-col items-center overflow-hidden text-wrap">
+      <span class="text-muted-foreground text-center text-xs"> Novel </span>
+      <span class="w-full text-center text-sm text-balance text-ellipsis">
+        {novel.data.title}
+      </span>
+    </div>
+  </Link>
+
+  <Link
+    href={nextChapter
+      ? `/novels/${novel.id}/volume-${nextChapter.data.volume}-${nextChapter.data.volumeTitle || 'volume'}/chapter-${nextChapter.data.chapter}-${nextChapter.id.split('-').slice(-1)[0]}`
+      : '#'}
+    class={cn(
+      buttonVariants({ variant: 'outline' }),
+      'rounded-lg group flex items-center justify-end size-full',
+      !nextChapter && 'pointer-events-none opacity-50 cursor-not-allowed',
+    )}
+    aria-disabled={!nextChapter}
+  >
+    <div class="flex flex-col items-end overflow-hidden text-wrap">
+      <span class="text-muted-foreground text-right text-xs">
+        Next Chapter
+      </span>
+      <span class="w-full text-right text-sm text-balance text-ellipsis">
+        {nextChapter?.data.title || "You're at the latest chapter!"}
+      </span>
+    </div>
+    <Icon
+      name="arrow-right"
+      className="ml-2 size-4 transition-transform group-hover:translate-x-1"
+    />
+  </Link>
+</nav>

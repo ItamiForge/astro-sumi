@@ -1,0 +1,774 @@
+@reference './global.css';
+
+@layer base {
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply wrap-break-word;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-balance;
+  }
+
+  p {
+    @apply text-pretty;
+  }
+}
+
+@layer components {
+  .prose {
+    color: hsl(var(--foreground));
+    font-size: 1rem;
+    line-height: 1.75;
+
+    /* Reading optimizations */
+    text-align: justify;
+    hyphens: auto;
+
+    /* Responsive font sizing */
+    @media (min-width: 640px) {
+      font-size: 1.0625rem; /* 17px */
+      line-height: 1.8;
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 1.125rem; /* 18px */
+      line-height: 1.85;
+    }
+
+    @media (min-width: 1280px) {
+      font-size: 1.1875rem; /* 19px */
+      line-height: 1.9;
+    }
+
+    :where(p):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground/80;
+
+      margin-top: 1.25rem;
+      margin-bottom: 1.25rem;
+      text-align: justify;
+      hyphens: auto;
+
+      /* Enhanced paragraph spacing for reading */
+      @media (min-width: 640px) {
+        margin-top: 1.375rem;
+        margin-bottom: 1.375rem;
+      }
+
+      @media (min-width: 1024px) {
+        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+    }
+
+    :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
+      color: hsl(var(--foreground));
+      font-weight: 500;
+      scroll-margin-top: 8rem;
+    }
+
+    @media (min-width: 1280px) {
+      :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
+        scroll-margin-top: 5rem;
+      }
+    }
+
+    :first-child:not(:where(.not-prose, .not-prose *)) {
+      @apply mt-0;
+    }
+
+    /* Don't use an <h1> in your posts, one is already generated in novels/[...id].astro */
+    :where(h1):not(:where(.not-prose, .not-prose *)) {
+      @apply mt-8 mb-6 text-4xl;
+    }
+
+    :where(h2):not(:where(.not-prose, .not-prose *)) {
+      @apply mt-8 mb-4 text-2xl;
+    }
+
+    :where(h3):not(:where(.not-prose, .not-prose *)) {
+      @apply mt-8 mb-4 text-xl;
+    }
+
+    :where(h4):not(:where(.not-prose, .not-prose *)) {
+      @apply mt-7 mb-3 text-lg;
+    }
+
+    :where(h5, h6):not(:where(.not-prose, .not-prose *)) {
+      @apply mt-5 mb-3;
+    }
+
+    :where(a):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground decoration-muted-foreground hover:decoration-foreground font-medium break-words underline underline-offset-[3px] transition-colors;
+    }
+
+    :where(strong):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground font-medium;
+    }
+
+    :where(ul):not(:where(.not-prose, .not-prose *)) {
+      @apply marker:text-foreground/30 my-5 ml-6 list-disc [&>li]:mt-2;
+    }
+
+    :where(ol):not(:where(.not-prose, .not-prose *)) {
+      @apply marker:text-foreground/30 my-5 ml-6 list-decimal [&>li]:mt-2;
+      @apply [&[type='A']]:list-[upper-alpha] [&[type='I']]:list-[upper-roman] [&[type='a']]:list-[lower-alpha] [&[type='i']]:list-[lower-roman];
+    }
+
+    :where(li):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground/80 pl-2 [&>p]:my-0;
+    }
+
+    :where(ul ul, ol ol, ul ol, ol ul):not(:where(.not-prose, .not-prose *)) {
+      @apply marker:text-foreground/30 my-2 ml-6;
+    }
+
+    :where(code):not(:where(.not-prose, .not-prose *)) {
+      @apply bg-muted/50 text-foreground relative rounded-sm px-[0.3rem] py-[0.2rem] text-sm font-medium break-words;
+      @apply [&>span[data-line='']>*]:text-(--shiki-light) dark:[&>span[data-line='']>*]:text-(--shiki-dark);
+    }
+
+    :where(blockquote):not(:where(.not-prose, .not-prose *)) {
+      @apply [&_*]:text-muted-foreground small my-6 border-l-2 pl-6;
+    }
+
+    :where(hr):not(:where(.not-prose, .not-prose *)) {
+      @apply my-8 border-t;
+    }
+
+    :where(table):not(:where(.not-prose, .not-prose *)) {
+      @apply mx-auto my-6 block max-w-fit overflow-x-auto text-sm;
+    }
+
+    :where(thead):not(:where(.not-prose, .not-prose *)) {
+      @apply border-muted-foreground/30 border-b;
+    }
+
+    :where(th):not(:where(.not-prose, .not-prose *)) {
+      @apply px-4 py-2 font-medium;
+      @apply text-left [&[align=center]]:text-center [&[align=right]]:text-right;
+    }
+
+    :where(tr):not(:where(.not-prose, .not-prose *)) {
+      @apply border-muted-foreground/30 border-y first:border-t-0 last:border-b-0;
+    }
+
+    :where(td):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground/80 small px-4 py-2 align-top break-words [&>*]:first:mt-0! [&>*]:last:mb-0!;
+      @apply text-left [&[align=center]]:text-center [&[align=right]]:text-right;
+    }
+
+    :where(img, video, figure, .expressive-code):not(
+      :where(.not-prose, .not-prose *)
+    ) {
+      @apply mx-auto my-6;
+    }
+
+    :where(pre):not(:where(.not-prose, .not-prose *)) {
+      @apply max-h-[min(68vh,1000px)]! overflow-y-auto [&::-webkit-scrollbar-corner]:hidden;
+    }
+
+    :where(summary):not(:where(.not-prose, .not-prose *)) {
+      @apply [&~*]:small [&~*>*]:first:mt-0! [&~*>*]:last:mb-0!;
+    }
+
+    :where(kbd):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground bg-muted rounded-md border px-2 py-1 text-xs font-medium;
+    }
+
+    :where(.katex-display):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground/80 my-6 overflow-x-auto overflow-y-hidden py-2 tracking-normal;
+    }
+  }
+
+  /* Reading-specific typography for chapter pages */
+  .reading-content {
+    @apply prose;
+
+    /* Enhanced reading experience */
+    line-height: 2;
+    text-align: justify;
+    hyphens: auto;
+    word-spacing: 0.05em;
+    letter-spacing: 0.01em;
+
+    /* Optimal paragraph spacing for long-form content */
+    :where(p):not(:where(.not-prose, .not-prose *)) {
+      margin-top: 1.75rem;
+      margin-bottom: 1.75rem;
+      text-indent: 1.5em;
+
+      /* First paragraph should not be indented */
+      &:first-of-type {
+        text-indent: 0;
+      }
+
+      /* Paragraphs after headings should not be indented */
+      :where(h1, h2, h3, h4, h5, h6) + & {
+        text-indent: 0;
+      }
+    }
+
+    /* Enhanced vertical rhythm */
+    :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
+      margin-top: 2.5rem;
+      margin-bottom: 1.25rem;
+      line-height: 1.3;
+    }
+
+    /* Chapter breaks and scene separators */
+    :where(hr):not(:where(.not-prose, .not-prose *)) {
+      margin-top: 3rem;
+      margin-bottom: 3rem;
+      border: none;
+      text-align: center;
+
+      &::before {
+        content: '* * *';
+        color: hsl(var(--muted-foreground));
+        font-size: 1.2em;
+        letter-spacing: 0.5em;
+      }
+    }
+
+    /* Responsive adjustments for reading content */
+    @media (min-width: 640px) {
+      line-height: 2.1;
+
+      :where(p):not(:where(.not-prose, .not-prose *)) {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        text-indent: 2em;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      line-height: 2.2;
+      word-spacing: 0.08em;
+
+      :where(p):not(:where(.not-prose, .not-prose *)) {
+        margin-top: 2.25rem;
+        margin-bottom: 2.25rem;
+        text-indent: 2.5em;
+      }
+    }
+
+    @media (min-width: 1280px) {
+      line-height: 2.3;
+
+      :where(p):not(:where(.not-prose, .not-prose *)) {
+        margin-top: 2.5rem;
+        margin-bottom: 2.5rem;
+        text-indent: 3em;
+      }
+    }
+  }
+}
+
+@utility small {
+  @apply text-sm leading-6 [&_code]:text-xs [&_img,video,figure,details,blockquote,.katex-display,.expressive-code]:my-4! [&_li,ol]:mt-0 [&_p]:my-2! [&_ul]:my-0;
+}
+
+/* Typography Utility Classes */
+@layer utilities {
+  /* Text Alignment Options */
+  .text-align-left {
+    text-align: left;
+  }
+
+  .text-align-center {
+    text-align: center;
+  }
+
+  .text-align-right {
+    text-align: right;
+  }
+
+  .text-align-justify {
+    text-align: justify;
+    hyphens: auto;
+  }
+
+  .text-align-start {
+    text-align: start;
+  }
+
+  .text-align-end {
+    text-align: end;
+  }
+
+  /* Line Height Variations */
+  .leading-compact {
+    line-height: 1.4;
+  }
+
+  .leading-comfortable {
+    line-height: 1.6;
+  }
+
+  .leading-relaxed {
+    line-height: 1.75;
+  }
+
+  .leading-loose {
+    line-height: 2;
+  }
+
+  .leading-extra-loose {
+    line-height: 2.2;
+  }
+
+  .leading-reading {
+    line-height: 1.8;
+
+    @media (min-width: 640px) {
+      line-height: 1.9;
+    }
+
+    @media (min-width: 1024px) {
+      line-height: 2;
+    }
+
+    @media (min-width: 1280px) {
+      line-height: 2.1;
+    }
+  }
+
+  /* Spacing Options */
+  .spacing-tight {
+    letter-spacing: -0.025em;
+    word-spacing: -0.05em;
+  }
+
+  .spacing-normal {
+    letter-spacing: 0;
+    word-spacing: 0;
+  }
+
+  .spacing-wide {
+    letter-spacing: 0.025em;
+    word-spacing: 0.05em;
+  }
+
+  .spacing-reading {
+    letter-spacing: 0.01em;
+    word-spacing: 0.05em;
+
+    @media (min-width: 1024px) {
+      word-spacing: 0.08em;
+    }
+  }
+
+  /* Paragraph Spacing Utilities */
+  .paragraph-spacing-compact > p {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .paragraph-spacing-normal > p {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .paragraph-spacing-comfortable > p {
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .paragraph-spacing-loose > p {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .paragraph-spacing-reading > p {
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+
+    @media (min-width: 640px) {
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      margin-top: 1.75rem;
+      margin-bottom: 1.75rem;
+    }
+
+    @media (min-width: 1280px) {
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+  }
+
+  /* Text Indentation Options */
+  .text-indent-none > p {
+    text-indent: 0;
+  }
+
+  .text-indent-small > p {
+    text-indent: 1em;
+  }
+
+  .text-indent-medium > p {
+    text-indent: 1.5em;
+  }
+
+  .text-indent-large > p {
+    text-indent: 2em;
+  }
+
+  .text-indent-reading > p {
+    text-indent: 1.5em;
+
+    @media (min-width: 640px) {
+      text-indent: 2em;
+    }
+
+    @media (min-width: 1024px) {
+      text-indent: 2.5em;
+    }
+
+    @media (min-width: 1280px) {
+      text-indent: 3em;
+    }
+  }
+
+  /* Responsive Typography Helpers */
+  .text-responsive-sm {
+    font-size: 0.875rem; /* 14px */
+
+    @media (min-width: 640px) {
+      font-size: 0.9375rem; /* 15px */
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 1rem; /* 16px */
+    }
+  }
+
+  .text-responsive-base {
+    font-size: 1rem; /* 16px */
+
+    @media (min-width: 640px) {
+      font-size: 1.0625rem; /* 17px */
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 1.125rem; /* 18px */
+    }
+
+    @media (min-width: 1280px) {
+      font-size: 1.1875rem; /* 19px */
+    }
+  }
+
+  .text-responsive-lg {
+    font-size: 1.125rem; /* 18px */
+
+    @media (min-width: 640px) {
+      font-size: 1.25rem; /* 20px */
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 1.375rem; /* 22px */
+    }
+
+    @media (min-width: 1280px) {
+      font-size: 1.5rem; /* 24px */
+    }
+  }
+
+  .text-responsive-xl {
+    font-size: 1.25rem; /* 20px */
+
+    @media (min-width: 640px) {
+      font-size: 1.5rem; /* 24px */
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 1.75rem; /* 28px */
+    }
+
+    @media (min-width: 1280px) {
+      font-size: 2rem; /* 32px */
+    }
+  }
+
+  /* Reading Mode Combinations */
+  .typography-reading {
+    text-align: justify;
+    hyphens: auto;
+    letter-spacing: 0.01em;
+    word-spacing: 0.05em;
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  .typography-standard {
+    text-align: left;
+    line-height: 1.75;
+    letter-spacing: 0;
+    word-spacing: 0;
+    font-size: 1rem;
+  }
+
+  .typography-compact {
+    text-align: left;
+    line-height: 1.6;
+    letter-spacing: -0.025em;
+    word-spacing: -0.05em;
+    font-size: 0.875rem;
+  }
+
+  .typography-reading > p {
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    text-indent: 1.5em;
+  }
+
+  .typography-standard > p {
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    text-indent: 0;
+  }
+
+  .typography-compact > p {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+    text-indent: 0;
+  }
+
+  .typography-reading > p:first-of-type {
+    text-indent: 0;
+  }
+
+  /* First paragraph should not be indented for text-indent-reading */
+  .text-indent-reading > p:first-of-type {
+    text-indent: 0;
+  }
+
+  @media (min-width: 640px) {
+    .typography-reading {
+      font-size: 1.0625rem;
+      line-height: 1.9;
+    }
+
+    .typography-standard {
+      font-size: 1.0625rem;
+    }
+
+    .typography-compact {
+      font-size: 0.9375rem;
+    }
+
+    .typography-reading > p {
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+      text-indent: 2em;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .typography-reading {
+      font-size: 1.125rem;
+      line-height: 2;
+      word-spacing: 0.08em;
+    }
+
+    .typography-standard {
+      font-size: 1.125rem;
+    }
+
+    .typography-compact {
+      font-size: 1rem;
+    }
+
+    .typography-reading > p {
+      margin-top: 1.75rem;
+      margin-bottom: 1.75rem;
+      text-indent: 2.5em;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .typography-reading {
+      font-size: 1.1875rem;
+      line-height: 2.1;
+    }
+
+    .typography-standard {
+      font-size: 1.1875rem;
+    }
+
+    .typography-reading > p {
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+      text-indent: 3em;
+    }
+  }
+
+  /* Mobile-Optimized Reading Experience */
+  @media (max-width: 767px) {
+    .mobile-text-align-left {
+      text-align: left;
+    }
+
+    .mobile-text-align-center {
+      text-align: center;
+    }
+
+    .mobile-leading-compact {
+      line-height: 1.4;
+    }
+
+    .mobile-leading-comfortable {
+      line-height: 1.6;
+    }
+
+    .mobile-spacing-normal {
+      letter-spacing: 0;
+      word-spacing: 0;
+    }
+
+    .mobile-paragraph-spacing-normal > p {
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-text-indent-none > p {
+      text-indent: 0;
+    }
+
+    /* Mobile reading optimizations */
+    .mobile-reading-optimized {
+      font-size: 1rem; /* 16px - minimum for mobile readability */
+      line-height: 1.6; /* Tighter line height for mobile screens */
+      text-align: left; /* Left-aligned text is easier to read on mobile */ /* Disable hyphenation on mobile */
+      hyphens: none;
+      word-spacing: 0;
+      letter-spacing: 0;
+    }
+
+    .mobile-reading-optimized p {
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      text-indent: 0; /* No indentation on mobile */
+    }
+
+    /* Touch-friendly elements */
+    .mobile-touch-target {
+      min-height: 44px; /* iOS recommended minimum touch target */
+      min-width: 44px;
+      padding: 0.75rem;
+      margin: 0.25rem;
+    }
+
+    /* Mobile navigation optimizations */
+    .mobile-nav-button {
+      min-height: 48px;
+      min-width: 48px;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    /* Mobile typography scaling */
+    .prose {
+      font-size: 1rem !important; /* Override responsive scaling on mobile */
+      line-height: 1.6 !important;
+      text-align: left !important; /* Override justified text on mobile */
+      hyphens: none !important;
+    }
+
+    .prose p {
+      margin-top: 1rem !important;
+      margin-bottom: 1rem !important;
+      text-indent: 0 !important; /* No indentation on mobile */
+    }
+
+    .reading-content {
+      font-size: 1rem !important;
+      line-height: 1.6 !important;
+      text-align: left !important;
+      hyphens: none !important;
+      word-spacing: 0 !important;
+      letter-spacing: 0 !important;
+    }
+
+    .reading-content p {
+      margin-top: 1rem !important;
+      margin-bottom: 1rem !important;
+      text-indent: 0 !important;
+    }
+
+    /* Mobile heading optimizations */
+    .prose h1,
+    .prose h2,
+    .prose h3,
+    .prose h4,
+    .prose h5,
+    .prose h6 {
+      margin-top: 1.5rem !important;
+      margin-bottom: 1rem !important;
+      line-height: 1.3 !important;
+    }
+
+    .prose h1 {
+      font-size: 1.875rem !important; /* 30px */
+    }
+
+    .prose h2 {
+      font-size: 1.5rem !important; /* 24px */
+    }
+
+    .prose h3 {
+      font-size: 1.25rem !important; /* 20px */
+    }
+
+    .prose h4 {
+      font-size: 1.125rem !important; /* 18px */
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .tablet-text-align-justify {
+      text-align: justify;
+      hyphens: auto;
+    }
+
+    .tablet-leading-relaxed {
+      line-height: 1.75;
+    }
+
+    .tablet-spacing-reading {
+      letter-spacing: 0.01em;
+      word-spacing: 0.05em;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .desktop-text-align-justify {
+      text-align: justify;
+      hyphens: auto;
+    }
+
+    .desktop-leading-loose {
+      line-height: 2;
+    }
+
+    .desktop-spacing-wide {
+      letter-spacing: 0.025em;
+      word-spacing: 0.08em;
+    }
+  }
+}

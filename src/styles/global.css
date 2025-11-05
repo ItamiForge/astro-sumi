@@ -1,0 +1,862 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme inline {
+  --font-sans:
+    Geist, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-mono:
+    Geist Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/GeistVF.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/GeistMonoVF.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+
+  /* Responsive breakpoints */
+  --breakpoint-mobile: 768px;
+  --breakpoint-tablet: 1024px;
+  --breakpoint-desktop: 1400px;
+
+  /* Container max-widths */
+  --container-reading: 75ch;
+  --container-wide: 1200px;
+  --container-fluid: 1400px;
+
+  /* Spacing values */
+  --spacing-container: 1rem;
+  --spacing-container-mobile: 16px;
+}
+
+[data-theme='dark'] {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --ring: oklch(0.556 0 0);
+
+  /* Inherit responsive and spacing variables from :root */
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    @apply border-border outline-ring/50 tracking-tight;
+  }
+}
+
+/* Responsive Container System */
+@layer components {
+  /* Base container for all content types */
+  .container-responsive {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-container);
+    padding-right: var(--spacing-container);
+  }
+
+  /* Reading-optimized container for novel content */
+  .container-reading {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-container);
+    padding-right: var(--spacing-container);
+    max-width: var(--container-reading);
+  }
+
+  /* Wide container for novel metadata and navigation */
+  .container-wide {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-container);
+    padding-right: var(--spacing-container);
+    max-width: var(--container-wide);
+  }
+
+  /* Full-width container with minimal constraints */
+  .container-fluid {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-container);
+    padding-right: var(--spacing-container);
+    max-width: var(--container-fluid);
+  }
+
+  /* Responsive breakpoint behaviors */
+  @media (max-width: 767px) {
+    .container-responsive,
+    .container-reading,
+    .container-wide,
+    .container-fluid {
+      width: 90%;
+      min-width: calc(
+        100vw - 32px
+      ); /* Ensure minimum 16px padding on each side */
+
+      max-width: calc(100vw - 32px);
+      padding-left: var(--spacing-container-mobile);
+      padding-right: var(--spacing-container-mobile);
+    }
+
+    /* Ensure containers never exceed 90% width or go below minimum padding */
+    .container-responsive {
+      width: min(90vw, calc(100vw - 32px));
+    }
+
+    .container-reading {
+      width: min(90vw, calc(100vw - 32px));
+    }
+
+    .container-wide {
+      width: min(90vw, calc(100vw - 32px));
+    }
+
+    .container-fluid {
+      width: min(90vw, calc(100vw - 32px));
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .container-responsive,
+    .container-reading,
+    .container-wide,
+    .container-fluid {
+      width: 85%;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+
+    /* Tablet-specific optimizations */
+    .container-reading {
+      width: 80%; /* Slightly narrower for better reading on tablets */
+    }
+  }
+
+  @media (min-width: 1024px) and (max-width: 1399px) {
+    .container-responsive,
+    .container-reading,
+    .container-wide,
+    .container-fluid {
+      width: 75%;
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  @media (min-width: 1400px) {
+    .container-responsive,
+    .container-reading,
+    .container-wide,
+    .container-fluid {
+      width: 70%;
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  /* Mobile-specific layout utilities */
+  @media (max-width: 767px) {
+    /* Mobile-only container classes */
+    .mobile-container {
+      width: 90vw;
+      max-width: calc(100vw - 32px);
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .mobile-container-tight {
+      width: 95vw;
+      max-width: calc(100vw - 20px);
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .mobile-container-loose {
+      width: 85vw;
+      max-width: calc(100vw - 48px);
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    .mobile-full-width {
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
+      margin-right: calc(-50vw + 50%);
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .mobile-reading {
+      width: 90vw;
+      max-width: calc(100vw - 32px);
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .mobile-content-width {
+      width: 100%;
+      max-width: none;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  }
+
+  /* Tablet-specific layout utilities */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .tablet-optimized {
+      width: 85%;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+
+    .tablet-reading {
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  /* Responsive visibility utilities */
+  .mobile-only {
+    display: block;
+  }
+
+  .tablet-only {
+    display: none;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-hidden {
+    display: none;
+  }
+
+  .tablet-hidden {
+    display: block;
+  }
+
+  .desktop-hidden {
+    display: block;
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .mobile-only {
+      display: none;
+    }
+
+    .tablet-only {
+      display: block;
+    }
+
+    .desktop-only {
+      display: none;
+    }
+
+    .mobile-hidden {
+      display: block;
+    }
+
+    .tablet-hidden {
+      display: none;
+    }
+
+    .desktop-hidden {
+      display: block;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .mobile-only {
+      display: none;
+    }
+
+    .tablet-only {
+      display: none;
+    }
+
+    .desktop-only {
+      display: block;
+    }
+
+    .mobile-hidden {
+      display: block;
+    }
+
+    .tablet-hidden {
+      display: block;
+    }
+
+    .desktop-hidden {
+      display: none;
+    }
+  }
+
+  /* Mobile-optimized spacing utilities */
+  @media (max-width: 767px) {
+    .mobile-spacing-xs {
+      margin: 0.25rem;
+      padding: 0.25rem;
+    }
+
+    .mobile-spacing-sm {
+      margin: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    .mobile-spacing-md {
+      margin: 0.75rem;
+      padding: 0.75rem;
+    }
+
+    .mobile-spacing-lg {
+      margin: 1rem;
+      padding: 1rem;
+    }
+
+    .mobile-spacing-xl {
+      margin: 1.5rem;
+      padding: 1.5rem;
+    }
+
+    /* Mobile-specific margin utilities */
+    .mobile-mx-auto {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .mobile-my-0 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    .mobile-my-2 {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .mobile-my-4 {
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-my-6 {
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Mobile-specific padding utilities */
+    .mobile-px-2 {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+
+    .mobile-px-4 {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .mobile-px-6 {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+
+    .mobile-py-2 {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+
+    .mobile-py-4 {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    .mobile-py-6 {
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
+
+    /* Mobile gap utilities for flexbox/grid */
+    .mobile-gap-2 {
+      gap: 0.5rem;
+    }
+
+    .mobile-gap-4 {
+      gap: 1rem;
+    }
+
+    .mobile-gap-6 {
+      gap: 1.5rem;
+    }
+
+    /* Mobile text spacing */
+    .mobile-text-tight {
+      line-height: 1.25;
+      letter-spacing: -0.025em;
+    }
+
+    .mobile-text-normal {
+      line-height: 1.5;
+      letter-spacing: 0;
+    }
+
+    .mobile-text-loose {
+      line-height: 1.75;
+      letter-spacing: 0.025em;
+    }
+  }
+
+  /* Mobile touch target and navigation optimizations */
+  @media (max-width: 767px) {
+    /* Enhanced button touch targets for mobile */
+    [data-slot='button'] {
+      min-height: 44px; /* iOS recommended minimum */
+      min-width: 44px;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+    }
+
+    /* Chapter navigation mobile optimizations */
+    .chapter-navigation {
+      gap: 0.75rem;
+      padding: 1rem 0;
+    }
+
+    .chapter-navigation [data-slot='button'] {
+      min-height: 56px; /* Larger touch targets for navigation */
+      padding: 1rem;
+      font-size: 0.875rem;
+    }
+
+    /* Mobile navigation grid adjustments */
+    .mobile-nav-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .mobile-nav-grid.three-column {
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .mobile-nav-grid.three-column [data-slot='button'] {
+      min-height: 48px;
+      padding: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    /* Mobile icon sizing */
+    .mobile-nav-grid [data-slot='button'] svg {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    /* Mobile text adjustments */
+    .mobile-nav-grid .text-xs {
+      font-size: 0.625rem;
+    }
+
+    .mobile-nav-grid .text-sm {
+      font-size: 0.75rem;
+      line-height: 1.2;
+    }
+
+    /* Ensure touch targets don't overlap */
+    .mobile-touch-spacing > * + * {
+      margin-top: 0.5rem;
+    }
+
+    /* Mobile-specific hover states (remove hover effects) */
+    .mobile-no-hover:hover {
+      background-color: inherit;
+      transform: none;
+    }
+
+    /* Mobile focus states for accessibility */
+    .mobile-focus-visible:focus-visible {
+      outline: 2px solid hsl(var(--ring));
+      outline-offset: 2px;
+      border-radius: 0.375rem;
+    }
+
+    /* Mobile layout flex utilities */
+    .mobile-flex-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mobile-flex-row {
+      display: flex;
+      flex-direction: row;
+    }
+
+    .mobile-flex-wrap {
+      flex-wrap: wrap;
+    }
+
+    .mobile-flex-nowrap {
+      flex-wrap: nowrap;
+    }
+
+    .mobile-justify-center {
+      justify-content: center;
+    }
+
+    .mobile-justify-between {
+      justify-content: space-between;
+    }
+
+    .mobile-items-center {
+      align-items: center;
+    }
+
+    .mobile-items-start {
+      align-items: flex-start;
+    }
+
+    /* Mobile width utilities */
+    .mobile-w-full {
+      width: 100%;
+    }
+
+    .mobile-w-auto {
+      width: auto;
+    }
+
+    .mobile-w-fit {
+      width: fit-content;
+    }
+
+    /* Mobile height utilities */
+    .mobile-h-auto {
+      height: auto;
+    }
+
+    .mobile-min-h-screen {
+      min-height: 100vh;
+    }
+
+    .mobile-min-h-touch {
+      min-height: 44px; /* iOS minimum touch target */
+    }
+  }
+}
+
+/* Typography Utilities */
+@utility small {
+  @apply text-sm leading-6 [&_code]:text-xs [&_img,video,figure,details,blockquote,.katex-display,.expressive-code]:my-4! [&_li,ol]:mt-0 [&_p]:my-2! [&_ul]:my-0;
+}
+
+/* Typography Styles - moved from typography.css to avoid Tailwind v4 conflicts */
+@layer components {
+  .prose {
+    color: hsl(var(--foreground));
+    font-size: 1rem;
+    line-height: 1.75;
+
+    /* Reading optimizations */
+    text-align: justify;
+    hyphens: auto;
+
+    /* Responsive font sizing */
+    @media (min-width: 640px) {
+      font-size: 1.0625rem; /* 17px */
+      line-height: 1.8;
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 1.125rem; /* 18px */
+      line-height: 1.85;
+    }
+
+    @media (min-width: 1280px) {
+      font-size: 1.1875rem; /* 19px */
+      line-height: 1.9;
+    }
+
+    :where(p):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground/80;
+
+      margin-top: 1.25rem;
+      margin-bottom: 1.25rem;
+      text-align: justify;
+      hyphens: auto;
+
+      /* Enhanced paragraph spacing for reading */
+      @media (min-width: 640px) {
+        margin-top: 1.375rem;
+        margin-bottom: 1.375rem;
+      }
+
+      @media (min-width: 1024px) {
+        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+    }
+
+    :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
+      color: hsl(var(--foreground));
+      font-weight: 500;
+      scroll-margin-top: 8rem;
+    }
+
+    @media (min-width: 1280px) {
+      :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
+        scroll-margin-top: 5rem;
+      }
+    }
+
+    :first-child:not(:where(.not-prose, .not-prose *)) {
+      @apply mt-0;
+    }
+
+    /* Don't use an <h1> in your posts, one is already generated in novels/[...id].astro */
+    :where(h1):not(:where(.not-prose, .not-prose *)) {
+      @apply mt-8 mb-6 text-4xl;
+    }
+
+    :where(h2):not(:where(.not-prose, .not-prose *)) {
+      @apply mt-8 mb-4 text-2xl;
+    }
+
+    :where(h3):not(:where(.not-prose, .not-prose *)) {
+      @apply mt-8 mb-4 text-xl;
+    }
+
+    :where(h4):not(:where(.not-prose, .not-prose *)) {
+      @apply mt-7 mb-3 text-lg;
+    }
+
+    :where(h5, h6):not(:where(.not-prose, .not-prose *)) {
+      @apply mt-5 mb-3;
+    }
+
+    :where(a):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground decoration-muted-foreground hover:decoration-foreground font-medium break-words underline underline-offset-[3px] transition-colors;
+    }
+
+    :where(strong):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground font-medium;
+    }
+
+    :where(ul):not(:where(.not-prose, .not-prose *)) {
+      @apply marker:text-foreground/30 my-5 ml-6 list-disc [&>li]:mt-2;
+    }
+
+    :where(ol):not(:where(.not-prose, .not-prose *)) {
+      @apply marker:text-foreground/30 my-5 ml-6 list-decimal [&>li]:mt-2;
+      @apply [&[type='A']]:list-[upper-alpha] [&[type='I']]:list-[upper-roman] [&[type='a']]:list-[lower-alpha] [&[type='i']]:list-[lower-roman];
+    }
+
+    :where(li):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground/80 pl-2 [&>p]:my-0;
+    }
+
+    :where(ul ul, ol ol, ul ol, ol ul):not(:where(.not-prose, .not-prose *)) {
+      @apply marker:text-foreground/30 my-2 ml-6;
+    }
+
+    :where(code):not(:where(.not-prose, .not-prose *)) {
+      @apply bg-muted/50 text-foreground relative rounded-sm px-[0.3rem] py-[0.2rem] text-sm font-medium break-words;
+      @apply [&>span[data-line='']>*]:text-(--shiki-light) dark:[&>span[data-line='']>*]:text-(--shiki-dark);
+    }
+
+    :where(blockquote):not(:where(.not-prose, .not-prose *)) {
+      @apply [&_*]:text-muted-foreground small my-6 border-l-2 pl-6;
+    }
+
+    :where(hr):not(:where(.not-prose, .not-prose *)) {
+      @apply my-8 border-t;
+    }
+
+    :where(table):not(:where(.not-prose, .not-prose *)) {
+      @apply mx-auto my-6 block max-w-fit overflow-x-auto text-sm;
+    }
+
+    :where(thead):not(:where(.not-prose, .not-prose *)) {
+      @apply border-muted-foreground/30 border-b;
+    }
+
+    :where(th):not(:where(.not-prose, .not-prose *)) {
+      @apply px-4 py-2 font-medium;
+      @apply text-left [&[align=center]]:text-center [&[align=right]]:text-right;
+    }
+
+    :where(tr):not(:where(.not-prose, .not-prose *)) {
+      @apply border-muted-foreground/30 border-y first:border-t-0 last:border-b-0;
+    }
+
+    :where(td):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground/80 small px-4 py-2 align-top break-words [&>*]:first:mt-0! [&>*]:last:mb-0!;
+      @apply text-left [&[align=center]]:text-center [&[align=right]]:text-right;
+    }
+
+    :where(img, video, figure, .expressive-code):not(
+      :where(.not-prose, .not-prose *)
+    ) {
+      @apply mx-auto my-6;
+    }
+
+    :where(pre):not(:where(.not-prose, .not-prose *)) {
+      @apply max-h-[min(68vh,1000px)]! overflow-y-auto [&::-webkit-scrollbar-corner]:hidden;
+    }
+
+    :where(summary):not(:where(.not-prose, .not-prose *)) {
+      @apply [&~*]:small [&~*>*]:first:mt-0! [&~*>*]:last:mb-0!;
+    }
+
+    :where(kbd):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground bg-muted rounded-md border px-2 py-1 text-xs font-medium;
+    }
+
+    :where(.katex-display):not(:where(.not-prose, .not-prose *)) {
+      @apply text-foreground/80 my-6 overflow-x-auto overflow-y-hidden py-2 tracking-normal;
+    }
+  }
+
+  /* Reading-specific typography for chapter pages */
+  .reading-content {
+    /* Enhanced reading experience */
+    line-height: 2;
+    text-align: justify;
+    hyphens: auto;
+    word-spacing: 0.05em;
+    letter-spacing: 0.01em;
+
+    /* Optimal paragraph spacing for long-form content */
+    :where(p):not(:where(.not-prose, .not-prose *)) {
+      margin-top: 1.75rem;
+      margin-bottom: 1.75rem;
+      text-indent: 1.5em;
+
+      /* First paragraph should not be indented */
+      &:first-of-type {
+        text-indent: 0;
+      }
+
+      /* Paragraphs after headings should not be indented */
+      :where(h1, h2, h3, h4, h5, h6) + & {
+        text-indent: 0;
+      }
+    }
+
+    /* Enhanced vertical rhythm */
+    :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
+      margin-top: 2.5rem;
+      margin-bottom: 1.25rem;
+      line-height: 1.3;
+    }
+
+    /* Chapter breaks and scene separators */
+    :where(hr):not(:where(.not-prose, .not-prose *)) {
+      margin-top: 3rem;
+      margin-bottom: 3rem;
+      border: none;
+      text-align: center;
+
+      &::before {
+        content: '* * *';
+        color: hsl(var(--muted-foreground));
+        font-size: 1.2em;
+        letter-spacing: 0.5em;
+      }
+    }
+
+    /* Responsive adjustments for reading content */
+    @media (min-width: 640px) {
+      line-height: 2.1;
+
+      :where(p):not(:where(.not-prose, .not-prose *)) {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        text-indent: 2em;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      line-height: 2.2;
+      word-spacing: 0.08em;
+
+      :where(p):not(:where(.not-prose, .not-prose *)) {
+        margin-top: 2.25rem;
+        margin-bottom: 2.25rem;
+        text-indent: 2.5em;
+      }
+    }
+
+    @media (min-width: 1280px) {
+      line-height: 2.3;
+
+      :where(p):not(:where(.not-prose, .not-prose *)) {
+        margin-top: 2.5rem;
+        margin-bottom: 2.5rem;
+        text-indent: 3em;
+      }
+    }
+  }
+}

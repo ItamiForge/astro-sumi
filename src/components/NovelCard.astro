@@ -1,0 +1,98 @@
+---
+import { Icon } from '@/components/Icon'
+import AvatarComponent from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { parseAuthors } from '@/lib/data-utils'
+import { formatDate } from '@/lib/utils'
+import { Image } from 'astro:assets'
+import type { CollectionEntry } from 'astro:content'
+import Link from './Link.astro'
+
+interface Props {
+  entry: CollectionEntry<'novels'>
+}
+
+const { entry } = Astro.props
+const formattedDate = formatDate(entry.data.startDate)
+const authors = await parseAuthors([entry.data.author])
+---
+
+<div
+  class="hover:bg-muted/50 rounded-xl border p-4 transition-colors duration-300 ease-in-out"
+>
+  <Link href={`/novels/${entry.id}`} class="flex flex-col gap-4 sm:flex-row">
+    {
+      entry.data.coverImage && (
+        <div class="w-full sm:max-w-3xs sm:shrink-0">
+          <Image
+            src={entry.data.coverImage}
+            alt={entry.data.title}
+            width={1200}
+            height={630}
+            class="rounded-lg object-cover"
+          />
+        </div>
+      )
+    }
+
+    <div class="grow">
+      <h3 class="mb-1 text-lg font-medium">{entry.data.title}</h3>
+      <p class="text-muted-foreground mb-2 text-sm">{entry.data.description}</p>
+
+      <div
+        class="text-muted-foreground mb-2 flex flex-wrap items-center gap-x-2 text-xs"
+      >
+        {
+          authors.length > 0 && (
+            <>
+              {authors.map((author) => (
+                <div class="flex items-center gap-x-1.5">
+                  <AvatarComponent
+                    client:load
+                    src={author.avatar}
+                    alt={author.name}
+                    fallback={author.name[0]}
+                    className="size-5 rounded-full"
+                  />
+                  <span>{author.name}</span>
+                </div>
+              ))}
+              <Separator orientation="vertical" className="h-4!" />
+            </>
+          )
+        }
+        <span>{formattedDate}</span>
+        <Separator orientation="vertical" className="h-4!" />
+        <span class="flex items-center gap-1">
+          <Icon name="book-open" className="size-3" />
+          {entry.data.status}
+        </span>
+        {
+          entry.data.wordCount && (
+            <>
+              <Separator orientation="vertical" className="h-4!" />
+              <span class="flex items-center gap-1">
+                <Icon name="file-text" className="size-3" />
+                {entry.data.wordCount.toLocaleString()} words
+              </span>
+            </>
+          )
+        }
+      </div>
+
+      {
+        entry.data.genre && entry.data.genre.length > 0 && (
+          <div class="flex flex-wrap gap-2">
+            {entry.data.genre.map((genre) => (
+              <Badge variant="muted" className="flex items-center gap-x-1">
+                <Icon name="tag" className="size-3" />
+                {genre}
+              </Badge>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </Link>
+</div>

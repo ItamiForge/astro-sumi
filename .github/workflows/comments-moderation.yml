@@ -1,0 +1,302 @@
+name: Comments Moderation
+
+on:
+  discussion_comment:
+    types: [created, edited]
+  discussion:
+    types: [created, edited]
+
+jobs:
+  moderate:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      discussions: write
+      issues: write
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Check for spam keywords
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment || context.payload.discussion
+            const body = comment.body.toLowerCase()
+            const author = comment.user.login
+            
+            console.log(`Checking comment from ${author}`)
+            
+            // Spam keyword detection
+            const spamKeywords = [
+              'viagra', 'cialis', 'casino', 'lottery', 'prize',
+              'click here', 'buy now', 'limited time', 'act now',
+              'make money', 'work from home', 'free money',
+              'weight loss', 'diet pills', 'crypto investment'
+            ]
+            
+            const foundSpam = spamKeywords.filter(keyword => body.includes(keyword))
+            
+            if (foundSpam.length > 0) {
+              console.log(`⚠️  Potential spam detected: ${foundSpam.join(', ')}`)
+              
+              // Lock the discussion
+              try {
+                await github.rest.discussions.lock({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  discussion_number: context.payload.discussion.number,
+                  lock_reason: 'spam'
+                })
+                console.log('🔒 Discussion locked')
+              } catch (error) {
+                console.log('Failed to lock discussion:', error.message)
+              }
+              
+              // Create moderation issue
+              const issueBody = `
+              ## 🚨 Potential Spam Detected
+              
+              **Discussion:** #${context.payload.discussion.number}
+              **Author:** @${author}
+              **Keywords found:** ${foundSpam.join(', ')}
+              
+              **Comment preview:**
+              \`\`\`
+              ${body.substring(0, 200)}${body.length > 200 ? '...' : ''}
+              \`\`\`
+              
+              **Actions taken:**
+              - Discussion locked
+              - Moderators notified
+              
+              **Next steps:**
+              1. Review the discussion
+              2. Delete spam comment if confirmed
+              3. Consider blocking the user
+              4. Unlock discussion if false positive
+              
+              [View Discussion](${context.payload.discussion.html_url})
+              `
+              
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🚨 Spam detected in discussion #${context.payload.discussion.number}`,
+                body: issueBody,
+                labels: ['moderation', 'spam', 'automated']
+              })
+              
+              core.setFailed('Spam detected and moderation actions taken')
+            } else {
+              console.log('✅ No spam keywords detected')
+            }
+      
+      - name: Check comment length
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment
+            
+            if (!comment) {
+              console.log('No comment to check (discussion creation)')
+              return
+            }
+            
+            const maxLength = 5000
+            const warnLength = 3000
+            
+            if (comment.body.length > maxLength) {
+              console.log(`⚠️  Comment exceeds maximum length: ${comment.body.length} > ${maxLength}`)
+              
+              // Post a warning comment
+              await github.rest.discussions.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                discussion_number: context.payload.discussion.number,
+                body: `⚠️ @${comment.user.login} This comment is very long (${comment.body.length} characters). Please consider breaking it into smaller parts for better readability.`
+              })
+              
+            } else if (comment.body.length > warnLength) {
+              console.log(`ℹ️  Long comment detected: ${comment.body.length} characters`)
+            } else {
+              console.log(`✅ Comment length OK: ${comment.body.length} characters`)
+            }
+      
+      - name: Check for excessive links
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment || context.payload.discussion
+            const body = comment.body
+            
+            // Count links (http/https URLs)
+            const linkRegex = /https?:\/\/[^\s]+/gi
+            const links = body.match(linkRegex) || []
+            const maxLinks = 5
+            
+            console.log(`Found ${links.length} links in comment`)
+            
+            if (links.length > maxLinks) {
+              console.log(`⚠️  Excessive links detected: ${links.length} > ${maxLinks}`)
+              
+              // Check if links are to different domains (potential spam)
+              const domains = links.map(link => {
+                try {
+                  return new URL(link).hostname
+                } catch {
+                  return null
+                }
+              }).filter(Boolean)
+              
+              const uniqueDomains = [...new Set(domains)]
+              
+              if (uniqueDomains.length > 3) {
+                console.log(`🚨 Multiple domains detected: ${uniqueDomains.join(', ')}`)
+                
+                // Create moderation alert
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: `⚠️  Excessive links in discussion #${context.payload.discussion.number}`,
+                  body: `
+                  ## Link Spam Alert
+                  
+                  **Discussion:** #${context.payload.discussion.number}
+                  **Author:** @${comment.user.login}
+                  **Links found:** ${links.length}
+                  **Unique domains:** ${uniqueDomains.length}
+                  
+                  **Domains:**
+                  ${uniqueDomains.map(d => `- ${d}`).join('\n')}
+                  
+                  Please review this comment for potential spam.
+                  
+                  [View Discussion](${context.payload.discussion.html_url})
+                  `,
+                  labels: ['moderation', 'review-needed', 'automated']
+                })
+              }
+            } else {
+              console.log('✅ Link count within acceptable range')
+            }
+      
+      - name: Check for new user activity
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment || context.payload.discussion
+            const author = comment.user.login
+            
+            // Get user information
+            const user = await github.rest.users.getByUsername({
+              username: author
+            })
+            
+            const accountAge = Date.now() - new Date(user.data.created_at).getTime()
+            const daysOld = Math.floor(accountAge / (1000 * 60 * 60 * 24))
+            
+            console.log(`User ${author} account is ${daysOld} days old`)
+            
+            // Flag very new accounts (less than 7 days)
+            if (daysOld < 7) {
+              console.log(`⚠️  New user account detected (${daysOld} days old)`)
+              
+              // Add a label to the discussion for moderator attention
+              try {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.discussion.number,
+                  labels: ['new-user']
+                })
+                console.log('Added "new-user" label')
+              } catch (error) {
+                console.log('Could not add label:', error.message)
+              }
+            } else {
+              console.log('✅ Established user account')
+            }
+      
+      - name: Rate limit check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment
+            
+            if (!comment) {
+              console.log('No comment to check (discussion creation)')
+              return
+            }
+            
+            const author = comment.user.login
+            
+            // Get recent comments from this user
+            const discussions = await github.rest.discussions.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            })
+            
+            // Count comments in last hour
+            const oneHourAgo = Date.now() - (60 * 60 * 1000)
+            let recentComments = 0
+            
+            for (const discussion of discussions.data) {
+              const comments = await github.rest.discussions.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                discussion_number: discussion.number
+              })
+              
+              recentComments += comments.data.filter(c => 
+                c.user.login === author && 
+                new Date(c.created_at).getTime() > oneHourAgo
+              ).length
+            }
+            
+            console.log(`User ${author} has posted ${recentComments} comments in the last hour`)
+            
+            const rateLimit = 10
+            if (recentComments > rateLimit) {
+              console.log(`⚠️  Rate limit exceeded: ${recentComments} > ${rateLimit}`)
+              
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `⚠️  Rate limit exceeded by @${author}`,
+                body: `
+                ## Rate Limit Alert
+                
+                User @${author} has posted ${recentComments} comments in the last hour.
+                
+                This may indicate:
+                - Spam activity
+                - Bot behavior
+                - Overly enthusiastic participation
+                
+                Please review their recent activity.
+                `,
+                labels: ['moderation', 'rate-limit', 'automated']
+              })
+            } else {
+              console.log('✅ Rate limit OK')
+            }
+        continue-on-error: true
+      
+      - name: Generate moderation summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment || context.payload.discussion
+            
+            console.log('='.repeat(50))
+            console.log('MODERATION SUMMARY')
+            console.log('='.repeat(50))
+            console.log(`Discussion: #${context.payload.discussion.number}`)
+            console.log(`Author: ${comment.user.login}`)
+            console.log(`Action: ${context.payload.action}`)
+            console.log(`Timestamp: ${new Date().toISOString()}`)
+            console.log('='.repeat(50))

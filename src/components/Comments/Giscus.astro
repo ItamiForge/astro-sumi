@@ -1,0 +1,224 @@
+---
+/**
+ * Enhanced Giscus Comments Component
+ * Loads GitHub Discussions-powered comments with environment variable support
+ * and per-novel configuration overrides while preserving existing functionality
+ */
+
+import { getGiscusConfig } from '../../lib/env'
+import type {
+  ChapterCommentConfig,
+  GiscusConfig,
+  NovelCommentConfig,
+} from './types'
+
+export interface Props {
+  class?: string
+  /** Per-novel comment configuration overrides */
+  novelConfig?: NovelCommentConfig
+  /** Per-chapter comment configuration overrides */
+  chapterConfig?: ChapterCommentConfig
+  /** Custom theme override */
+  theme?: string
+  /** Custom category override */
+  category?: string
+  /** Custom mapping override */
+  mapping?: GiscusConfig['mapping']
+  /** Enable theme synchronization with site theme */
+  syncTheme?: boolean
+  /** Light theme name for theme sync */
+  lightTheme?: string
+  /** Dark theme name for theme sync */
+  darkTheme?: string
+}
+
+const {
+  class: className = '',
+  novelConfig,
+  chapterConfig,
+  theme: customTheme,
+  category: customCategory,
+  mapping: customMapping,
+  syncTheme = true,
+  lightTheme = 'fro',
+  darkTheme = 'dark',
+} = Astro.props
+
+// Get base configuration with environment overrides and hardcoded fallbacks
+const baseConfig = getGiscusConfig(import.meta.env)
+
+// Apply per-novel overrides if provided
+const config = { ...baseConfig }
+
+// Check if comments are disabled at novel or chapter level
+const commentsEnabled =
+  novelConfig?.enabled !== false &&
+  chapterConfig?.enabled !== false &&
+  baseConfig.enabled
+
+if (novelConfig) {
+  if (novelConfig.customCategory) {
+    // Note: In a real implementation, you'd need to map category names to category IDs
+    // For now, we'll use the category name as-is
+    config.category = novelConfig.customCategory
+  }
+  if (novelConfig.customTheme) {
+    config.theme = novelConfig.customTheme
+  }
+  if (novelConfig.customMapping) {
+    config.mapping = novelConfig.customMapping
+  }
+}
+
+if (chapterConfig) {
+  if (chapterConfig.customCategory) {
+    config.category = chapterConfig.customCategory
+  }
+  if (chapterConfig.customTheme) {
+    config.theme = chapterConfig.customTheme
+  }
+}
+
+// Apply direct prop overrides (highest priority)
+if (customTheme) {
+  config.theme = customTheme
+}
+if (customCategory) {
+  config.category = customCategory
+}
+if (customMapping) {
+  config.mapping = customMapping
+}
+
+// Determine the theme to use
+let finalTheme = config.theme
+if (
+  syncTheme &&
+  !customTheme &&
+  !novelConfig?.customTheme &&
+  !chapterConfig?.customTheme
+) {
+  // Use theme synchronization - will be handled by client-side script
+  finalTheme = 'auto' // Giscus auto theme as fallback
+}
+---
+
+{
+  commentsEnabled ? (
+    <div
+      class={`giscus-wrapper ${className}`}
+      data-sync-theme={syncTheme}
+      data-light-theme={lightTheme}
+      data-dark-theme={darkTheme}
+    >
+      <script
+        is:inline
+        src="https://giscus.app/client.js"
+        data-repo={config.repo}
+        data-repo-id={config.repoId}
+        data-category={config.category}
+        data-category-id={config.categoryId}
+        data-mapping={config.mapping}
+        data-strict={config.strict}
+        data-reactions-enabled={config.reactionsEnabled}
+        data-emit-metadata={config.emitMetadata}
+        data-input-position={config.inputPosition}
+        data-theme={finalTheme}
+        data-lang={config.lang}
+        data-loading={config.loading}
+        crossorigin="anonymous"
+        async
+      />
+    </div>
+  ) : (
+    <div class={`comments-disabled ${className}`}>
+      <p class="text-muted-foreground py-4 text-center text-sm">
+        Comments are disabled for this content.
+      </p>
+    </div>
+  )
+}
+
+<script>
+  function initGiscusThemeSync() {
+    const giscusWrappers = document.querySelectorAll(
+      '.giscus-wrapper[data-sync-theme="true"]',
+    )
+
+    giscusWrappers.forEach((wrapper) => {
+      const lightTheme = wrapper.getAttribute('data-light-theme') || 'fro'
+      const darkTheme = wrapper.getAttribute('data-dark-theme') || 'dark'
+
+      function updateGiscusTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme')
+        const giscusTheme = currentTheme === 'dark' ? darkTheme : lightTheme
+
+        const giscusFrame = wrapper.querySelector(
+          'iframe.giscus-frame',
+        ) as HTMLIFrameElement
+        if (giscusFrame) {
+          const message = {
+            type: 'set-theme',
+            theme: giscusTheme,
+          }
+          giscusFrame.contentWindow?.postMessage(
+            { giscus: message },
+            'https://giscus.app',
+          )
+        }
+      }
+
+      // Update theme when Giscus loads
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'childList') {
+            const giscusFrame = wrapper.querySelector('iframe.giscus-frame')
+            if (giscusFrame) {
+              // Wait a bit for Giscus to fully load
+              setTimeout(updateGiscusTheme, 1000)
+              observer.disconnect()
+            }
+          }
+        })
+      })
+
+      observer.observe(wrapper, { childList: true, subtree: true })
+
+      // Listen for theme changes
+      const themeObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (
+            mutation.type === 'attributes' &&
+            mutation.attributeName === 'data-theme'
+          ) {
+            updateGiscusTheme()
+          }
+        })
+      })
+
+      themeObserver.observe(document.documentElement, { attributes: true })
+    })
+  }
+
+  // Initialize on page load
+  initGiscusThemeSync()
+
+  // Re-initialize after page transitions
+  document.addEventListener('astro:after-swap', initGiscusThemeSync)
+</script>
+
+<style>
+  .giscus-wrapper {
+    width: 100%;
+    margin-top: 2rem;
+  }
+
+  .comments-disabled {
+    width: 100%;
+    margin-top: 2rem;
+    padding: 1rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    background-color: hsl(var(--muted));
+  }
+</style>

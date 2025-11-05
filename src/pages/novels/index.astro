@@ -1,0 +1,121 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import { Icon } from '@/components/Icon'
+import PageHead from '@/components/PageHead.astro'
+import { badgeVariants } from '@/components/ui/badge'
+import Layout from '@/layouts/Layout.astro'
+import { formatDate } from '@/lib/utils'
+import { Image } from 'astro:assets'
+import { getCollection } from 'astro:content'
+
+const allNovels = await getCollection('novels')
+const publishedNovels = allNovels
+  .filter((novel) => !novel.data.draft)
+  .sort((a, b) => b.data.startDate.valueOf() - a.data.startDate.valueOf())
+---
+
+<Layout containerType="wide">
+  <PageHead slot="head" title="Novels" />
+  <Breadcrumbs
+    items={[{ label: 'Novels', href: '/novels', icon: 'lucide:book-open' }]}
+  />
+
+  <div class="flex min-h-[calc(100vh-18rem)] flex-col gap-y-8">
+    <section
+      class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+    >
+      {
+        publishedNovels.map((novel) => (
+          <article class="group bg-card text-card-foreground relative overflow-hidden rounded-lg border shadow-sm transition-all hover:shadow-md">
+            <a href={`/novels/${novel.id}`} class="block">
+              {novel.data.coverImage ? (
+                <div class="aspect-[3/4] overflow-hidden">
+                  <Image
+                    src={novel.data.coverImage}
+                    alt={novel.data.title}
+                    width={300}
+                    height={400}
+                    class="h-full w-full object-cover transition-transform group-hover:scale-105"
+                  />
+                </div>
+              ) : (
+                <div class="bg-muted flex aspect-[3/4] items-center justify-center">
+                  <Icon
+                    name="book-open"
+                    className="text-muted-foreground size-12"
+                  />
+                </div>
+              )}
+
+              <div class="p-4">
+                <h2 class="group-hover:text-primary mb-2 line-clamp-2 text-lg font-semibold">
+                  {novel.data.title}
+                </h2>
+
+                <p class="text-muted-foreground mb-3 line-clamp-3 text-sm">
+                  {novel.data.description}
+                </p>
+
+                <div class="mb-3 flex flex-wrap gap-1">
+                  {novel.data.genre?.slice(0, 2).map((genre) => (
+                    <span class={badgeVariants({ variant: 'muted' })}>
+                      {genre}
+                    </span>
+                  ))}
+                  {novel.data.genre && novel.data.genre.length > 2 && (
+                    <span class={badgeVariants({ variant: 'outline' })}>
+                      +{novel.data.genre.length - 2}
+                    </span>
+                  )}
+                </div>
+
+                <div class="text-muted-foreground flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-1">
+                    <Icon name="calendar" className="size-3" />
+                    {formatDate(novel.data.startDate)}
+                  </div>
+
+                  <div class="flex items-center gap-1">
+                    <Icon
+                      name={
+                        novel.data.status === 'completed'
+                          ? 'lucide:check-circle'
+                          : novel.data.status === 'ongoing'
+                            ? 'lucide:play-circle'
+                            : novel.data.status === 'hiatus'
+                              ? 'lucide:pause-circle'
+                              : 'lucide:edit'
+                      }
+                      className="size-3"
+                    />
+                    <span class="capitalize">{novel.data.status}</span>
+                  </div>
+                </div>
+
+                {novel.data.wordCount && (
+                  <div class="text-muted-foreground mt-2 text-xs">
+                    <Icon name="file-text" className="mr-1 inline size-3" />
+                    {novel.data.wordCount.toLocaleString()} words
+                  </div>
+                )}
+              </div>
+            </a>
+          </article>
+        ))
+      }
+    </section>
+
+    {
+      publishedNovels.length === 0 && (
+        <div class="py-12 text-center">
+          <Icon
+            name="book-open"
+            className="text-muted-foreground mx-auto mb-4 size-16"
+          />
+          <h2 class="mb-2 text-xl font-semibold">No novels found</h2>
+          <p class="text-muted-foreground">Check back later for new stories!</p>
+        </div>
+      )
+    }
+  </div>
+</Layout>

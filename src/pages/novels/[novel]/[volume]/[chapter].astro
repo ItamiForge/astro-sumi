@@ -1,0 +1,578 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Giscus from '@/components/Comments/Giscus.astro'
+import { Icon } from '@/components/Icon'
+import PageHead from '@/components/PageHead.astro'
+import { Button } from '@/components/ui/button'
+import Layout from '@/layouts/Layout.astro'
+import { formatDate } from '@/lib/utils'
+import { getCollection, render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const novels = await getCollection('novels')
+  const chapters = await getCollection('chapters')
+
+  const paths = []
+
+  for (const novel of novels.filter((n) => !n.data.draft)) {
+    const novelChapters = chapters
+      .filter((c) => c.data.novel === novel.id && !c.data.draft)
+      .sort((a, b) => {
+        if (a.data.volume !== b.data.volume) {
+          return a.data.volume - b.data.volume
+        }
+        return a.data.chapter - b.data.chapter
+      })
+
+    for (const chapter of novelChapters) {
+      const volumeSlug = `volume-${chapter.data.volume}${chapter.data.volumeTitle ? `-${chapter.data.volumeTitle.toLowerCase().replace(/\s+/g, '-')}` : ''}`
+      const chapterSlug = `chapter-${chapter.data.chapter}-${chapter.data.title.toLowerCase().replace(/\s+/g, '-')}`
+
+      paths.push({
+        params: {
+          novel: novel.id,
+          volume: volumeSlug,
+          chapter: chapterSlug,
+        },
+        props: {
+          novel,
+          chapter,
+          novelChapters,
+        },
+      })
+    }
+  }
+
+  return paths
+}
+
+const { novel, chapter, novelChapters } = Astro.props
+const { Content } = await render(chapter)
+
+// Get navigation chapters
+const currentIndex = novelChapters.findIndex((c) => c.id === chapter.id)
+const previousChapter =
+  currentIndex > 0 ? novelChapters[currentIndex - 1] : null
+const nextChapter =
+  currentIndex < novelChapters.length - 1
+    ? novelChapters[currentIndex + 1]
+    : null
+
+// Helper function to generate chapter URL
+function getChapterUrl(novel: any, chapter: any) {
+  const volumeSlug = `volume-${chapter.data.volume}${chapter.data.volumeTitle ? `-${chapter.data.volumeTitle.toLowerCase().replace(/\s+/g, '-')}` : ''}`
+  const chapterSlug = `chapter-${chapter.data.chapter}-${chapter.data.title.toLowerCase().replace(/\s+/g, '-')}`
+  return `/novels/${novel.id}/${volumeSlug}/${chapterSlug}`
+}
+
+// Get author information
+const allAuthors = await getCollection('authors')
+const author = allAuthors.find((a) => a.id === novel.data.author)
+
+// Calculate reading progress
+const totalChapters = novelChapters.length
+const currentChapterNumber = currentIndex + 1
+const progressPercentage = Math.round(
+  (currentChapterNumber / totalChapters) * 100,
+)
+---
+
+<Layout>
+  <PageHead
+    slot="head"
+    title={`${chapter.data.title} - ${novel.data.title}`}
+    description={chapter.data.summary ||
+      `Chapter ${chapter.data.chapter} of ${novel.data.title}`}
+  />
+
+  <!-- Reading Progress Bar -->
+  <div
+    class="bg-background/80 fixed top-0 right-0 left-0 z-50 border-b backdrop-blur-sm"
+  >
+    <div class="container-reading py-2">
+      <div
+        class="text-muted-foreground flex items-center justify-between text-xs"
+      >
+        <div class="flex items-center gap-2">
+          <Icon name="book-open" className="size-3" />
+          <span>{novel.data.title}</span>
+          <span>•</span>
+          <span>Chapter {chapter.data.chapter}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span>{currentChapterNumber} of {totalChapters}</span>
+          <div class="bg-muted h-1 w-16 overflow-hidden rounded-full">
+            <div
+              class="bg-primary h-full transition-all duration-300"
+              style={`width: ${progressPercentage}%`}
+            >
+            </div>
+          </div>
+          <span>{progressPercentage}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-reading pt-16">
+    <Breadcrumbs
+      items={[
+        { href: '/novels', label: 'Novels', icon: 'lucide:book-open' },
+        {
+          href: `/novels/${novel.id}`,
+          label: novel.data.title,
+          icon: 'lucide:book',
+        },
+        {
+          label: `Volume ${chapter.data.volume}${chapter.data.volumeTitle ? `: ${chapter.data.volumeTitle}` : ''}`,
+          icon: 'lucide:bookmark',
+        },
+        { label: `Chapter ${chapter.data.chapter}`, icon: 'lucide:file-text' },
+      ]}
+    />
+
+    <!-- Chapter Header -->
+    <div class="mb-8 space-y-4 text-center">
+      <div class="space-y-2">
+        <p class="text-muted-foreground text-sm">
+          Volume {chapter.data.volume}{
+            chapter.data.volumeTitle && ` • ${chapter.data.volumeTitle}`
+          }
+        </p>
+        <h1 class="text-3xl font-bold lg:text-4xl">
+          Chapter {chapter.data.chapter}: {chapter.data.title}
+        </h1>
+      </div>
+
+      {
+        chapter.data.summary && (
+          <p class="text-muted-foreground mx-auto max-w-2xl text-lg">
+            {chapter.data.summary}
+          </p>
+        )
+      }
+
+      <div
+        class="text-muted-foreground flex items-center justify-center gap-6 text-sm"
+      >
+        <div class="flex items-center gap-1">
+          <Icon name="calendar" className="size-4" />
+          {formatDate(chapter.data.publishDate)}
+        </div>
+
+        {
+          chapter.data.wordCount && (
+            <div class="flex items-center gap-1">
+              <Icon name="file-text" className="size-4" />
+              {chapter.data.wordCount.toLocaleString()} words
+            </div>
+          )
+        }
+
+        {
+          author && (
+            <div class="flex items-center gap-1">
+              <Icon name="user" className="size-4" />
+              <a href={`/authors/${author.id}`} class="hover:text-primary">
+                {author.data.name}
+              </a>
+            </div>
+          )
+        }
+      </div>
+    </div>
+
+    <!-- Page Navigation (if chapter has page breaks) -->
+    {
+      chapter.data.pageBreaks && chapter.data.pageBreaks.length > 0 && (
+        <div class="bg-muted/30 mb-8 rounded-lg p-4">
+          <div class="mb-3 flex items-center gap-2">
+            <Icon name="bookmark" className="text-muted-foreground size-4" />
+            <span class="text-muted-foreground text-sm font-medium">
+              Jump to Page
+            </span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {chapter.data.pageBreaks.map((pageBreak, index) => (
+              <a
+                href={`#${pageBreak.anchor}`}
+                class="bg-background hover:bg-muted/50 inline-flex items-center gap-1 rounded-md border px-3 py-1 text-xs transition-colors"
+              >
+                <span class="text-muted-foreground">{index + 1}.</span>
+                <span>{pageBreak.title}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    <!-- Chapter Navigation (Top) -->
+    <div
+      class="bg-muted/50 chapter-navigation mobile-touch-spacing mb-8 flex items-center justify-between rounded-lg p-4"
+    >
+      <div class="flex-1">
+        {
+          previousChapter ? (
+            <a
+              href={getChapterUrl(novel, previousChapter)}
+              class="hover:text-primary mobile-focus-visible mobile-no-hover group inline-flex items-center gap-2 text-sm transition-colors"
+            >
+              <Icon
+                name="chevron-left"
+                className="size-4 transition-transform group-hover:-translate-x-0.5"
+              />
+              <div class="text-left">
+                <div class="text-muted-foreground text-xs">Previous</div>
+                <div class="font-medium">
+                  Chapter {previousChapter.data.chapter}
+                </div>
+              </div>
+            </a>
+          ) : (
+            <div />
+          )
+        }
+      </div>
+
+      <div class="text-center">
+        <a
+          href={`/novels/${novel.id}`}
+          class="hover:text-primary mobile-focus-visible mobile-no-hover group inline-flex items-center gap-2 text-sm transition-colors"
+        >
+          <Icon
+            name="book"
+            className="size-4 transition-transform group-hover:scale-110"
+          />
+          Back to Novel
+        </a>
+      </div>
+
+      <div class="flex-1 text-right">
+        {
+          nextChapter ? (
+            <a
+              href={getChapterUrl(novel, nextChapter)}
+              class="hover:text-primary mobile-focus-visible mobile-no-hover group inline-flex items-center gap-2 text-sm transition-colors"
+            >
+              <div class="text-right">
+                <div class="text-muted-foreground text-xs">Next</div>
+                <div class="font-medium">
+                  Chapter {nextChapter.data.chapter}
+                </div>
+              </div>
+              <Icon
+                name="chevron-right"
+                className="size-4 transition-transform group-hover:translate-x-0.5"
+              />
+            </a>
+          ) : (
+            <div />
+          )
+        }
+      </div>
+    </div>
+
+    <!-- Chapter Content with Enhanced Reading Typography -->
+    <article class="reading-content mb-12">
+      <Content />
+    </article>
+
+    <!-- Comments Section -->
+    <section class="comments-section mb-8">
+      <div class="border-t pt-8">
+        <h2 class="mb-6 flex items-center gap-2 text-xl font-semibold">
+          <Icon name="message-circle" className="size-5" />
+          Discussion
+        </h2>
+        <Giscus class="chapter-comments" />
+      </div>
+    </section>
+
+    <!-- Chapter Navigation (Bottom) -->
+    <div
+      class="bg-muted/50 chapter-navigation mobile-touch-spacing mb-8 flex items-center justify-between rounded-lg p-4"
+    >
+      <div class="flex-1">
+        {
+          previousChapter ? (
+            <a
+              href={getChapterUrl(novel, previousChapter)}
+              class="hover:text-primary mobile-focus-visible mobile-no-hover group inline-flex items-center gap-2 text-sm transition-colors"
+            >
+              <Icon
+                name="chevron-left"
+                className="size-4 transition-transform group-hover:-translate-x-0.5"
+              />
+              <div class="text-left">
+                <div class="text-muted-foreground text-xs">Previous</div>
+                <div class="max-w-32 truncate font-medium sm:max-w-none">
+                  Chapter {previousChapter.data.chapter}:{' '}
+                  {previousChapter.data.title}
+                </div>
+              </div>
+            </a>
+          ) : (
+            <div />
+          )
+        }
+      </div>
+
+      <div class="px-4 text-center">
+        <a
+          href={`/novels/${novel.id}`}
+          class="hover:text-primary mobile-focus-visible mobile-no-hover group inline-flex items-center gap-2 text-sm transition-colors"
+        >
+          <Icon
+            name="book"
+            className="size-4 transition-transform group-hover:scale-110"
+          />
+          <span class="hidden sm:inline">Back to Novel</span>
+        </a>
+      </div>
+
+      <div class="flex-1 text-right">
+        {
+          nextChapter ? (
+            <a
+              href={getChapterUrl(novel, nextChapter)}
+              class="hover:text-primary mobile-focus-visible mobile-no-hover group inline-flex items-center gap-2 text-sm transition-colors"
+            >
+              <div class="text-right">
+                <div class="text-muted-foreground text-xs">Next</div>
+                <div class="max-w-32 truncate font-medium sm:max-w-none">
+                  Chapter {nextChapter.data.chapter}: {nextChapter.data.title}
+                </div>
+              </div>
+              <Icon
+                name="chevron-right"
+                className="size-4 transition-transform group-hover:translate-x-0.5"
+              />
+            </a>
+          ) : (
+            <div />
+          )
+        }
+      </div>
+    </div>
+
+    <!-- Reading Progress Indicator -->
+    <div class="text-muted-foreground mb-8 text-center text-sm">
+      <div class="flex items-center justify-center gap-2">
+        <Icon name="book-open" className="size-4" />
+        <span
+          >Chapter {currentChapterNumber} of {totalChapters} • {
+            progressPercentage
+          }% Complete</span
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Reading Controls -->
+  <div
+    class="mobile-touch-spacing fixed right-4 bottom-4 z-40 flex flex-col gap-2 lg:right-8 xl:right-12"
+  >
+    <!-- Scroll to top button -->
+    <Button
+      variant="outline"
+      size="icon"
+      className="group mobile-focus-visible mobile-no-hover hidden shadow-lg"
+      id="scroll-to-top"
+      title="Scroll to top"
+      aria-label="Scroll to top"
+    >
+      <Icon
+        name="arrow-up"
+        className="mx-auto size-4 transition-all group-hover:-translate-y-0.5"
+      />
+    </Button>
+
+    <!-- Page navigation toggle (mobile) -->
+    {
+      chapter.data.pageBreaks && chapter.data.pageBreaks.length > 0 && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="group shadow-lg sm:hidden mobile-focus-visible mobile-no-hover"
+          id="toggle-page-nav"
+          title="Toggle page navigation"
+          aria-label="Toggle page navigation"
+        >
+          <Icon
+            name="bookmark"
+            className="mx-auto size-4 transition-all group-hover:scale-110"
+          />
+        </Button>
+      )
+    }
+  </div>
+
+  <!-- Mobile Page Navigation Overlay -->
+  {
+    chapter.data.pageBreaks && chapter.data.pageBreaks.length > 0 && (
+      <div
+        id="mobile-page-nav"
+        class="bg-background/80 fixed inset-0 z-50 hidden backdrop-blur-sm sm:hidden"
+      >
+        <div class="flex min-h-screen items-center justify-center p-4">
+          <div class="bg-background w-full max-w-sm rounded-lg border p-6">
+            <div class="mb-4 flex items-center justify-between">
+              <h3 class="font-medium">Jump to Page</h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                id="close-page-nav"
+                aria-label="Close page navigation"
+              >
+                <Icon name="x" className="size-4" />
+              </Button>
+            </div>
+            <div class="space-y-2">
+              {chapter.data.pageBreaks.map((pageBreak, index) => (
+                <a
+                  href={`#${pageBreak.anchor}`}
+                  class="hover:bg-muted/50 mobile-page-link flex items-center gap-3 rounded-md p-3 transition-colors"
+                >
+                  <span class="text-muted-foreground w-6 text-sm">
+                    {index + 1}.
+                  </span>
+                  <span class="text-sm">{pageBreak.title}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  <script>
+    document.addEventListener('astro:page-load', () => {
+      const scrollToTopButton = document.getElementById('scroll-to-top')
+      const footer = document.querySelector('footer')
+      const togglePageNav = document.getElementById('toggle-page-nav')
+      const mobilePageNav = document.getElementById('mobile-page-nav')
+      const closePageNav = document.getElementById('close-page-nav')
+      const mobilePageLinks = document.querySelectorAll('.mobile-page-link')
+
+      // Scroll to top functionality
+      if (scrollToTopButton && footer) {
+        scrollToTopButton.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        })
+
+        window.addEventListener('scroll', () => {
+          const footerRect = footer.getBoundingClientRect()
+          const isFooterVisible = footerRect.top <= window.innerHeight
+          const article = document.querySelector(
+            '.reading-content',
+          ) as HTMLElement
+
+          // Show button when user has scrolled past the chapter header
+          const shouldShow = window.scrollY > 300 && !isFooterVisible && article
+
+          scrollToTopButton.classList.toggle('hidden', !shouldShow)
+        })
+      }
+
+      // Mobile page navigation
+      if (togglePageNav && mobilePageNav && closePageNav) {
+        togglePageNav.addEventListener('click', () => {
+          mobilePageNav.classList.remove('hidden')
+        })
+
+        closePageNav.addEventListener('click', () => {
+          mobilePageNav.classList.add('hidden')
+        })
+
+        // Close on backdrop click
+        mobilePageNav.addEventListener('click', (e) => {
+          if (e.target === mobilePageNav) {
+            mobilePageNav.classList.add('hidden')
+          }
+        })
+
+        // Close when clicking page links
+        mobilePageLinks.forEach((link) => {
+          link.addEventListener('click', () => {
+            mobilePageNav.classList.add('hidden')
+          })
+        })
+      }
+
+      // Smooth scrolling for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener('click', function (this: HTMLAnchorElement, e) {
+          e.preventDefault()
+          const href = this.getAttribute('href')
+          const target = href ? document.querySelector(href) : null
+          if (target) {
+            const headerOffset = 80 // Account for fixed header
+            const elementPosition = target.getBoundingClientRect().top
+            const offsetPosition =
+              elementPosition + window.pageYOffset - headerOffset
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth',
+            })
+          }
+        })
+      })
+
+      // Reading progress tracking
+      const progressBar = document.querySelector(
+        '.fixed .bg-primary',
+      ) as HTMLElement
+      if (progressBar) {
+        window.addEventListener('scroll', () => {
+          const article = document.querySelector(
+            '.reading-content',
+          ) as HTMLElement
+          if (article) {
+            const articleTop =
+              article.getBoundingClientRect().top + window.pageYOffset
+            const articleHeight = article.offsetHeight
+            const windowHeight = window.innerHeight
+            const scrollTop = window.pageYOffset
+
+            // Calculate reading progress within the article
+            const articleProgress = Math.max(
+              0,
+              Math.min(
+                100,
+                ((scrollTop + windowHeight - articleTop) / articleHeight) * 100,
+              ),
+            )
+
+            // Update progress bar width with smooth transition
+            progressBar.style.width = `${articleProgress}%`
+
+            // Update chapter progress percentage in the progress bar
+            const progressText = document.querySelector(
+              '.fixed .bg-background\\/80 span:last-child',
+            )
+            if (progressText && articleProgress > 0) {
+              const readingProgress = Math.round(articleProgress)
+              progressText.textContent = `${readingProgress}%`
+            }
+          }
+        })
+      }
+    })
+  </script>
+
+  <style>
+    /* Chapter-specific scroll margin adjustments */
+    .reading-content h1,
+    .reading-content h2,
+    .reading-content h3 {
+      scroll-margin-top: 5rem;
+    }
+
+    .reading-content div[id^='page-'] {
+      scroll-margin-top: 5rem;
+    }
+  </style>
+</Layout>

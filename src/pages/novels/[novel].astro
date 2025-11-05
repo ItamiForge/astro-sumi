@@ -1,0 +1,360 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import { Icon } from '@/components/Icon'
+import PageHead from '@/components/PageHead.astro'
+import { badgeVariants } from '@/components/ui/badge'
+import Layout from '@/layouts/Layout.astro'
+import { formatDate } from '@/lib/utils'
+import { Image } from 'astro:assets'
+import { getCollection } from 'astro:content'
+
+export async function getStaticPaths() {
+  const novels = await getCollection('novels')
+  return novels
+    .filter((novel) => !novel.data.draft)
+    .map((novel) => ({
+      params: { novel: novel.id },
+      props: { novel },
+    }))
+}
+
+const { novel } = Astro.props
+
+// Get chapters for this novel
+const allChapters = await getCollection('chapters')
+const novelChapters = allChapters
+  .filter((chapter) => chapter.data.novel === novel.id && !chapter.data.draft)
+  .sort((a, b) => {
+    // Sort by volume first, then by chapter number
+    if (a.data.volume !== b.data.volume) {
+      return a.data.volume - b.data.volume
+    }
+    return a.data.chapter - b.data.chapter
+  })
+
+// Group chapters by volume
+const chaptersByVolume = novelChapters.reduce(
+  (acc, chapter) => {
+    const volume = chapter.data.volume
+    if (!acc[volume]) {
+      acc[volume] = []
+    }
+    acc[volume].push(chapter)
+    return acc
+  },
+  {} as Record<number, typeof novelChapters>,
+)
+
+// Get author information
+const allAuthors = await getCollection('authors')
+const author = allAuthors.find((a) => a.id === novel.data.author)
+
+// Calculate total word count
+const totalWords = novelChapters.reduce(
+  (sum, chapter) => sum + (chapter.data.wordCount || 0),
+  0,
+)
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title={novel.data.title}
+    description={novel.data.description}
+  />
+
+  <Breadcrumbs
+    items={[
+      { href: '/novels', label: 'Novels', icon: 'lucide:book-open' },
+      { label: novel.data.title, icon: 'lucide:book' },
+    ]}
+  />
+
+  <div class="grid gap-8 lg:grid-cols-[320px_1fr] xl:grid-cols-[350px_1fr]">
+    <!-- Novel Cover and Metadata -->
+    <div class="space-y-6 lg:sticky lg:top-24">
+      {
+        novel.data.coverImage ? (
+          <div class="aspect-[3/4] overflow-hidden rounded-lg shadow-lg">
+            <Image
+              src={novel.data.coverImage}
+              alt={novel.data.title}
+              width={350}
+              height={467}
+              class="h-full w-full object-cover"
+            />
+          </div>
+        ) : (
+          <div class="bg-muted flex aspect-[3/4] items-center justify-center rounded-lg shadow-lg">
+            <Icon name="book-open" className="text-muted-foreground size-20" />
+          </div>
+        )
+      }
+
+      <!-- Novel Stats -->
+      <div class="bg-muted/30 space-y-3 rounded-lg p-4">
+        <h3
+          class="text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase"
+        >
+          Novel Information
+        </h3>
+
+        <div class="space-y-3 text-sm">
+          <div class="flex items-center gap-3">
+            <Icon
+              name="calendar"
+              className="text-muted-foreground size-4 flex-shrink-0"
+            />
+            <div class="min-w-0">
+              <div class="text-muted-foreground text-xs">Started</div>
+              <div class="font-medium">{formatDate(novel.data.startDate)}</div>
+            </div>
+          </div>
+
+          {
+            novel.data.lastUpdated && (
+              <div class="flex items-center gap-3">
+                <Icon
+                  name="clock"
+                  className="text-muted-foreground size-4 flex-shrink-0"
+                />
+                <div class="min-w-0">
+                  <div class="text-muted-foreground text-xs">Last Updated</div>
+                  <div class="font-medium">
+                    {formatDate(novel.data.lastUpdated)}
+                  </div>
+                </div>
+              </div>
+            )
+          }
+
+          <div class="flex items-center gap-3">
+            <Icon
+              name={novel.data.status === 'completed'
+                ? 'lucide:check-circle'
+                : novel.data.status === 'ongoing'
+                  ? 'lucide:play-circle'
+                  : novel.data.status === 'hiatus'
+                    ? 'lucide:pause-circle'
+                    : 'lucide:edit'}
+              className="text-muted-foreground size-4 flex-shrink-0"
+            />
+            <div class="min-w-0">
+              <div class="text-muted-foreground text-xs">Status</div>
+              <div class="font-medium capitalize">{novel.data.status}</div>
+            </div>
+          </div>
+
+          {
+            totalWords > 0 && (
+              <div class="flex items-center gap-3">
+                <Icon
+                  name="file-text"
+                  className="text-muted-foreground size-4 flex-shrink-0"
+                />
+                <div class="min-w-0">
+                  <div class="text-muted-foreground text-xs">Total Words</div>
+                  <div class="font-medium">{totalWords.toLocaleString()}</div>
+                </div>
+              </div>
+            )
+          }
+
+          <div class="flex items-center gap-3">
+            <Icon
+              name="book-open"
+              className="text-muted-foreground size-4 flex-shrink-0"
+            />
+            <div class="min-w-0">
+              <div class="text-muted-foreground text-xs">Chapters</div>
+              <div class="font-medium">
+                {novelChapters.length} chapter{
+                  novelChapters.length !== 1 ? 's' : ''
+                }
+              </div>
+            </div>
+          </div>
+
+          {
+            author && (
+              <div class="flex items-center gap-3">
+                <Icon
+                  name="user"
+                  className="text-muted-foreground size-4 flex-shrink-0"
+                />
+                <div class="min-w-0">
+                  <div class="text-muted-foreground text-xs">Author</div>
+                  <a
+                    href={`/authors/${author.id}`}
+                    class="hover:text-primary font-medium"
+                  >
+                    {author.data.name}
+                  </a>
+                </div>
+              </div>
+            )
+          }
+        </div>
+      </div>
+
+      <!-- Genres -->
+      {
+        novel.data.genre && novel.data.genre.length > 0 && (
+          <div class="space-y-3">
+            <h3 class="text-muted-foreground text-sm font-semibold tracking-wide uppercase">
+              Genres
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              {novel.data.genre.map((genre) => (
+                <span
+                  class={badgeVariants({
+                    variant: 'muted',
+                    className: 'px-3 py-1.5 text-xs font-medium',
+                  })}
+                >
+                  {genre}
+                </span>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      <!-- Tags -->
+      {
+        novel.data.tags && novel.data.tags.length > 0 && (
+          <div class="space-y-3">
+            <h3 class="text-muted-foreground text-sm font-semibold tracking-wide uppercase">
+              Tags
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              {novel.data.tags.map((tag) => (
+                <span
+                  class={badgeVariants({
+                    variant: 'outline',
+                    className: 'px-3 py-1.5 text-xs font-medium',
+                  })}
+                >
+                  <Icon name="hash" className="mr-1.5 size-3" />
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )
+      }
+    </div>
+
+    <!-- Novel Content -->
+    <div class="min-w-0 space-y-8">
+      <!-- Title and Description -->
+      <div class="space-y-4">
+        <h1 class="text-3xl leading-tight font-bold lg:text-4xl xl:text-5xl">
+          {novel.data.title}
+        </h1>
+        <p class="text-muted-foreground text-lg leading-relaxed xl:text-xl">
+          {novel.data.description}
+        </p>
+
+        {
+          novel.data.mature && (
+            <div class="flex items-center gap-2 rounded-lg border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-800 dark:bg-yellow-900/20">
+              <Icon
+                name="alert-triangle"
+                className="size-4 text-yellow-600 dark:text-yellow-400"
+              />
+              <span class="text-sm text-yellow-800 dark:text-yellow-200">
+                This novel contains mature content
+              </span>
+            </div>
+          )
+        }
+      </div>
+
+      <!-- Summary -->
+      {
+        novel.data.summary && (
+          <div class="bg-muted/20 space-y-3 rounded-lg p-6">
+            <h2 class="text-xl font-semibold xl:text-2xl">Summary</h2>
+            <p class="text-muted-foreground leading-relaxed xl:text-lg xl:leading-relaxed">
+              {novel.data.summary}
+            </p>
+          </div>
+        )
+      }
+
+      <!-- Chapters -->
+      <div class="space-y-6">
+        <h2 class="text-xl font-semibold">Chapters</h2>
+
+        {
+          novelChapters.length === 0 ? (
+            <div class="py-8 text-center">
+              <Icon
+                name="book-open"
+                className="text-muted-foreground mx-auto mb-3 size-12"
+              />
+              <p class="text-muted-foreground">No chapters available yet</p>
+            </div>
+          ) : (
+            <div class="space-y-6">
+              {Object.entries(chaptersByVolume)
+                .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                .map(([volumeNum, chapters]) => (
+                  <div class="space-y-3">
+                    <h3 class="text-lg font-medium">
+                      Volume {volumeNum}
+                      {chapters[0]?.data.volumeTitle && (
+                        <span class="text-muted-foreground font-normal">
+                          : {chapters[0].data.volumeTitle}
+                        </span>
+                      )}
+                    </h3>
+
+                    <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                      {chapters.map((chapter) => (
+                        <a
+                          href={`/novels/${novel.id}/volume-${chapter.data.volume}${chapter.data.volumeTitle ? `-${chapter.data.volumeTitle.toLowerCase().replace(/\s+/g, '-')}` : ''}/chapter-${chapter.data.chapter}-${chapter.data.title.toLowerCase().replace(/\s+/g, '-')}`}
+                          class="group hover:bg-muted/50 block rounded-lg border p-4 transition-all duration-200 hover:shadow-md"
+                        >
+                          <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0 flex-1">
+                              <h4 class="group-hover:text-primary line-clamp-1 text-sm font-medium xl:text-base">
+                                Chapter {chapter.data.chapter}:{' '}
+                                {chapter.data.title}
+                              </h4>
+                              {chapter.data.summary && (
+                                <p class="text-muted-foreground mt-2 line-clamp-2 text-xs leading-relaxed xl:text-sm">
+                                  {chapter.data.summary}
+                                </p>
+                              )}
+                              <div class="text-muted-foreground mt-3 flex items-center gap-4 text-xs">
+                                <span class="flex items-center gap-1">
+                                  <Icon name="calendar" className="size-3" />
+                                  {formatDate(chapter.data.publishDate)}
+                                </span>
+                                {chapter.data.wordCount && (
+                                  <span class="flex items-center gap-1">
+                                    <Icon name="file-text" className="size-3" />
+                                    {chapter.data.wordCount.toLocaleString()}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <Icon
+                              name="chevron-right"
+                              className="text-muted-foreground group-hover:text-primary size-4 transition-colors"
+                            />
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</Layout>

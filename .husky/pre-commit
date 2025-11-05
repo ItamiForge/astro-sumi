@@ -1,0 +1,5 @@
+# Run security audit before commit
+bun run security:check
+
+# Run linting
+bun run lint:css

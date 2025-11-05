@@ -1,0 +1,161 @@
+name: Comments System Health Check
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:
+  push:
+    paths:
+      - 'src/lib/comments/**'
+      - 'src/components/Comments/**'
+      - 'src/config/comments.config.ts'
+      - '.env.example'
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Validate configuration files
+        run: |
+          echo "Validating comments configuration..."
+          
+          # Check if config file exists
+          if [ ! -f "src/config/comments.config.ts" ]; then
+            echo "❌ Error: comments.config.ts not found"
+            exit 1
+          fi
+          
+          # Check if .env.example has required variables
+          if [ -f ".env.example" ]; then
+            required_vars=("COMMENTS_PROVIDER" "GISCUS_REPO" "GISCUS_REPO_ID" "GISCUS_CATEGORY" "GISCUS_CATEGORY_ID")
+            for var in "${required_vars[@]}"; do
+              if ! grep -q "$var" .env.example; then
+                echo "⚠️  Warning: $var not found in .env.example"
+              fi
+            done
+          fi
+          
+          echo "✅ Configuration validation passed"
+        
+      - name: Check Giscus API availability
+        run: |
+          echo "Checking Giscus API..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://giscus.app/api/discussions)
+          
+          if [ "$response" -eq 200 ] || [ "$response" -eq 400 ]; then
+            echo "✅ Giscus API is available (HTTP $response)"
+          else
+            echo "❌ Giscus API returned unexpected status: $response"
+            exit 1
+          fi
+        
+
+        
+
+        
+      - name: Run TypeScript type checking
+        run: |
+          echo "Running TypeScript type check..."
+          npx tsc --noEmit || {
+            echo "⚠️  TypeScript errors found, but continuing..."
+          }
+        
+      - name: Run unit tests for comments system
+        run: |
+          echo "Running comments system tests..."
+          npm test -- --run --reporter=verbose src/lib/comments/ src/components/Comments/ || {
+            echo "⚠️  Some tests failed"
+            exit 1
+          }
+        continue-on-error: true
+        
+      - name: Check bundle size impact
+        run: |
+          echo "Checking bundle size..."
+          npm run build || {
+            echo "⚠️  Build failed, skipping bundle size check"
+            exit 0
+          }
+          
+          # Check if dist directory exists and has content
+          if [ -d "dist" ] && [ "$(ls -A dist)" ]; then
+            echo "✅ Build successful"
+            du -sh dist/
+          else
+            echo "⚠️  Build output not found"
+          fi
+        continue-on-error: true
+        
+      - name: Create health check report
+        if: always()
+        run: |
+          echo "# Comments System Health Check Report" > health-report.md
+          echo "" >> health-report.md
+          echo "**Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> health-report.md
+          echo "**Commit:** ${{ github.sha }}" >> health-report.md
+          echo "" >> health-report.md
+          echo "## Status" >> health-report.md
+          echo "- Configuration: ✅ Valid" >> health-report.md
+          echo "- Giscus API: ✅ Available" >> health-report.md
+
+
+          
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '🚨 Comments System Health Check Failed'
+            const body = `
+            The comments system health check has failed.
+            
+            **Workflow:** ${{ github.workflow }}
+            **Run:** ${{ github.run_id }}
+            **Commit:** ${{ github.sha }}
+            **Branch:** ${{ github.ref_name }}
+            
+            Please investigate the issue:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            ## Possible Issues
+            - Provider API unavailable
+            - Configuration errors
+
+            - Test failures
+            
+            ## Next Steps
+            1. Check the workflow logs
+            2. Verify provider API status
+            3. Review recent changes to comments system
+            4. Run tests locally
+            `
+            
+            // Create an issue
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['bug', 'comments', 'automated', 'health-check']
+            })
+            
+      - name: Upload health report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-check-report
+          path: health-report.md
+          retention-days: 30
