@@ -71,40 +71,116 @@ function askQuestion(question, options = {}) {
 }
 
 /**
- * Utility function to ask yes/no questions
+ * Utility function to ask yes/no questions with arrow key navigation
  */
 function askYesNo(question, defaultValue = false) {
-  const defaultText = defaultValue ? 'Y/n' : 'y/N'
-  return askQuestion(`${question} ${colors.dim}(${defaultText})${colors.reset}`, {
-    defaultValue: defaultValue ? 'y' : 'n',
-    transform: (value) => value.toLowerCase(),
-    validator: (value) => ['y', 'yes', 'n', 'no'].includes(value),
-  }).then(answer => ['y', 'yes'].includes(answer))
+  const choices = [
+    { label: 'Yes', value: true },
+    { label: 'No', value: false }
+  ]
+  
+  const defaultIndex = defaultValue ? 0 : 1
+  
+  return askChoice(question, choices, defaultIndex).then(choice => choice.value)
 }
 
 /**
- * Utility function to ask multiple choice questions
+ * Utility function to ask multiple choice questions with arrow key navigation
  */
 function askChoice(question, choices, defaultIndex = 0) {
   return new Promise((resolve) => {
-    console.log(`\n${colors.bright}${question}${colors.reset}`)
-    choices.forEach((choice, index) => {
-      const marker = index === defaultIndex ? `${colors.green}>${colors.reset}` : ' '
-      console.log(`${marker} ${index + 1}. ${choice.label}`)
-      if (choice.description) {
-        console.log(`   ${colors.dim}${choice.description}${colors.reset}`)
-      }
-    })
+    let selectedIndex = defaultIndex
     
-    rl.question(`\nEnter your choice (1-${choices.length}) [${defaultIndex + 1}]: `, (answer) => {
-      const choice = parseInt(answer.trim()) || (defaultIndex + 1)
-      if (choice < 1 || choice > choices.length) {
-        console.log(`${colors.red}Invalid choice. Please try again.${colors.reset}`)
-        resolve(askChoice(question, choices, defaultIndex))
-        return
+    // Enable raw mode for capturing arrow keys
+    process.stdin.setRawMode(true)
+    process.stdin.resume()
+    process.stdin.setEncoding('utf8')
+    
+    function displayChoices() {
+      console.log(`\n${colors.bright}${question}${colors.reset}`)
+      console.log(`${colors.dim}Use ↑/↓ arrow keys to navigate, Enter to select${colors.reset}\n`)
+      
+      choices.forEach((choice, index) => {
+        const isSelected = index === selectedIndex
+        const marker = isSelected ? `${colors.green}❯${colors.reset}` : ' '
+        const label = isSelected ? `${colors.green}${choice.label}${colors.reset}` : choice.label
+        
+        console.log(`${marker} ${label}`)
+        if (choice.description) {
+          const desc = isSelected ? `${colors.green}  ${choice.description}${colors.reset}` : `${colors.dim}  ${choice.description}${colors.reset}`
+          console.log(desc)
+        }
+      })
+    }
+    
+    function redrawChoices() {
+      // Calculate lines to move up (question + instruction + choices + descriptions + empty lines)
+      const linesToMoveUp = 3 + choices.length + choices.filter(c => c.description).length
+      
+      // Move cursor up and clear lines
+      process.stdout.write(`\x1b[${linesToMoveUp}A`)
+      for (let i = 0; i < linesToMoveUp; i++) {
+        process.stdout.write('\x1b[2K\x1b[1B')
       }
-      resolve(choices[choice - 1])
-    })
+      process.stdout.write(`\x1b[${linesToMoveUp}A`)
+      
+      // Redraw choices
+      console.log(`${colors.bright}${question}${colors.reset}`)
+      console.log(`${colors.dim}Use ↑/↓ arrow keys to navigate, Enter to select${colors.reset}\n`)
+      
+      choices.forEach((choice, index) => {
+        const isSelected = index === selectedIndex
+        const marker = isSelected ? `${colors.green}❯${colors.reset}` : ' '
+        const label = isSelected ? `${colors.green}${choice.label}${colors.reset}` : choice.label
+        
+        console.log(`${marker} ${label}`)
+        if (choice.description) {
+          const desc = isSelected ? `${colors.green}  ${choice.description}${colors.reset}` : `${colors.dim}  ${choice.description}${colors.reset}`
+          console.log(desc)
+        }
+      })
+    }
+    
+    function onKeyPress(key) {
+      switch (key) {
+        case '\u001b[A': // Up arrow
+          selectedIndex = selectedIndex > 0 ? selectedIndex - 1 : choices.length - 1
+          redrawChoices()
+          break
+          
+        case '\u001b[B': // Down arrow
+          selectedIndex = selectedIndex < choices.length - 1 ? selectedIndex + 1 : 0
+          redrawChoices()
+          break
+          
+        case '\r': // Enter
+        case '\n':
+          process.stdin.setRawMode(false)
+          process.stdin.removeListener('data', onKeyPress)
+          process.stdin.pause()
+          console.log(`\n${colors.green}✓${colors.reset} Selected: ${choices[selectedIndex].label}\n`)
+          resolve(choices[selectedIndex])
+          break
+          
+        case '\u0003': // Ctrl+C
+          process.stdin.setRawMode(false)
+          process.stdin.removeListener('data', onKeyPress)
+          process.stdin.pause()
+          console.log('\n\nSetup cancelled.')
+          process.exit(0)
+          break
+          
+        default:
+          // Ignore other keys
+          break
+      }
+    }
+    
+    // Initial display
+    displayChoices()
+    
+    // Listen for key presses
+    process.stdin.on('data', onKeyPress)
   })
 }
 
