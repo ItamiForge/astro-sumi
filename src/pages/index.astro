@@ -8,6 +8,7 @@ import Layout from '@/layouts/Layout.astro'
 import { getAllNovels } from '@/lib/data-utils'
 import { formatDate } from '@/lib/utils'
 import { Image } from 'astro:assets'
+import { SITE } from '@/consts'
 
 const novels = await getAllNovels()
 const featuredNovels = novels.slice(0, 3) // Show first 3 novels
@@ -17,13 +18,15 @@ const featuredNovels = novels.slice(0, 3) // Show first 3 novels
   <PageHead slot="head" title="Home" />
   <section class="rounded-lg border">
     <div class="flex flex-col space-y-1.5 p-6">
-      <h3 class="text-3xl leading-none font-medium">Astro Sumi</h3>
+      <h3 class="text-3xl leading-none font-medium">{SITE.title}</h3>
       <p class="text-muted-foreground text-sm">Novel Writing Template</p>
     </div>
     <div class="p-6 pt-0">
       <p class="text-muted-foreground mb-2 text-sm">
-        Astro Sumi is a clean, minimal template specifically designed for novel
-        and book writing projects. Built with <Link
+        {SITE.description}
+      </p>
+      <p class="text-muted-foreground mb-2 text-sm">
+        Built with <Link
           href="https://astro.build"
           class="text-foreground"
           external

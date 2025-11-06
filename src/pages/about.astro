@@ -3,6 +3,7 @@ import Breadcrumbs from '@/components/Breadcrumbs.astro'
 import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
 import Layout from '@/layouts/Layout.astro'
+import { SITE } from '@/consts'
 ---
 
 <Layout containerType="reading">
@@ -13,7 +14,7 @@ import Layout from '@/layouts/Layout.astro'
     <div class="min-w-full">
       <div class="prose mb-8">
         <p class="mt-0">
-          Astro Sumi is a clean, minimal template specifically designed for
+          {SITE.title} is a clean, minimal template specifically designed for
           novel and book writing projects. Built with <Link
             href="https://astro.build"
             external

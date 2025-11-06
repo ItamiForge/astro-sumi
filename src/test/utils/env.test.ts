@@ -8,6 +8,8 @@ import {
   getBuildConfig,
   safeValidateEnvironment,
   initializeEnvironment,
+  validateEnvironmentForBuild,
+  validateEnvironmentWithContext,
   EnvironmentValidationError,
   DEFAULT_GISCUS_CONFIG
 } from '@/lib/env'
@@ -110,7 +112,7 @@ describe('Environment Validation Functions', () => {
       expect(config.url).toBe('https://your-site.com')
       expect(config.title).toBe('Astro Sumi')
       expect(config.description).toBe('A clean, minimal template specifically designed for novel and book writing projects')
-      expect(config.author).toBe('Template Author')
+      expect(config.author).toBe('Your Name (customize in .env.local)')
       expect(config.locale).toBe('en-US')
       expect(config.featuredNovelCount).toBe(3)
       expect(config.novelsPerPage).toBe(6)
@@ -241,6 +243,92 @@ describe('Environment Validation Functions', () => {
       
       expect(() => initializeEnvironment(env, { throwOnError: true, logErrors: false }))
         .toThrow(EnvironmentValidationError)
+    })
+  })
+
+  describe('validateEnvironmentForBuild', () => {
+    test('returns valid status for good configuration', () => {
+      const env = {
+        SITE_URL: 'https://example.com',
+        SITE_AUTHOR: 'Test Author',
+        NODE_ENV: 'production'
+      }
+      
+      const result = validateEnvironmentForBuild(env)
+      
+      expect(result.isValid).toBe(true)
+      expect(result.errors).toHaveLength(0)
+      expect(result.hasRequiredValues).toBe(true)
+      expect(result.configurationStatus.site).toBe('partial')
+    })
+
+    test('categorizes configuration issues correctly', () => {
+      const env = {
+        SITE_URL: 'invalid-url',
+        EMAIL_ADDRESS: 'invalid-email'
+      }
+      
+      const result = validateEnvironmentForBuild(env)
+      
+      expect(result.isValid).toBe(false)
+      
+      // Check that validation issues are detected
+      const allIssues = [...result.errors, ...result.warnings]
+      expect(allIssues.length).toBeGreaterThan(0)
+      
+      // At least one validation issue should be present for invalid values
+      expect(allIssues.some(issue => 
+        issue.includes('SITE_URL') || 
+        issue.includes('EMAIL_ADDRESS') || 
+        issue.includes('invalid')
+      )).toBe(true)
+    })
+
+    test('provides helpful suggestions', () => {
+      const env = {}
+      
+      const result = validateEnvironmentForBuild(env)
+      
+      expect(result.suggestions.length).toBeGreaterThan(0)
+      expect(result.suggestions.some(s => s.includes('Customize your site'))).toBe(true)
+    })
+  })
+
+  describe('validateEnvironmentWithContext', () => {
+    test('handles build context validation', () => {
+      const env = {
+        SITE_URL: 'https://example.com',
+        SITE_AUTHOR: 'Test Author'
+      }
+      
+      const result = validateEnvironmentWithContext(env, 'build')
+      
+      expect(result.config).toBeDefined()
+      expect(result.isValid).toBe(true)
+      expect(result.issues).toBeDefined()
+    })
+
+    test('provides fallback for component context', () => {
+      const env = {
+        SITE_URL: 'invalid-url'
+      }
+      
+      const result = validateEnvironmentWithContext(env, 'component')
+      
+      expect(result.config).toBeDefined() // Should provide fallback
+      expect(result.isValid).toBe(false)
+      expect(result.issues.length).toBeGreaterThan(0)
+    })
+
+    test('handles test context appropriately', () => {
+      const env = {
+        SITE_URL: 'invalid-url'
+      }
+      
+      const result = validateEnvironmentWithContext(env, 'test')
+      
+      expect(result.isValid).toBe(false)
+      expect(result.issues.some(issue => issue.level === 'error')).toBe(true)
     })
   })
 

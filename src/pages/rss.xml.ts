@@ -16,6 +16,7 @@ export async function GET(context: APIContext) {
         description: novel.data.description,
         pubDate: novel.data.startDate,
         link: `/novels/${novel.id}/`,
+        author: novel.data.author || SITE.author,
       })),
     })
   } catch (error) {
