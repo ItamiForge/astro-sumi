@@ -31,11 +31,10 @@ describe('Setup Script', () => {
     // Check if the file contains the expected setup functionality
     const scriptContent = readFileSync(setupScriptPath, 'utf8')
     expect(scriptContent).toContain('Astro Sumi Setup')
-    expect(scriptContent).toContain('collectSiteConfig')
-    expect(scriptContent).toContain('collectGiscusConfig')
-    expect(scriptContent).toContain('collectSocialConfig')
-    expect(scriptContent).toContain('collectContentConfig')
-    expect(scriptContent).toContain('generateEnvFile')
+    expect(scriptContent).toContain('ask')
+    expect(scriptContent).toContain('askChoice')
+    expect(scriptContent).toContain('runSetup')
+    expect(scriptContent).toContain('initializeReadline')
   })
 
   test('package.json contains setup script', () => {
@@ -58,19 +57,11 @@ describe('Setup Script', () => {
     
     // Check for configuration sections
     expect(scriptContent).toContain('Site Configuration')
-    expect(scriptContent).toContain('Social Links Configuration')
-    expect(scriptContent).toContain('Comment System Configuration')
-    expect(scriptContent).toContain('Content Management')
+    expect(scriptContent).toContain('Social Links')
+    expect(scriptContent).toContain('Giscus Setup')
     
     // Check for content management options
-    expect(scriptContent).toContain('Keep sample novels')
-    expect(scriptContent).toContain('Remove demo content')
-    expect(scriptContent).toContain('Start completely fresh')
-    
-    // Check for social platform support
     expect(scriptContent).toContain('GitHub')
-    expect(scriptContent).toContain('Patreon')
-    expect(scriptContent).toContain('Ko-fi')
   })
 
   test('setup script includes proper error handling', () => {
@@ -90,6 +81,11 @@ describe('Setup Script', () => {
   test('setup script includes validation functions', () => {
     const setupScriptPath = join(projectRoot, 'scripts', 'setup.js')
     const scriptContent = readFileSync(setupScriptPath, 'utf8')
+    
+    // Check for validation functions
+    expect(scriptContent).toContain('validateUrl')
+    expect(scriptContent).toContain('validateEmail')
+    expect(scriptContent).toContain('validateGitHubRepo')
     
     // Check for URL validation
     expect(scriptContent).toContain('new URL(value)')

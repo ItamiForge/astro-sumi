@@ -1,8 +1,12 @@
 import type { IconMap, SocialLink, Site } from '@/types'
 import { getSiteConfig, getSocialConfig } from '@/lib/env'
+import { loadEnv } from 'vite'
+
+// Load environment variables from .env.local at module initialization time
+const env = loadEnv('development', process.cwd(), '')
 
 // Get site configuration from environment variables with fallbacks
-const siteConfig = getSiteConfig()
+const siteConfig = getSiteConfig(env)
 
 export const SITE: Site = {
   title: siteConfig.title,
@@ -30,7 +34,7 @@ export const NAV_LINKS: SocialLink[] = [
 ]
 
 // Get social configuration from environment variables with fallbacks
-const socialConfig = getSocialConfig()
+const socialConfig = getSocialConfig(env)
 
 export const SOCIAL_LINKS: SocialLink[] = [
   {

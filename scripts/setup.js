@@ -1,677 +1,600 @@
 #!/usr/bin/env node
 
 /**
- * Astro Sumi Setup Script
- * 
- * Interactive CLI for configuring the Astro Sumi template with:
- * - Site configuration (name, author, description, theme)
- * - Giscus configuration wizard with option to disable comments entirely
- * - Content management options: keep sample novels, remove demo content, or start fresh
- * - Social links configuration (GitHub, email, Patreon, Ko-fi)
- * - Automatically generates .env.local with user's answers
- * - File cleanup based on user choices
+ * Astro Sumi Setup Script - Simple Interactive Configuration
  */
 
-import { readFileSync, writeFileSync, unlinkSync, existsSync, mkdirSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync, accessSync, constants } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { createInterface } from 'readline'
+import pc from 'picocolors'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const projectRoot = join(__dirname, '..')
 
-// ANSI color codes for better CLI experience
-const colors = {
-  reset: '\x1b[0m',
-  bright: '\x1b[1m',
-  dim: '\x1b[2m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  magenta: '\x1b[35m',
-  cyan: '\x1b[36m',
-  white: '\x1b[37m',
-}
-
-// Create readline interface
-const rl = createInterface({
-  input: process.stdin,
-  output: process.stdout,
-})
-
-/**
- * Utility function to ask questions with validation
- */
-function askQuestion(question, options = {}) {
-  return new Promise((resolve) => {
-    const { defaultValue, validator, transform } = options
-    
-    const prompt = defaultValue 
-      ? `${question} ${colors.dim}(${defaultValue})${colors.reset}: `
-      : `${question}: `
-    
-    rl.question(prompt, (answer) => {
-      let value = answer.trim() || defaultValue || ''
-      
-      if (transform) {
-        value = transform(value)
-      }
-      
-      if (validator && !validator(value)) {
-        console.log(`${colors.red}Invalid input. Please try again.${colors.reset}`)
-        resolve(askQuestion(question, options))
-        return
-      }
-      
-      resolve(value)
-    })
-  })
-}
-
-/**
- * Utility function to ask yes/no questions with arrow key navigation
- */
-function askYesNo(question, defaultValue = false) {
-  const choices = [
-    { label: 'Yes', value: true },
-    { label: 'No', value: false }
-  ]
+// astroSumi aesthetic - inspired by Japanese sumi ink painting
+const sumi = {
+  // Core sumi ink colors
+  reset: pc.reset,
+  black: pc.black,
+  white: pc.white,
+  gray: pc.gray,
   
-  const defaultIndex = defaultValue ? 0 : 1
+  // Text styles for sumi aesthetic
+  bold: (text) => pc.bold(text),
+  dim: (text) => pc.dim(text),
   
-  return askChoice(question, choices, defaultIndex).then(choice => choice.value)
+  // Minimal color accents (sparingly used)
+  accent: (text) => pc.cyan(text),
+  warning: (text) => pc.yellow(text),
+  error: (text) => pc.red(text),
 }
 
-/**
- * Utility function to ask multiple choice questions with arrow key navigation
- */
-function askChoice(question, choices, defaultIndex = 0) {
-  return new Promise((resolve) => {
-    let selectedIndex = defaultIndex
-    
-    // Enable raw mode for capturing arrow keys
-    process.stdin.setRawMode(true)
-    process.stdin.resume()
-    process.stdin.setEncoding('utf8')
-    
-    function displayChoices() {
-      console.log(`\n${colors.bright}${question}${colors.reset}`)
-      console.log(`${colors.dim}Use ↑/↓ arrow keys to navigate, Enter to select${colors.reset}\n`)
-      
-      choices.forEach((choice, index) => {
-        const isSelected = index === selectedIndex
-        const marker = isSelected ? `${colors.green}❯${colors.reset}` : ' '
-        const label = isSelected ? `${colors.green}${choice.label}${colors.reset}` : choice.label
-        
-        console.log(`${marker} ${label}`)
-        if (choice.description) {
-          const desc = isSelected ? `${colors.green}  ${choice.description}${colors.reset}` : `${colors.dim}  ${choice.description}${colors.reset}`
-          console.log(desc)
-        }
-      })
+// Simple Unicode characters for visual structure
+const brush = {
+  dot: '•',               // Bullet point
+  line: '─',              // Horizontal line
+  pipe: '│',              // Vertical line
+  corner: '└',            // Corner
+  branch: '├',            // Branch
+  space: ' ',             // Intentional whitespace
+}
+
+// TTY detection for graceful degradation
+const IS_INTERACTIVE = process.stdout.isTTY && process.env.NO_COLOR !== '1'
+
+// Helper function to conditionally apply styling
+function style(text, styleFunc) {
+  if (!IS_INTERACTIVE) {
+    return text
+  }
+  return typeof styleFunc === 'function' ? styleFunc(text) : text
+}
+
+// Input validation functions
+function validateUrl(input, allowEmpty = true) {
+  if (!input || input.trim() === '') {
+    return {
+      isValid: allowEmpty,
+      value: '',
+      error: allowEmpty ? null : 'URL is required'
     }
-    
-    function redrawChoices() {
-      // Calculate lines to move up (question + instruction + choices + descriptions + empty lines)
-      const linesToMoveUp = 3 + choices.length + choices.filter(c => c.description).length
-      
-      // Move cursor up and clear lines
-      process.stdout.write(`\x1b[${linesToMoveUp}A`)
-      for (let i = 0; i < linesToMoveUp; i++) {
-        process.stdout.write('\x1b[2K\x1b[1B')
-      }
-      process.stdout.write(`\x1b[${linesToMoveUp}A`)
-      
-      // Redraw choices
-      console.log(`${colors.bright}${question}${colors.reset}`)
-      console.log(`${colors.dim}Use ↑/↓ arrow keys to navigate, Enter to select${colors.reset}\n`)
-      
-      choices.forEach((choice, index) => {
-        const isSelected = index === selectedIndex
-        const marker = isSelected ? `${colors.green}❯${colors.reset}` : ' '
-        const label = isSelected ? `${colors.green}${choice.label}${colors.reset}` : choice.label
-        
-        console.log(`${marker} ${label}`)
-        if (choice.description) {
-          const desc = isSelected ? `${colors.green}  ${choice.description}${colors.reset}` : `${colors.dim}  ${choice.description}${colors.reset}`
-          console.log(desc)
-        }
-      })
-    }
-    
-    function onKeyPress(key) {
-      switch (key) {
-        case '\u001b[A': // Up arrow
-          selectedIndex = selectedIndex > 0 ? selectedIndex - 1 : choices.length - 1
-          redrawChoices()
-          break
-          
-        case '\u001b[B': // Down arrow
-          selectedIndex = selectedIndex < choices.length - 1 ? selectedIndex + 1 : 0
-          redrawChoices()
-          break
-          
-        case '\r': // Enter
-        case '\n':
-          process.stdin.setRawMode(false)
-          process.stdin.removeListener('data', onKeyPress)
-          process.stdin.pause()
-          console.log(`\n${colors.green}✓${colors.reset} Selected: ${choices[selectedIndex].label}\n`)
-          resolve(choices[selectedIndex])
-          break
-          
-        case '\u0003': // Ctrl+C
-          process.stdin.setRawMode(false)
-          process.stdin.removeListener('data', onKeyPress)
-          process.stdin.pause()
-          console.log('\n\nSetup cancelled.')
-          process.exit(0)
-          break
-          
-        default:
-          // Ignore other keys
-          break
-      }
-    }
-    
-    // Initial display
-    displayChoices()
-    
-    // Listen for key presses
-    process.stdin.on('data', onKeyPress)
-  })
-}
-
-/**
- * Display welcome message
- */
-function displayWelcome() {
-  console.log(`
-${colors.cyan}╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║               ${colors.bright}🌸 Astro Sumi Setup${colors.reset}${colors.cyan}                ║
-║                                                              ║
-║  Welcome! This setup wizard will help you configure your    ║
-║  novel publishing site with your personal information,      ║
-║  comment system, and content preferences.                   ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝${colors.reset}
-
-${colors.yellow}📝 What this setup will do:${colors.reset}
-• Configure your site information (title, description, author)
-• Set up comment system (Giscus or disable entirely)
-• Configure social links (GitHub, email, etc.)
-• Manage sample content (keep, remove, or start fresh)
-• Generate .env.local file with your settings
-• Clean up files based on your preferences
-
-${colors.green}✨ Let's get started!${colors.reset}
-`)
-}
-
-/**
- * Collect site configuration
- */
-async function collectSiteConfig() {
-  console.log(`\n${colors.bright}📖 Site Configuration${colors.reset}`)
-  console.log(`${colors.dim}Configure your site's basic information${colors.reset}\n`)
-  
-  const siteTitle = await askQuestion('Site title', {
-    defaultValue: 'Your Novel Site',
-    validator: (value) => value.length > 0,
-  })
-  
-  const siteDescription = await askQuestion('Site description', {
-    defaultValue: 'A collection of my novels and stories',
-    validator: (value) => value.length > 0,
-  })
-  
-  const siteAuthor = await askQuestion('Author name', {
-    defaultValue: 'Your Name',
-    validator: (value) => value.length > 0,
-  })
-  
-  const siteUrl = await askQuestion('Site URL (include https://)', {
-    defaultValue: 'https://your-site.com',
-    validator: (value) => {
-      try {
-        new URL(value)
-        return true
-      } catch {
-        return false
-      }
-    },
-  })
-  
-  return {
-    title: siteTitle,
-    description: siteDescription,
-    author: siteAuthor,
-    url: siteUrl,
-  }
-}
-
-/**
- * Collect social links configuration
- */
-async function collectSocialConfig() {
-  console.log(`\n${colors.bright}🔗 Social Links Configuration${colors.reset}`)
-  console.log(`${colors.dim}Configure your social media and contact links${colors.reset}\n`)
-  
-  const githubUrl = await askQuestion('GitHub profile URL (optional)', {
-    defaultValue: '',
-    validator: (value) => {
-      if (!value) return true
-      try {
-        const url = new URL(value)
-        return url.hostname === 'github.com'
-      } catch {
-        return false
-      }
-    },
-  })
-  
-  const emailAddress = await askQuestion('Email address (optional)', {
-    defaultValue: '',
-    validator: (value) => {
-      if (!value) return true
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-    },
-  })
-  
-  const patreonUrl = await askQuestion('Patreon URL (optional)', {
-    defaultValue: '',
-    validator: (value) => {
-      if (!value) return true
-      try {
-        const url = new URL(value)
-        return url.hostname === 'www.patreon.com' || url.hostname === 'patreon.com'
-      } catch {
-        return false
-      }
-    },
-  })
-  
-  const kofiUrl = await askQuestion('Ko-fi URL (optional)', {
-    defaultValue: '',
-    validator: (value) => {
-      if (!value) return true
-      try {
-        const url = new URL(value)
-        return url.hostname === 'ko-fi.com'
-      } catch {
-        return false
-      }
-    },
-  })
-  
-  return {
-    githubUrl: githubUrl || undefined,
-    emailAddress: emailAddress || undefined,
-    patreonUrl: patreonUrl || undefined,
-    kofiUrl: kofiUrl || undefined,
-  }
-}
-
-/**
- * Collect Giscus configuration
- */
-async function collectGiscusConfig() {
-  console.log(`\n${colors.bright}💬 Comment System Configuration${colors.reset}`)
-  console.log(`${colors.dim}Configure Giscus (GitHub Discussions) for comments${colors.reset}\n`)
-  
-  const enableComments = await askYesNo('Enable comment system?', true)
-  
-  if (!enableComments) {
-    return { enabled: false }
   }
   
-  console.log(`\n${colors.yellow}📋 Giscus Setup Instructions:${colors.reset}`)
-  console.log(`1. Make sure your repository is public`)
-  console.log(`2. Enable Discussions in your repository settings`)
-  console.log(`3. Install the Giscus app: https://github.com/apps/giscus`)
-  console.log(`4. Visit https://giscus.app to get your configuration`)
-  console.log(`5. Enter the values below (or leave blank to use defaults)\n`)
+  const trimmedInput = input.trim()
   
-  const repo = await askQuestion('Repository (username/repository-name)', {
-    defaultValue: '',
-    validator: (value) => {
-      if (!value) return true
-      return /^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(value)
-    },
-  })
-  
-  const repoId = await askQuestion('Repository ID (from giscus.app)', {
-    defaultValue: '',
-  })
-  
-  const category = await askQuestion('Discussion category', {
-    defaultValue: 'General',
-  })
-  
-  const categoryId = await askQuestion('Category ID (from giscus.app)', {
-    defaultValue: '',
-  })
-  
-  const theme = await askChoice('Comment theme', [
-    { label: 'Light', value: 'light', description: 'Clean light theme' },
-    { label: 'Dark', value: 'dark', description: 'Dark theme' },
-    { label: 'Auto', value: 'preferred_color_scheme', description: 'Follows system theme' },
-    { label: 'Transparent Dark', value: 'transparent_dark', description: 'Transparent dark theme' },
-  ], 0)
-  
-  const language = await askChoice('Interface language', [
-    { label: 'English', value: 'en' },
-    { label: 'Spanish', value: 'es' },
-    { label: 'French', value: 'fr' },
-    { label: 'German', value: 'de' },
-    { label: 'Japanese', value: 'ja' },
-    { label: 'Korean', value: 'ko' },
-    { label: 'Portuguese', value: 'pt' },
-    { label: 'Russian', value: 'ru' },
-    { label: 'Chinese (Simplified)', value: 'zh-CN' },
-    { label: 'Chinese (Traditional)', value: 'zh-TW' },
-  ], 0)
-  
-  return {
-    enabled: true,
-    repo: repo || undefined,
-    repoId: repoId || undefined,
-    category: category || 'General',
-    categoryId: categoryId || undefined,
-    theme: theme.value,
-    language: language.value,
-  }
-}
-
-/**
- * Collect content management preferences
- */
-async function collectContentConfig() {
-  console.log(`\n${colors.bright}📚 Content Management${colors.reset}`)
-  console.log(`${colors.dim}Choose what to do with the sample content${colors.reset}\n`)
-  
-  const contentChoice = await askChoice('What would you like to do with sample content?', [
-    { 
-      label: 'Keep sample novels', 
-      value: 'keep',
-      description: 'Keep the demo novels as examples (recommended for first-time users)'
-    },
-    { 
-      label: 'Remove demo content', 
-      value: 'remove',
-      description: 'Remove sample novels but keep the content structure'
-    },
-    { 
-      label: 'Start completely fresh', 
-      value: 'fresh',
-      description: 'Remove all sample content and start with empty collections'
-    },
-  ], 0)
-  
-  return {
-    contentStrategy: contentChoice.value,
-  }
-}
-
-/**
- * Generate .env.local file
- */
-function generateEnvFile(config) {
-  const envContent = `# ============================================
-# ASTRO SUMI - GENERATED CONFIGURATION
-# ============================================
-# 
-# This file was generated by the setup script.
-# You can modify these values or add additional configuration.
-# 
-# SECURITY WARNING: Never commit this file to version control!
-# ============================================
-
-# ============================================
-# Site Configuration
-# ============================================
-SITE_TITLE="${config.site.title}"
-SITE_DESCRIPTION="${config.site.description}"
-SITE_AUTHOR="${config.site.author}"
-SITE_URL="${config.site.url}"
-
-# ============================================
-# Social Links Configuration
-# ============================================
-${config.social.githubUrl ? `GITHUB_URL="${config.social.githubUrl}"` : '# GITHUB_URL=https://github.com/your-username'}
-${config.social.emailAddress ? `EMAIL_ADDRESS="${config.social.emailAddress}"` : '# EMAIL_ADDRESS=author@example.com'}
-${config.social.patreonUrl ? `PATREON_URL="${config.social.patreonUrl}"` : '# PATREON_URL=https://www.patreon.com/your-username'}
-${config.social.kofiUrl ? `KOFI_URL="${config.social.kofiUrl}"` : '# KOFI_URL=https://ko-fi.com/your-username'}
-
-# ============================================
-# Comment System Configuration
-# ============================================
-${config.giscus.enabled ? 'COMMENTS_PROVIDER=giscus' : 'COMMENTS_PROVIDER=none'}
-GISCUS_ENABLED=${config.giscus.enabled ? 'true' : 'false'}
-
-${config.giscus.enabled ? `# Giscus Configuration
-${config.giscus.repo ? `GISCUS_REPO="${config.giscus.repo}"` : '# GISCUS_REPO=your-username/your-repository'}
-${config.giscus.repoId ? `GISCUS_REPO_ID="${config.giscus.repoId}"` : '# GISCUS_REPO_ID=R_kgDOH...'}
-GISCUS_CATEGORY="${config.giscus.category}"
-${config.giscus.categoryId ? `GISCUS_CATEGORY_ID="${config.giscus.categoryId}"` : '# GISCUS_CATEGORY_ID=DIC_kwDOH...'}
-GISCUS_THEME="${config.giscus.theme}"
-GISCUS_LANG="${config.giscus.language}"
-GISCUS_MAPPING=pathname
-GISCUS_REACTIONS_ENABLED=1
-GISCUS_EMIT_METADATA=0
-GISCUS_INPUT_POSITION=top
-GISCUS_LOADING=lazy
-GISCUS_STRICT=0` : '# Comments disabled - no Giscus configuration needed'}
-
-# ============================================
-# Build Configuration
-# ============================================
-NODE_ENV=development
-ENABLE_ANALYTICS=false
-
-# ============================================
-# Setup Information
-# ============================================
-# Generated on: ${new Date().toISOString()}
-# Content strategy: ${config.content.contentStrategy}
-# Comments enabled: ${config.giscus.enabled}
-`
-  
-  const envPath = join(projectRoot, '.env.local')
-  writeFileSync(envPath, envContent, 'utf8')
-  
-  return envPath
-}
-
-/**
- * Clean up content based on user preferences
- */
-function cleanupContent(contentStrategy) {
-  const contentDir = join(projectRoot, 'src', 'content')
-  
-  if (contentStrategy === 'remove' || contentStrategy === 'fresh') {
-    // Remove sample novels
-    const novelsToRemove = [
-      'chronicles-of-aethermoor.md',
-      'whispers-in-the-void.md'
-    ]
-    
-    novelsToRemove.forEach(novel => {
-      const novelPath = join(contentDir, 'novels', novel)
-      if (existsSync(novelPath)) {
-        unlinkSync(novelPath)
-        console.log(`${colors.dim}Removed: ${novel}${colors.reset}`)
-      }
-    })
-    
-    // Remove sample chapters
-    const chaptersToRemove = [
-      'chronicles-of-aethermoor-v1-c1.md',
-      'chronicles-of-aethermoor-v1-c2.md',
-      'whispers-in-the-void-v1-c1.md'
-    ]
-    
-    chaptersToRemove.forEach(chapter => {
-      const chapterPath = join(contentDir, 'chapters', chapter)
-      if (existsSync(chapterPath)) {
-        unlinkSync(chapterPath)
-        console.log(`${colors.dim}Removed: ${chapter}${colors.reset}`)
-      }
-    })
-  }
-  
-  if (contentStrategy === 'fresh') {
-    // Remove sample author
-    const authorPath = join(contentDir, 'authors', 'template-author.md')
-    if (existsSync(authorPath)) {
-      unlinkSync(authorPath)
-      console.log(`${colors.dim}Removed: template-author.md${colors.reset}`)
-    }
-    
-    // Create placeholder files to maintain structure
-    const placeholderNovel = `---
-title: "Your First Novel"
-description: "Description of your novel"
-author: "your-author-id"
-publishedAt: ${new Date().toISOString().split('T')[0]}
-status: "ongoing"
-tags: ["fantasy", "adventure"]
-coverImage: "/static/novel-cover.jpg"
----
-
-# Your First Novel
-
-Start writing your novel here...
-`
-    
-    const placeholderChapter = `---
-title: "Chapter 1: The Beginning"
-description: "The first chapter of your story"
-novel: "your-first-novel"
-volume: 1
-chapter: 1
-publishedAt: ${new Date().toISOString().split('T')[0]}
-wordCount: 0
----
-
-# Chapter 1: The Beginning
-
-Start writing your first chapter here...
-`
-    
-    const placeholderAuthor = `---
-name: "Your Name"
-bio: "Author bio goes here"
-avatar: "/static/author-placeholder.svg"
-social:
-  website: "https://your-website.com"
-  email: "author@example.com"
----
-
-# About the Author
-
-Write your author bio here...
-`
-    
-    writeFileSync(join(contentDir, 'novels', 'your-first-novel.md'), placeholderNovel, 'utf8')
-    writeFileSync(join(contentDir, 'chapters', 'your-first-novel-v1-c1.md'), placeholderChapter, 'utf8')
-    writeFileSync(join(contentDir, 'authors', 'your-author.md'), placeholderAuthor, 'utf8')
-    
-    console.log(`${colors.green}Created placeholder content files${colors.reset}`)
-  }
-}
-
-/**
- * Display completion summary
- */
-function displayCompletion(config, envPath) {
-  console.log(`\n${colors.green}✅ Setup Complete!${colors.reset}`)
-  console.log(`\n${colors.bright}📋 Configuration Summary:${colors.reset}`)
-  console.log(`• Site: ${config.site.title}`)
-  console.log(`• Author: ${config.site.author}`)
-  console.log(`• URL: ${config.site.url}`)
-  console.log(`• Comments: ${config.giscus.enabled ? 'Enabled (Giscus)' : 'Disabled'}`)
-  console.log(`• Content: ${config.content.contentStrategy}`)
-  
-  console.log(`\n${colors.bright}📁 Files Created/Modified:${colors.reset}`)
-  console.log(`• ${colors.cyan}.env.local${colors.reset} - Your environment configuration`)
-  
-  if (config.content.contentStrategy !== 'keep') {
-    console.log(`• ${colors.dim}Sample content files removed/modified${colors.reset}`)
-  }
-  
-  console.log(`\n${colors.bright}🚀 Next Steps:${colors.reset}`)
-  console.log(`1. ${colors.cyan}npm run dev${colors.reset} - Start the development server`)
-  console.log(`2. Visit ${colors.cyan}http://localhost:4321${colors.reset} to see your site`)
-  
-  if (config.giscus.enabled && (!config.giscus.repo || !config.giscus.repoId)) {
-    console.log(`\n${colors.yellow}⚠️  Comment System Setup:${colors.reset}`)
-    console.log(`To complete Giscus setup:`)
-    console.log(`1. Visit ${colors.cyan}https://giscus.app${colors.reset}`)
-    console.log(`2. Get your repository ID and category ID`)
-    console.log(`3. Update the values in ${colors.cyan}.env.local${colors.reset}`)
-  }
-  
-  console.log(`\n${colors.bright}📚 Documentation:${colors.reset}`)
-  console.log(`• Check the README.md for detailed usage instructions`)
-  console.log(`• Visit the docs/ folder for additional guides`)
-  
-  console.log(`\n${colors.magenta}Happy writing! 🌸${colors.reset}`)
-}
-
-/**
- * Main setup function
- */
-async function runSetup() {
   try {
-    displayWelcome()
+    const url = new URL(trimmedInput)
     
-    // Collect all configuration
-    const siteConfig = await collectSiteConfig()
-    const socialConfig = await collectSocialConfig()
-    const giscusConfig = await collectGiscusConfig()
-    const contentConfig = await collectContentConfig()
-    
-    const config = {
-      site: siteConfig,
-      social: socialConfig,
-      giscus: giscusConfig,
-      content: contentConfig,
+    // Ensure it's http or https
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      return {
+        isValid: false,
+        value: trimmedInput,
+        error: 'URL must use http:// or https:// protocol'
+      }
     }
     
-    console.log(`\n${colors.bright}🔧 Applying Configuration...${colors.reset}`)
+    return {
+      isValid: true,
+      value: trimmedInput,
+      error: null
+    }
+  } catch (error) {
+    return {
+      isValid: false,
+      value: trimmedInput,
+      error: 'Invalid URL format. Example: https://example.com'
+    }
+  }
+}
+
+function validateEmail(input, allowEmpty = true) {
+  if (!input || input.trim() === '') {
+    return {
+      isValid: allowEmpty,
+      value: '',
+      error: allowEmpty ? null : 'Email is required'
+    }
+  }
+  
+  const trimmedInput = input.trim()
+  
+  // Simple email regex - basic validation only
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  
+  if (!emailRegex.test(trimmedInput)) {
+    return {
+      isValid: false,
+      value: trimmedInput,
+      error: 'Invalid email format. Example: author@example.com'
+    }
+  }
+  
+  return {
+    isValid: true,
+    value: trimmedInput,
+    error: null
+  }
+}
+
+function validateGitHubRepo(input, allowEmpty = true) {
+  if (!input || input.trim() === '') {
+    return {
+      isValid: allowEmpty,
+      value: '',
+      error: allowEmpty ? null : 'GitHub repository is required'
+    }
+  }
+  
+  const trimmedInput = input.trim()
+  
+  // GitHub repo format: username/repository-name
+  // Allow alphanumeric, hyphens, underscores, and dots
+  const repoRegex = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/
+  
+  if (!repoRegex.test(trimmedInput)) {
+    return {
+      isValid: false,
+      value: trimmedInput,
+      error: 'Invalid repository format. Example: username/repository-name'
+    }
+  }
+  
+  // Additional validation: no consecutive special characters
+  if (trimmedInput.includes('..') || trimmedInput.includes('--') || trimmedInput.includes('__')) {
+    return {
+      isValid: false,
+      value: trimmedInput,
+      error: 'Repository name cannot contain consecutive special characters'
+    }
+  }
+  
+  return {
+    isValid: true,
+    value: trimmedInput,
+    error: null
+  }
+}
+
+function sanitizeInput(input, maxLength = 200) {
+  if (!input || typeof input !== 'string') {
+    return ''
+  }
+  
+  // Remove control characters and normalize whitespace
+  const sanitized = input
+    .replace(/[\x00-\x1F\x7F]/g, '') // Remove control characters
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .trim()
+    .slice(0, maxLength) // Limit length
+  
+  return sanitized
+}
+
+function validateAndSanitizeInput(input, validator, defaultValue = '', maxLength = 200) {
+  // First sanitize the input
+  const sanitized = sanitizeInput(input, maxLength)
+  
+  // Then validate
+  const validation = validator(sanitized, true)
+  
+  if (validation.isValid) {
+    return {
+      isValid: true,
+      value: validation.value,
+      error: null
+    }
+  } else {
+    // If validation fails, use default value
+    return {
+      isValid: false,
+      value: defaultValue,
+      error: validation.error,
+      usedDefault: true
+    }
+  }
+}
+
+// Cleanup function for graceful shutdown
+function cleanup() {
+  // Readline interfaces handle their own cleanup via close()
+  // No additional cleanup needed in this script
+}
+
+// Prerequisite validation functions
+function checkNodeVersion() {
+  const nodeVersion = process.version
+  const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0])
+  
+  if (majorVersion < 18) {
+    throw new Error(`Node.js 18.x or higher is required. Current version: ${nodeVersion}`)
+  }
+  
+  return {
+    isValid: true,
+    version: nodeVersion,
+    message: `Node.js version ${nodeVersion} ✓`
+  }
+}
+
+function checkFileSystemPermissions() {
+  const envPath = join(projectRoot, '.env.local')
+  
+  try {
+    // Check if we can write to the project root directory
+    accessSync(projectRoot, constants.W_OK)
     
-    // Generate .env.local file
-    const envPath = generateEnvFile(config)
-    console.log(`${colors.green}✓${colors.reset} Generated .env.local`)
-    
-    // Clean up content based on preferences
-    if (config.content.contentStrategy !== 'keep') {
-      console.log(`${colors.yellow}📚 Managing content...${colors.reset}`)
-      cleanupContent(config.content.contentStrategy)
-      console.log(`${colors.green}✓${colors.reset} Content management complete`)
+    // If .env.local exists, check if we can write to it
+    if (existsSync(envPath)) {
+      accessSync(envPath, constants.W_OK)
     }
     
-    // Display completion summary
-    displayCompletion(config, envPath)
+    return {
+      isValid: true,
+      message: 'File system permissions ✓'
+    }
+  } catch (error) {
+    throw new Error(`Cannot write to project directory. Check file permissions for: ${projectRoot}`)
+  }
+}
+
+function checkProjectDirectory() {
+  const packageJsonPath = join(projectRoot, 'package.json')
+  
+  if (!existsSync(packageJsonPath)) {
+    throw new Error('package.json not found. Please run this script from the project root directory.')
+  }
+  
+  try {
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
+    
+    // Verify this is an Astro project
+    if (!packageJson.dependencies?.astro && !packageJson.devDependencies?.astro) {
+      console.log(`${style(brush.space.repeat(6), sumi.dim)}${style('Warning: This doesn\'t appear to be an Astro project', sumi.warning)}`)
+    }
+    
+    return {
+      isValid: true,
+      projectName: packageJson.name || 'Unknown',
+      message: `Project directory validated ✓`
+    }
+  } catch (error) {
+    throw new Error(`Invalid package.json file: ${error.message}`)
+  }
+}
+
+function runPrerequisiteChecks() {
+  console.log(`${style(brush.space.repeat(4) + 'Preparing workspace...', sumi.dim)}`)
+  console.log('')
+  
+  try {
+    const nodeCheck = checkNodeVersion()
+    console.log(`${style(brush.space.repeat(6) + brush.dot + ' ' + nodeCheck.message, sumi.gray)}`)
+    
+    const permissionCheck = checkFileSystemPermissions()
+    console.log(`${style(brush.space.repeat(6) + brush.dot + ' ' + permissionCheck.message, sumi.gray)}`)
+    
+    const projectCheck = checkProjectDirectory()
+    console.log(`${style(brush.space.repeat(6) + brush.dot + ' ' + projectCheck.message, sumi.gray)}`)
+    
+    console.log('')
+    console.log(`${style(brush.space.repeat(4) + 'Ready to begin.', sumi.dim)}`)
+    console.log('')
+    
+    return {
+      nodeVersion: nodeCheck.version,
+      projectName: projectCheck.projectName
+    }
+  } catch (error) {
+    console.log('')
+    console.error(`${style(brush.space.repeat(4) + 'Setup cannot continue:', sumi.error)}`)
+    console.error(`${style(brush.space.repeat(6) + error.message, sumi.error)}`)
+    console.log('')
+    
+    console.log(`${style(brush.space.repeat(4) + 'Please resolve the issue and try again.', sumi.dim)}`)
+    console.log('')
+    process.exit(1)
+  }
+}
+
+// astroSumi welcome banner with sumi ink aesthetic
+function showSumiWelcome() {
+  console.log('')
+  console.log(`${style(brush.line.repeat(50), sumi.gray)}`)
+  console.log('')
+  console.log(`${style(brush.space.repeat(12) + 'astroSumi Setup', sumi.bold)}`)
+  console.log(`${style(brush.space.repeat(8) + 'Interactive Configuration', sumi.gray)}`)
+  console.log('')
+  console.log(`${style(brush.line.repeat(50), sumi.gray)}`)
+  console.log('')
+  console.log(`${style(brush.space.repeat(4) + 'Like sumi ink on paper,', sumi.dim)}`)
+  console.log(`${style(brush.space.repeat(4) + 'we\'ll paint your template with purpose.', sumi.dim)}`)
+  console.log('')
+}
+
+// astroSumi completion message with sumi-inspired layout
+function showSumiCompletion(config) {
+  console.log('')
+  console.log('')
+  console.log(`${style(brush.line.repeat(50), sumi.gray)}`)
+  console.log('')
+  console.log(`${style(brush.space.repeat(16) + 'Complete', pc.bold(pc.green))}`)
+  console.log('')
+  console.log(`${style(brush.space.repeat(8) + 'Your template is ready', sumi.gray)}`)
+  console.log('')
+  console.log(`${style(brush.line.repeat(50), sumi.gray)}`)
+  console.log('')
+  
+  // Show configuration summary with sumi styling
+  console.log(`${style(brush.space.repeat(4) + 'Configuration applied:', sumi.dim)}`)
+  console.log('')
+  console.log(`${style(brush.space.repeat(6) + brush.dot + ' ' + config.siteTitle, sumi.gray)}`)
+  console.log(`${style(brush.space.repeat(6) + brush.dot + ' ' + config.siteAuthor, sumi.gray)}`)
+  if (config.enableComments) {
+    console.log(`${style(brush.space.repeat(6) + brush.dot + ' Comments enabled', sumi.gray)}`)
+  }
+  console.log('')
+  
+  // Next steps with sumi aesthetic
+  console.log(`${style(brush.space.repeat(4) + 'Next steps:', sumi.dim)}`)
+  console.log('')
+  console.log(`${style(brush.space.repeat(6) + brush.corner + ' Run ', sumi.gray)}${style('bun run dev', sumi.accent)}${style(' to begin', sumi.gray)}`)
+  console.log(`${style(brush.space.repeat(6) + brush.corner + ' Write in ', sumi.gray)}${style('src/content/novels/', sumi.accent)}`)
+  console.log('')
+  console.log(`${style(brush.space.repeat(4) + 'May your words flow like ink.', sumi.dim)}`)
+  console.log('')
+}
+
+// Enhanced text input function with validation and better default handling
+function ask(question, defaultValue = '', validator = null) {
+  return new Promise((resolve) => {
+    // Create a fresh readline interface for each question
+    const readline = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: true
+    })
+    
+    const displayDefault = defaultValue ? ` ${style(`(${defaultValue})`, sumi.gray)}` : ''
+    const prompt = `${question}${displayDefault}: `
+    
+    // Handle Ctrl+C during input
+    const handleSigInt = () => {
+      console.log('')
+      console.log(`${style(brush.space.repeat(4) + 'Input cancelled.', sumi.dim)}`)
+      readline.close()
+      process.exit(0)
+    }
+    
+    const askQuestion = () => {
+      process.once('SIGINT', handleSigInt)
+      
+      readline.question(prompt, (answer) => {
+        process.removeListener('SIGINT', handleSigInt)
+        readline.close()
+        
+        const trimmedAnswer = answer.trim()
+        
+        // If no input provided, use default
+        if (!trimmedAnswer) {
+          if (defaultValue) {
+            console.log(`${style(brush.space.repeat(6) + 'Using default: ' + defaultValue, sumi.gray)}`)
+          }
+          resolve(defaultValue)
+          return
+        }
+        
+        // If validator provided, validate input
+        if (validator) {
+          const validation = validateAndSanitizeInput(trimmedAnswer, validator, defaultValue)
+          
+          if (validation.isValid) {
+            resolve(validation.value)
+          } else {
+            // Show error and use default
+            console.log(`${style(brush.space.repeat(6) + validation.error, sumi.warning)}`)
+            if (validation.usedDefault) {
+              console.log(`${style(brush.space.repeat(6) + 'Using default: ' + validation.value, sumi.gray)}`)
+            }
+            resolve(validation.value)
+          }
+        } else {
+          // No validation, just sanitize
+          const sanitized = sanitizeInput(trimmedAnswer)
+          resolve(sanitized)
+        }
+      })
+    }
+    
+    askQuestion()
+  })
+}
+
+// Enhanced choice function with numbered selection and better keyboard handling
+function askChoice(question, choices, defaultIndex = 0) {
+  return new Promise((resolve, reject) => {
+    // Create a fresh readline interface for each choice
+    const readline = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: true
+    })
+    
+    console.log(`${style(brush.space.repeat(4) + question, sumi.dim)}`)
+    console.log('')
+    
+    // Display choices with clear numbering
+    choices.forEach((choice, index) => {
+      const isDefault = index === defaultIndex
+      const marker = isDefault ? `${style(brush.dot, sumi.accent)}` : `${style(brush.space, sumi.gray)}`
+      const number = `${style(String(index + 1), sumi.bold)}`
+      const label = isDefault ? 
+        `${style(choice.label, sumi.bold)} ${style('(default)', sumi.gray)}` : 
+        `${style(choice.label, sumi.gray)}`
+      
+      console.log(`${brush.space.repeat(6)}${marker} ${number}. ${label}`)
+    })
+    
+    const defaultChoice = defaultIndex + 1
+    console.log('')
+    
+    // Handle Ctrl+C during choice selection
+    const handleSigInt = () => {
+      console.log('')
+      console.log(`${style(brush.space.repeat(4) + 'Selection cancelled.', sumi.dim)}`)
+      readline.close()
+      process.exit(0)
+    }
+    
+    process.once('SIGINT', handleSigInt)
+    
+    const promptText = `${brush.space.repeat(4)}Enter choice ${style(`(1-${choices.length})`, sumi.gray)} [${style(String(defaultChoice), sumi.bold)}]: `
+    
+    readline.question(promptText, (answer) => {
+      process.removeListener('SIGINT', handleSigInt)
+      readline.close()
+      
+      const trimmedAnswer = answer.trim()
+      let choiceIndex
+      
+      if (!trimmedAnswer) {
+        // Use default if no input
+        choiceIndex = defaultIndex
+        console.log(`${style(brush.space.repeat(6) + 'Using default: ' + choices[defaultIndex].label, sumi.gray)}`)
+      } else {
+        const choice = parseInt(trimmedAnswer)
+        
+        if (isNaN(choice) || choice < 1 || choice > choices.length) {
+          console.log(`${style(brush.space.repeat(6) + `Invalid choice "${trimmedAnswer}". Using default.`, sumi.warning)}`)
+          choiceIndex = defaultIndex
+        } else {
+          choiceIndex = choice - 1
+          console.log(`${style(brush.space.repeat(6) + 'Selected: ' + choices[choiceIndex].label, sumi.gray)}`)
+        }
+      }
+      
+      console.log('')
+      resolve(choices[choiceIndex])
+    })
+  })
+}
+
+// Main setup function
+async function runSetup() {
+  // Show sumi welcome banner
+  showSumiWelcome()
+  
+  try {
+    // Run prerequisite checks first
+    runPrerequisiteChecks()
+    
+    // Site Configuration with sumi styling
+    console.log(`${style(brush.space.repeat(4) + 'Site Configuration', sumi.dim)}`)
+    console.log(`${style(brush.space.repeat(6) + 'Basic information for your template', sumi.gray)}`)
+    console.log('')
+    
+    const siteTitle = await ask(`${brush.space.repeat(6)}Site title`, 'Your Novel Site')
+    const siteDescription = await ask(`${brush.space.repeat(6)}Site description`, 'A collection of my novels and stories')
+    const siteAuthor = await ask(`${brush.space.repeat(6)}Author name`, 'Your Name')
+    const siteUrl = await ask(`${brush.space.repeat(6)}Site URL (include https://)`, 'https://your-site.com', validateUrl)
+    
+    console.log('')
+    
+    // Social Links with sumi styling
+    console.log(`${style(brush.space.repeat(4) + 'Social Links', sumi.dim)}`)
+    console.log(`${style(brush.space.repeat(6) + 'Connect with your readers (optional)', sumi.gray)}`)
+    console.log('')
+    
+    const githubUrl = await ask(`${brush.space.repeat(6)}GitHub profile URL (optional)`, '', validateUrl)
+    const emailAddress = await ask(`${brush.space.repeat(6)}Email address (optional)`, '', validateEmail)
+    
+    console.log('')
+    
+    // Comments with sumi styling
+    const enableComments = await askChoice('Enable comment system?', [
+      { label: 'Yes', value: true },
+      { label: 'No', value: false }
+    ])
+    
+    let giscusRepo = ''
+    let giscusRepoId = ''
+    
+    if (enableComments.value) {
+      console.log(`${style(brush.space.repeat(4) + 'Giscus Setup', sumi.dim)}`)
+      console.log(`${style(brush.space.repeat(6) + 'Configure comment system', sumi.gray)}`)
+      console.log('')
+      console.log(`${style(brush.space.repeat(6) + brush.dot + ' Make repository public', sumi.gray)}`)
+      console.log(`${style(brush.space.repeat(6) + brush.dot + ' Enable Discussions in settings', sumi.gray)}`)
+      console.log(`${style(brush.space.repeat(6) + brush.dot + ' Install Giscus app: github.com/apps/giscus', sumi.gray)}`)
+      console.log(`${style(brush.space.repeat(6) + brush.dot + ' Get config from: giscus.app', sumi.gray)}`)
+      console.log('')
+      
+      giscusRepo = await ask(`${brush.space.repeat(6)}Repository (username/repository-name)`, '', validateGitHubRepo)
+      giscusRepoId = await ask(`${brush.space.repeat(6)}Repository ID (from giscus.app)`, '')
+      console.log('')
+    }
+    
+    // Generate .env.local
+    const envContent = `# Astro Sumi Configuration
+# Generated by setup script
+
+# Site Configuration
+SITE_TITLE="${siteTitle}"
+SITE_DESCRIPTION="${siteDescription}"
+SITE_AUTHOR="${siteAuthor}"
+SITE_URL="${siteUrl}"
+
+# Social Links
+${githubUrl ? `GITHUB_URL="${githubUrl}"` : '# GITHUB_URL=https://github.com/your-username'}
+${emailAddress ? `EMAIL_ADDRESS="${emailAddress}"` : '# EMAIL_ADDRESS=author@example.com'}
+
+# Comments
+${enableComments.value ? 'COMMENTS_PROVIDER=giscus' : 'COMMENTS_PROVIDER=none'}
+${giscusRepo ? `GISCUS_REPO="${giscusRepo}"` : '# GISCUS_REPO=your-username/your-repo'}
+${giscusRepoId ? `GISCUS_REPO_ID="${giscusRepoId}"` : '# GISCUS_REPO_ID=your-repo-id'}
+GISCUS_CATEGORY="General"
+GISCUS_CATEGORY_ID="DIC_kwDOH_example"
+`
+    
+    const envPath = join(projectRoot, '.env.local')
+    writeFileSync(envPath, envContent, 'utf8')
+    
+    // Show sumi completion message
+    showSumiCompletion({
+      siteTitle,
+      siteAuthor,
+      enableComments: enableComments.value,
+      needsGiscusSetup: enableComments.value && (!giscusRepo || !giscusRepoId)
+    })
     
   } catch (error) {
-    console.error(`\n${colors.red}❌ Setup failed:${colors.reset}`, error.message)
+    console.log('')
+    console.error(`${style(brush.space.repeat(4) + 'Setup failed: ' + error.message, sumi.error)}`)
+    console.log('')
     process.exit(1)
-  } finally {
-    rl.close()
   }
 }
 
-// Handle graceful shutdown
+// Enhanced Ctrl+C handling with proper cleanup
 process.on('SIGINT', () => {
-  console.log(`\n\n${colors.yellow}Setup cancelled by user${colors.reset}`)
-  rl.close()
+  console.log('')
+  console.log('')
+  console.log(`${style(brush.space.repeat(4) + 'Setup cancelled by user.', sumi.dim)}`)
+  console.log('')
   process.exit(0)
 })
 
-// Run the setup
+// Handle other termination signals for complete cleanup
+process.on('SIGTERM', () => {
+  process.exit(0)
+})
+
+process.on('exit', () => {
+  // Terminal cleanup handled by Node.js automatically
+})
+
+// Run setup
 runSetup()

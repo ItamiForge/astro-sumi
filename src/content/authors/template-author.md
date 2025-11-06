@@ -32,5 +32,3 @@ When using this template for your own writing project:
 2. Update the bio and content sections with your actual writing background
 3. Add or remove social media links as needed
 4. Replace the avatar image with your own author photo
-
-This example demonstrates the flexibility of the author schema while providing a clear starting point for new users of the template.

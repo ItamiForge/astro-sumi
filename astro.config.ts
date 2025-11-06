@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config'
+import { loadEnv } from 'vite'
 
 import mdx from '@astrojs/mdx'
 import react from '@astrojs/react'
@@ -14,8 +15,11 @@ import remarkMath from 'remark-math'
 import tailwindcss from '@tailwindcss/vite'
 import { getSiteConfig } from './src/lib/env'
 
+// Load environment variables from .env.local at config time
+const env = loadEnv('development', process.cwd(), '')
+
 // Get site configuration from environment variables with fallbacks
-const siteConfig = getSiteConfig()
+const siteConfig = getSiteConfig(env)
 
 export default defineConfig({
   site: siteConfig.url,

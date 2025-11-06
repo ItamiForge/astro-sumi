@@ -58,5 +58,3 @@ When adapting this template for your own work:
 2. Update the metadata to reflect your genre, themes, and content
 3. Adjust the world-building sections to match your setting
 4. Modify character descriptions to fit your cast
-
-This example provides a foundation that can be adapted for any genre of long-form fiction, from contemporary romance to science fiction to historical drama.
