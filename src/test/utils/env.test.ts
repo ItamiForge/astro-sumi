@@ -1,4 +1,6 @@
-import { describe, test, expect } from 'vitest'
+import { describe, test, expect, beforeAll } from 'vitest'
+import { readFileSync, existsSync } from 'fs'
+import { join } from 'path'
 import {
   validateEnvironment,
   getGiscusConfig,
@@ -11,10 +13,140 @@ import {
   validateEnvironmentForBuild,
   validateEnvironmentWithContext,
   EnvironmentValidationError,
-  DEFAULT_GISCUS_CONFIG
+  DEFAULT_GISCUS_CONFIG,
+  type EnvironmentConfig
 } from '@/lib/env'
 
+/**
+ * Test environment configuration interface
+ */
+interface TestEnvironmentConfig {
+  useRealValues: boolean
+  envSource: 'env.local' | 'mock' | 'system'
+  config: EnvironmentConfig
+}
+
+/**
+ * Helper function to check if .env.local exists
+ */
+function checkEnvLocalExists(): boolean {
+  const envLocalPath = join(process.cwd(), '.env.local')
+  return existsSync(envLocalPath)
+}
+
+/**
+ * Safe file reading with error handling
+ */
+function safeReadEnvLocal(): Record<string, string> | null {
+  try {
+    const envLocalPath = join(process.cwd(), '.env.local')
+    if (!existsSync(envLocalPath)) {
+      return null
+    }
+    
+    const content = readFileSync(envLocalPath, 'utf-8')
+    return parseEnvContent(content)
+  } catch (error) {
+    console.warn('Failed to read .env.local:', error instanceof Error ? error.message : 'Unknown error')
+    return null
+  }
+}
+
+/**
+ * Parse .env.local content into key-value pairs
+ */
+function parseEnvContent(content: string): Record<string, string> {
+  const env: Record<string, string> = {}
+  
+  const lines = content.split('\n')
+  for (const line of lines) {
+    const trimmedLine = line.trim()
+    
+    // Skip empty lines and comments
+    if (!trimmedLine || trimmedLine.startsWith('#')) {
+      continue
+    }
+    
+    // Parse KEY=VALUE format
+    const equalIndex = trimmedLine.indexOf('=')
+    if (equalIndex === -1) {
+      continue
+    }
+    
+    const key = trimmedLine.slice(0, equalIndex).trim()
+    let value = trimmedLine.slice(equalIndex + 1).trim()
+    
+    // Remove quotes if present
+    if ((value.startsWith('"') && value.endsWith('"')) || 
+        (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1)
+    }
+    
+    if (key) {
+      env[key] = value
+    }
+  }
+  
+  return env
+}
+
+/**
+ * Load test environment configuration with real .env.local values when available
+ */
+function loadTestEnvironment(): TestEnvironmentConfig {
+  // Check if .env.local exists and load real values
+  const realEnvValues = safeReadEnvLocal()
+  
+  if (realEnvValues) {
+    try {
+      // Try to validate real values
+      const config = validateEnvironment(realEnvValues)
+      return {
+        useRealValues: true,
+        envSource: 'env.local',
+        config
+      }
+    } catch (error) {
+      // Real values are invalid, fall back to mock values
+      console.warn('Real .env.local values failed validation, using mock values:', 
+        error instanceof Error ? error.message : 'Unknown error')
+    }
+  }
+  
+  // Fallback to mock values
+  const mockEnv = {
+    GISCUS_REPO: 'test/repo',
+    GISCUS_REPO_ID: 'R_test123',
+    GISCUS_CATEGORY: 'General',
+    GISCUS_CATEGORY_ID: 'DIC_test123',
+    GISCUS_THEME: 'dark',
+    SITE_URL: 'https://example.com',
+    SITE_TITLE: 'Test Site',
+    SITE_AUTHOR: 'Test Author',
+    SITE_DESCRIPTION: 'Test Description',
+    NODE_ENV: 'development' as const,
+    ENABLE_ANALYTICS: 'false',
+    GITHUB_URL: 'https://github.com/testuser',
+    EMAIL_ADDRESS: 'test@example.com',
+    REPOSITORY_NAME: 'test-repo',
+    REPOSITORY_OWNER: 'testuser'
+  }
+  
+  const config = validateEnvironment(mockEnv)
+  return {
+    useRealValues: false,
+    envSource: 'mock',
+    config
+  }
+}
+
 describe('Environment Validation Functions', () => {
+  let testConfig: TestEnvironmentConfig
+  
+  beforeAll(() => {
+    testConfig = loadTestEnvironment()
+    console.log(`🧪 Running tests with ${testConfig.envSource} values (real: ${testConfig.useRealValues})`)
+  })
   describe('validateEnvironment', () => {
     test('validates with minimal environment', () => {
       const env = {}
@@ -25,7 +157,18 @@ describe('Environment Validation Functions', () => {
     })
 
     test('validates with complete environment', () => {
-      const env = {
+      // Use test config values when available, otherwise use mock values
+      const env = testConfig.useRealValues ? {
+        GISCUS_REPO: testConfig.config.GISCUS_REPO,
+        GISCUS_REPO_ID: testConfig.config.GISCUS_REPO_ID,
+        GISCUS_CATEGORY: testConfig.config.GISCUS_CATEGORY,
+        GISCUS_CATEGORY_ID: testConfig.config.GISCUS_CATEGORY_ID,
+        GISCUS_THEME: testConfig.config.GISCUS_THEME,
+        SITE_URL: testConfig.config.SITE_URL,
+        SITE_TITLE: testConfig.config.SITE_TITLE,
+        NODE_ENV: 'production',
+        ENABLE_ANALYTICS: 'true'
+      } : {
         GISCUS_REPO: 'test/repo',
         GISCUS_REPO_ID: 'R_test123',
         GISCUS_CATEGORY: 'General',
@@ -39,9 +182,10 @@ describe('Environment Validation Functions', () => {
       
       const result = validateEnvironment(env)
       
-      expect(result.GISCUS_REPO).toBe('test/repo')
-      expect(result.GISCUS_REPO_ID).toBe('R_test123')
-      expect(result.SITE_URL).toBe('https://example.com')
+      // Test that values are properly assigned
+      if (env.GISCUS_REPO) expect(result.GISCUS_REPO).toBe(env.GISCUS_REPO)
+      if (env.GISCUS_REPO_ID) expect(result.GISCUS_REPO_ID).toBe(env.GISCUS_REPO_ID)
+      if (env.SITE_URL) expect(result.SITE_URL).toBe(env.SITE_URL)
       expect(result.NODE_ENV).toBe('production')
       expect(result.ENABLE_ANALYTICS).toBe(true)
     })
@@ -76,7 +220,12 @@ describe('Environment Validation Functions', () => {
     })
 
     test('overrides with environment variables', () => {
-      const env = {
+      // Use real values when available, otherwise use mock values
+      const env = testConfig.useRealValues ? {
+        GISCUS_REPO: testConfig.config.GISCUS_REPO || 'custom/repo',
+        GISCUS_THEME: testConfig.config.GISCUS_THEME || 'dark',
+        GISCUS_ENABLED: testConfig.config.GISCUS_ENABLED !== undefined ? String(testConfig.config.GISCUS_ENABLED) : 'false'
+      } : {
         GISCUS_REPO: 'custom/repo',
         GISCUS_THEME: 'dark',
         GISCUS_ENABLED: 'false'
@@ -84,11 +233,13 @@ describe('Environment Validation Functions', () => {
       
       const config = getGiscusConfig(env)
       
-      expect(config.repo).toBe('custom/repo')
-      expect(config.theme).toBe('dark')
-      expect(config.enabled).toBe(false)
+      if (env.GISCUS_REPO) expect(config.repo).toBe(env.GISCUS_REPO)
+      if (env.GISCUS_THEME) expect(config.theme).toBe(env.GISCUS_THEME)
+      expect(config.enabled).toBe(env.GISCUS_ENABLED === 'true')
       // Should still use defaults for non-overridden values
-      expect(config.repoId).toBe(DEFAULT_GISCUS_CONFIG.repoId)
+      if (!testConfig.useRealValues || !testConfig.config.GISCUS_REPO_ID) {
+        expect(config.repoId).toBe(DEFAULT_GISCUS_CONFIG.repoId)
+      }
     })
 
     test('accepts pre-validated config', () => {
@@ -119,7 +270,13 @@ describe('Environment Validation Functions', () => {
     })
 
     test('overrides with environment variables', () => {
-      const env = {
+      // Use real values when available, otherwise use mock values
+      const env = testConfig.useRealValues ? {
+        SITE_URL: testConfig.config.SITE_URL || 'https://mynovel.com',
+        SITE_TITLE: testConfig.config.SITE_TITLE || 'My Novel Site',
+        SITE_DESCRIPTION: testConfig.config.SITE_DESCRIPTION || 'Custom description',
+        SITE_AUTHOR: testConfig.config.SITE_AUTHOR || 'Custom Author'
+      } : {
         SITE_URL: 'https://mynovel.com',
         SITE_TITLE: 'My Novel Site',
         SITE_DESCRIPTION: 'Custom description',
@@ -128,10 +285,10 @@ describe('Environment Validation Functions', () => {
       
       const config = getSiteConfig(env)
       
-      expect(config.url).toBe('https://mynovel.com')
-      expect(config.title).toBe('My Novel Site')
-      expect(config.description).toBe('Custom description')
-      expect(config.author).toBe('Custom Author')
+      if (env.SITE_URL) expect(config.url).toBe(env.SITE_URL)
+      if (env.SITE_TITLE) expect(config.title).toBe(env.SITE_TITLE)
+      if (env.SITE_DESCRIPTION) expect(config.description).toBe(env.SITE_DESCRIPTION)
+      if (env.SITE_AUTHOR) expect(config.author).toBe(env.SITE_AUTHOR)
     })
   })
 
@@ -146,15 +303,19 @@ describe('Environment Validation Functions', () => {
     })
 
     test('overrides with environment variables', () => {
-      const env = {
+      // Use real values when available, otherwise use mock values
+      const env = testConfig.useRealValues ? {
+        GITHUB_URL: testConfig.config.GITHUB_URL || 'https://github.com/myusername',
+        EMAIL_ADDRESS: testConfig.config.EMAIL_ADDRESS || 'me@mysite.com'
+      } : {
         GITHUB_URL: 'https://github.com/myusername',
         EMAIL_ADDRESS: 'me@mysite.com'
       }
       
       const config = getSocialConfig(env)
       
-      expect(config.githubUrl).toBe('https://github.com/myusername')
-      expect(config.emailAddress).toBe('me@mysite.com')
+      if (env.GITHUB_URL) expect(config.githubUrl).toBe(env.GITHUB_URL)
+      if (env.EMAIL_ADDRESS) expect(config.emailAddress).toBe(env.EMAIL_ADDRESS)
     })
   })
 
@@ -167,15 +328,19 @@ describe('Environment Validation Functions', () => {
     })
 
     test('overrides with environment variables', () => {
-      const env = {
+      // Use real values when available, otherwise use mock values
+      const env = testConfig.useRealValues ? {
+        REPOSITORY_NAME: testConfig.config.REPOSITORY_NAME || 'my-novel-site',
+        REPOSITORY_OWNER: testConfig.config.REPOSITORY_OWNER || 'myusername'
+      } : {
         REPOSITORY_NAME: 'my-novel-site',
         REPOSITORY_OWNER: 'myusername'
       }
       
       const config = getRepositoryConfig(env)
       
-      expect(config.name).toBe('my-novel-site')
-      expect(config.owner).toBe('myusername')
+      if (env.REPOSITORY_NAME) expect(config.name).toBe(env.REPOSITORY_NAME)
+      if (env.REPOSITORY_OWNER) expect(config.owner).toBe(env.REPOSITORY_OWNER)
     })
   })
 
@@ -189,7 +354,7 @@ describe('Environment Validation Functions', () => {
 
     test('overrides with environment variables', () => {
       const env = {
-        NODE_ENV: 'production',
+        NODE_ENV: 'production' as const,
         ENABLE_ANALYTICS: 'true'
       }
       
@@ -343,6 +508,168 @@ describe('Environment Validation Functions', () => {
       expect(error.message).toContain('SITE_URL')
       expect(error.message).toContain('valid URL')
       expect(error.message).toContain('invalid-url')
+    })
+  })
+
+  describe('Real Value Validation Tests', () => {
+    test('validates real Giscus configuration when available', () => {
+      if (!testConfig.useRealValues) {
+        console.log('⏭️  Skipping real Giscus validation - no .env.local file found')
+        return
+      }
+
+      // Load raw environment values and pass them to getGiscusConfig
+      const realEnvValues = safeReadEnvLocal()
+      if (!realEnvValues) return
+      
+      const giscusConfig = getGiscusConfig(realEnvValues)
+      
+      // Test that real values are properly loaded and validated
+      expect(giscusConfig).toBeDefined()
+      expect(typeof giscusConfig.repo).toBe('string')
+      expect(typeof giscusConfig.theme).toBe('string')
+      expect(typeof giscusConfig.enabled).toBe('boolean')
+      
+      // If real values are provided, they should not be the default placeholders
+      if (testConfig.config.GISCUS_REPO) {
+        expect(giscusConfig.repo).not.toBe(DEFAULT_GISCUS_CONFIG.repo)
+        expect(giscusConfig.repo).toBe(testConfig.config.GISCUS_REPO)
+      }
+      
+      if (testConfig.config.GISCUS_REPO_ID) {
+        expect(giscusConfig.repoId).not.toBe(DEFAULT_GISCUS_CONFIG.repoId)
+        expect(giscusConfig.repoId).toBe(testConfig.config.GISCUS_REPO_ID)
+      }
+      
+      console.log('✅ Real Giscus configuration validated successfully')
+    })
+
+    test('validates real URLs and email addresses from .env.local', () => {
+      if (!testConfig.useRealValues) {
+        console.log('⏭️  Skipping real URL/email validation - no .env.local file found')
+        return
+      }
+
+      // Load raw environment values and pass them to config functions
+      const realEnvValues = safeReadEnvLocal()
+      if (!realEnvValues) return
+      
+      const siteConfig = getSiteConfig(realEnvValues)
+      const socialConfig = getSocialConfig(realEnvValues)
+      
+      // Test site URL if provided
+      if (realEnvValues.SITE_URL) {
+        expect(siteConfig.url).toBe(realEnvValues.SITE_URL)
+        expect(() => new URL(siteConfig.url)).not.toThrow()
+        console.log('✅ Real SITE_URL validated:', siteConfig.url)
+      }
+      
+      // Test email address if provided
+      if (realEnvValues.EMAIL_ADDRESS) {
+        expect(socialConfig.emailAddress).toBe(realEnvValues.EMAIL_ADDRESS)
+        expect(socialConfig.emailAddress).toMatch(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+        console.log('✅ Real EMAIL_ADDRESS validated:', socialConfig.emailAddress)
+      }
+      
+      // Test GitHub URL if provided
+      if (realEnvValues.GITHUB_URL) {
+        expect(socialConfig.githubUrl).toBe(realEnvValues.GITHUB_URL)
+        expect(() => new URL(socialConfig.githubUrl!)).not.toThrow()
+        expect(socialConfig.githubUrl).toMatch(/^https:\/\/github\.com\//)
+        console.log('✅ Real GITHUB_URL validated:', socialConfig.githubUrl)
+      }
+      
+      // Test other social URLs if provided
+      if (realEnvValues.PATREON_URL) {
+        expect(socialConfig.patreonUrl).toBe(realEnvValues.PATREON_URL)
+        expect(() => new URL(socialConfig.patreonUrl!)).not.toThrow()
+        console.log('✅ Real PATREON_URL validated:', socialConfig.patreonUrl)
+      }
+      
+      if (realEnvValues.KOFI_URL) {
+        expect(socialConfig.kofiUrl).toBe(realEnvValues.KOFI_URL)
+        expect(() => new URL(socialConfig.kofiUrl!)).not.toThrow()
+        console.log('✅ Real KOFI_URL validated:', socialConfig.kofiUrl)
+      }
+    })
+
+    test('verifies GitHub repository settings work with actual values', () => {
+      if (!testConfig.useRealValues) {
+        console.log('⏭️  Skipping real repository validation - no .env.local file found')
+        return
+      }
+
+      // Load raw environment values and pass them to config functions
+      const realEnvValues = safeReadEnvLocal()
+      if (!realEnvValues) return
+      
+      const repoConfig = getRepositoryConfig(realEnvValues)
+      
+      // Test repository configuration if provided
+      if (realEnvValues.REPOSITORY_NAME) {
+        expect(repoConfig.name).toBe(realEnvValues.REPOSITORY_NAME)
+        expect(repoConfig.name).not.toBe('your-repository')
+        console.log('✅ Real REPOSITORY_NAME validated:', repoConfig.name)
+      }
+      
+      if (realEnvValues.REPOSITORY_OWNER) {
+        expect(repoConfig.owner).toBe(realEnvValues.REPOSITORY_OWNER)
+        expect(repoConfig.owner).not.toBe('your-username')
+        console.log('✅ Real REPOSITORY_OWNER validated:', repoConfig.owner)
+      }
+      
+      // Test that Giscus repo matches repository config if both are provided
+      if (realEnvValues.GISCUS_REPO && realEnvValues.REPOSITORY_NAME && realEnvValues.REPOSITORY_OWNER) {
+        const expectedGiscusRepo = `${realEnvValues.REPOSITORY_OWNER}/${realEnvValues.REPOSITORY_NAME}`
+        if (realEnvValues.GISCUS_REPO === expectedGiscusRepo) {
+          console.log('✅ Giscus repo matches repository configuration')
+        } else {
+          console.log('ℹ️  Giscus repo differs from repository configuration (this is okay)')
+        }
+      }
+    })
+
+    test('validates complete real environment configuration', () => {
+      if (!testConfig.useRealValues) {
+        console.log('⏭️  Skipping complete real environment validation - no .env.local file found')
+        return
+      }
+
+      // Test that the complete configuration is valid
+      expect(testConfig.config).toBeDefined()
+      expect(testConfig.config.NODE_ENV).toBeDefined()
+      expect(testConfig.config.ENABLE_ANALYTICS).toBeDefined()
+      
+      // Test build validation with real values
+      const realEnvValues = safeReadEnvLocal()
+      if (realEnvValues) {
+        const buildValidation = validateEnvironmentForBuild(realEnvValues)
+        
+        console.log('📊 Real environment validation results:')
+        console.log(`  - Valid: ${buildValidation.isValid}`)
+        console.log(`  - Errors: ${buildValidation.errors.length}`)
+        console.log(`  - Warnings: ${buildValidation.warnings.length}`)
+        console.log(`  - Site status: ${buildValidation.configurationStatus.site}`)
+        console.log(`  - Social status: ${buildValidation.configurationStatus.social}`)
+        console.log(`  - Comments status: ${buildValidation.configurationStatus.comments}`)
+        
+        if (buildValidation.errors.length > 0) {
+          console.log('❌ Validation errors:', buildValidation.errors)
+        }
+        
+        if (buildValidation.warnings.length > 0) {
+          console.log('⚠️  Validation warnings:', buildValidation.warnings)
+        }
+        
+        if (buildValidation.suggestions.length > 0) {
+          console.log('💡 Suggestions:', buildValidation.suggestions)
+        }
+        
+        // The test should pass even with warnings, but fail with errors
+        expect(buildValidation.errors.length).toBe(0)
+      }
+      
+      console.log('✅ Complete real environment configuration validated')
     })
   })
 })

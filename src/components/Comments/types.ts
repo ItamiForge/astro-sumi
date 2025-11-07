@@ -1,8 +1,4 @@
 /**
- * TypeScript interfaces for comment system configuration
- */
-
-/**
  * Giscus configuration interface
  */
 export interface GiscusConfig {
@@ -38,14 +34,4 @@ export interface ChapterCommentConfig {
   enabled: boolean
   customCategory?: string
   customTheme?: string
-}
-
-/**
- * Theme synchronization options
- */
-export interface ThemeConfig {
-  syncWithSiteTheme: boolean
-  lightTheme: string
-  darkTheme: string
-  defaultTheme: string
 }

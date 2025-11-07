@@ -45,6 +45,55 @@ const brush = {
 // TTY detection for graceful degradation
 const IS_INTERACTIVE = process.stdout.isTTY && process.env.NO_COLOR !== '1'
 
+// Selection State Management for keyboard navigation
+class SelectionState {
+  constructor(choices, defaultIndex = 0) {
+    this.choices = choices
+    this.currentIndex = Math.max(0, Math.min(defaultIndex, choices.length - 1))
+    this.maxIndex = choices.length - 1
+  }
+  
+  moveUp() {
+    if (this.currentIndex === 0) {
+      // Wrap to last option when at first option
+      this.currentIndex = this.maxIndex
+    } else {
+      this.currentIndex--
+    }
+    return this.currentIndex
+  }
+  
+  moveDown() {
+    if (this.currentIndex === this.maxIndex) {
+      // Wrap to first option when at last option
+      this.currentIndex = 0
+    } else {
+      this.currentIndex++
+    }
+    return this.currentIndex
+  }
+  
+  getCurrentChoice() {
+    return this.choices[this.currentIndex]
+  }
+  
+  getCurrentIndex() {
+    return this.currentIndex
+  }
+  
+  setCurrentIndex(index) {
+    if (index >= 0 && index <= this.maxIndex) {
+      this.currentIndex = index
+      return true
+    }
+    return false
+  }
+  
+  isValidIndex(index) {
+    return index >= 0 && index <= this.maxIndex
+  }
+}
+
 // Helper function to conditionally apply styling
 function style(text, styleFunc) {
   if (!IS_INTERACTIVE) {
@@ -198,10 +247,105 @@ function validateAndSanitizeInput(input, validator, defaultValue = '', maxLength
   }
 }
 
+// Display update utility functions using ANSI escape codes
+const DisplayRenderer = {
+  // ANSI escape codes for cursor positioning and display control
+  ANSI: {
+    CURSOR_UP: (lines) => `\u001b[${lines}A`,
+    CURSOR_DOWN: (lines) => `\u001b[${lines}B`,
+    CURSOR_TO_COLUMN: (col) => `\u001b[${col}G`,
+    CLEAR_LINE: '\u001b[2K',
+    CLEAR_FROM_CURSOR: '\u001b[0K',
+    SAVE_CURSOR: '\u001b[s',
+    RESTORE_CURSOR: '\u001b[u',
+    HIDE_CURSOR: '\u001b[?25l',
+    SHOW_CURSOR: '\u001b[?25h'
+  },
+  
+  // Clear specified number of lines from current cursor position upward
+  clearLines(lineCount) {
+    if (lineCount <= 0) return
+    
+    // Move cursor up to start of area to clear
+    process.stdout.write(this.ANSI.CURSOR_UP(lineCount))
+    
+    // Clear each line completely
+    for (let i = 0; i < lineCount; i++) {
+      process.stdout.write(this.ANSI.CLEAR_LINE)
+      if (i < lineCount - 1) {
+        process.stdout.write(this.ANSI.CURSOR_DOWN(1))
+      }
+    }
+    
+    // Return cursor to start position
+    process.stdout.write(this.ANSI.CURSOR_UP(lineCount - 1))
+  },
+  
+  // Render menu options with highlighting (maintains sumi aesthetic)
+  renderMenuOptions(choices, selectedIndex, indentLevel = 6) {
+    const lines = []
+    
+    choices.forEach((choice, index) => {
+      const isSelected = index === selectedIndex
+      const indent = brush.space.repeat(indentLevel)
+      
+      if (isSelected) {
+        // Selected option: accent marker, bold number and text
+        const marker = style(brush.dot, sumi.accent)
+        const number = style(String(index + 1), sumi.bold)
+        const label = style(choice.label, sumi.bold)
+        lines.push(`${indent}${marker} ${number}. ${label}`)
+      } else {
+        // Unselected option: subtle styling
+        const marker = style(brush.space, sumi.gray)
+        const number = style(String(index + 1), sumi.dim)
+        const label = style(choice.label, sumi.gray)
+        lines.push(`${indent}${marker} ${number}. ${label}`)
+      }
+    })
+    
+    return lines
+  },
+  
+  // Update display with smooth redrawing (prevents flickering)
+  updateDisplay(newContent, previousLineCount = 0) {
+    // Clear previous content if it exists
+    if (previousLineCount > 0) {
+      this.clearLines(previousLineCount)
+    }
+    
+    // Render new content
+    if (Array.isArray(newContent)) {
+      newContent.forEach(line => {
+        process.stdout.write(line + '\n')
+      })
+      return newContent.length
+    } else {
+      process.stdout.write(newContent)
+      return newContent.split('\n').length - 1
+    }
+  },
+  
+  // Hide cursor during menu navigation to prevent visual artifacts
+  hideCursor() {
+    if (IS_INTERACTIVE) {
+      process.stdout.write(this.ANSI.HIDE_CURSOR)
+    }
+  },
+  
+  // Show cursor when navigation is complete
+  showCursor() {
+    if (IS_INTERACTIVE) {
+      process.stdout.write(this.ANSI.SHOW_CURSOR)
+    }
+  }
+}
+
 // Cleanup function for graceful shutdown
 function cleanup() {
+  // Ensure cursor is visible on exit
+  DisplayRenderer.showCursor()
   // Readline interfaces handle their own cleanup via close()
-  // No additional cleanup needed in this script
 }
 
 // Prerequisite validation functions
@@ -413,9 +557,18 @@ function ask(question, defaultValue = '', validator = null) {
   })
 }
 
-// Enhanced choice function with numbered selection and better keyboard handling
+// Enhanced choice function with keyboard navigation and numbered selection fallback
 function askChoice(question, choices, defaultIndex = 0) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
+    // Validate inputs
+    if (!Array.isArray(choices) || choices.length === 0) {
+      throw new Error('Choices must be a non-empty array')
+    }
+    
+    if (defaultIndex < 0 || defaultIndex >= choices.length) {
+      defaultIndex = 0
+    }
+    
     // Create a fresh readline interface for each choice
     const readline = createInterface({
       input: process.stdin,
@@ -423,26 +576,34 @@ function askChoice(question, choices, defaultIndex = 0) {
       terminal: true
     })
     
+    // Initialize selection state
+    const selectionState = new SelectionState(choices, defaultIndex)
+    let isNavigating = false
+    let displayLines = 0
+    
     console.log(`${style(brush.space.repeat(4) + question, sumi.dim)}`)
     console.log('')
     
-    // Display choices with clear numbering
-    choices.forEach((choice, index) => {
-      const isDefault = index === defaultIndex
-      const marker = isDefault ? `${style(brush.dot, sumi.accent)}` : `${style(brush.space, sumi.gray)}`
-      const number = `${style(String(index + 1), sumi.bold)}`
-      const label = isDefault ? 
-        `${style(choice.label, sumi.bold)} ${style('(default)', sumi.gray)}` : 
-        `${style(choice.label, sumi.gray)}`
+    // Enhanced display update function using ANSI escape codes for cursor positioning
+    function renderChoices() {
+      // Generate menu content with visual highlighting for currently selected option
+      const menuLines = DisplayRenderer.renderMenuOptions(choices, selectionState.getCurrentIndex())
       
-      console.log(`${brush.space.repeat(6)}${marker} ${number}. ${label}`)
-    })
+      // Add navigation instructions only on first render (maintains sumi aesthetic)
+      const content = isNavigating ? menuLines : [
+        ...menuLines,
+        '', // Empty line for spacing
+        `${brush.space.repeat(4)}Use ${style('↑↓', sumi.accent)} arrow keys to navigate, ${style('Enter', sumi.accent)} to select, or type ${style('1-' + choices.length, sumi.gray)}:`
+      ]
+      
+      // Update display with smooth redrawing without flickering
+      displayLines = DisplayRenderer.updateDisplay(content, isNavigating ? displayLines : 0)
+    }
     
-    const defaultChoice = defaultIndex + 1
-    console.log('')
-    
-    // Handle Ctrl+C during choice selection
+    // Handle Ctrl+C during choice selection with proper cleanup
     const handleSigInt = () => {
+      // Ensure cursor is visible before exit
+      DisplayRenderer.showCursor()
       console.log('')
       console.log(`${style(brush.space.repeat(4) + 'Selection cancelled.', sumi.dim)}`)
       readline.close()
@@ -451,34 +612,157 @@ function askChoice(question, choices, defaultIndex = 0) {
     
     process.once('SIGINT', handleSigInt)
     
-    const promptText = `${brush.space.repeat(4)}Enter choice ${style(`(1-${choices.length})`, sumi.gray)} [${style(String(defaultChoice), sumi.bold)}]: `
-    
-    readline.question(promptText, (answer) => {
+    // Function to complete the selection with proper cleanup
+    function completeSelection(choiceIndex) {
       process.removeListener('SIGINT', handleSigInt)
-      readline.close()
       
-      const trimmedAnswer = answer.trim()
-      let choiceIndex
+      // Ensure cursor is visible
+      DisplayRenderer.showCursor()
       
-      if (!trimmedAnswer) {
-        // Use default if no input
-        choiceIndex = defaultIndex
-        console.log(`${style(brush.space.repeat(6) + 'Using default: ' + choices[defaultIndex].label, sumi.gray)}`)
-      } else {
-        const choice = parseInt(trimmedAnswer)
-        
-        if (isNaN(choice) || choice < 1 || choice > choices.length) {
-          console.log(`${style(brush.space.repeat(6) + `Invalid choice "${trimmedAnswer}". Using default.`, sumi.warning)}`)
-          choiceIndex = defaultIndex
-        } else {
-          choiceIndex = choice - 1
-          console.log(`${style(brush.space.repeat(6) + 'Selected: ' + choices[choiceIndex].label, sumi.gray)}`)
-        }
+      // Clean up raw mode if it was enabled
+      if (readline.input.setRawMode) {
+        readline.input.setRawMode(false)
       }
       
+      readline.close()
+      
+      // Show selection confirmation with sumi aesthetic
+      console.log(`${style(brush.space.repeat(6) + 'Selected: ' + choices[choiceIndex].label, sumi.gray)}`)
       console.log('')
       resolve(choices[choiceIndex])
-    })
+    }
+    
+    // Function to handle invalid input with clear error messages
+    function handleInvalidInput(input, retryCallback) {
+      console.log(`${style(brush.space.repeat(6) + `Invalid input "${input}". Please enter a number between 1 and ${choices.length}.`, sumi.warning)}`)
+      
+      // Provide helpful guidance
+      if (choices.length <= 5) {
+        console.log(`${style(brush.space.repeat(6) + 'Available options:', sumi.gray)}`)
+        choices.forEach((choice, index) => {
+          console.log(`${style(brush.space.repeat(8) + (index + 1) + '. ' + choice.label, sumi.gray)}`)
+        })
+      }
+      console.log('')
+      
+      // Retry the input
+      if (retryCallback) {
+        retryCallback()
+      }
+    }
+    
+    // Detect environment capabilities for fallback handling
+    const supportsRawMode = readline.input.setRawMode && process.stdin.isTTY
+    const isInteractiveTerminal = IS_INTERACTIVE && process.stdin.isTTY
+    
+    // Try to enable raw mode for keyboard navigation
+    let rawModeEnabled = false
+    if (supportsRawMode && isInteractiveTerminal) {
+      try {
+        readline.input.setRawMode(true)
+        rawModeEnabled = true
+      } catch (error) {
+        // Raw mode failed, fall back to numbered input only
+        rawModeEnabled = false
+        console.log(`${style(brush.space.repeat(6) + 'Keyboard navigation unavailable, using numbered input.', sumi.dim)}`)
+      }
+    }
+    
+    if (rawModeEnabled) {
+      // Initial render for keyboard navigation mode
+      renderChoices()
+      
+      // Hide cursor during navigation for cleaner visual experience
+      DisplayRenderer.hideCursor()
+      
+      // Keyboard navigation mode with enhanced display rendering
+      readline.input.on('data', (key) => {
+        const keyStr = key.toString()
+        
+        // Handle different key inputs
+        switch (keyStr) {
+          case '\u001b[A': // Up arrow
+            if (!isNavigating) {
+              isNavigating = true
+            }
+            selectionState.moveUp()
+            renderChoices()
+            break
+            
+          case '\u001b[B': // Down arrow
+            if (!isNavigating) {
+              isNavigating = true
+            }
+            selectionState.moveDown()
+            renderChoices()
+            break
+            
+          case '\r': // Enter key
+          case '\n': // Enter key (alternative)
+            // Show cursor before completing selection
+            DisplayRenderer.showCursor()
+            completeSelection(selectionState.getCurrentIndex())
+            break
+            
+          case '\u0003': // Ctrl+C
+            // Show cursor before exit
+            DisplayRenderer.showCursor()
+            handleSigInt()
+            break
+            
+          default:
+            // Check if it's a number for fallback numbered selection
+            const num = parseInt(keyStr)
+            if (!isNaN(num) && num >= 1 && num <= choices.length) {
+              // Show cursor before completing selection
+              DisplayRenderer.showCursor()
+              completeSelection(num - 1)
+            }
+            // Ignore other keys silently to prevent visual artifacts
+            break
+        }
+      })
+    } else {
+      // Fallback to numbered input only (for non-TTY environments or when raw mode fails)
+      const defaultChoice = defaultIndex + 1
+      
+      // Show choices in fallback mode
+      choices.forEach((choice, index) => {
+        const marker = index === defaultIndex ? style(brush.dot, sumi.accent) : style(brush.space, sumi.gray)
+        const number = style(String(index + 1), index === defaultIndex ? sumi.bold : sumi.dim)
+        const label = style(choice.label, index === defaultIndex ? sumi.bold : sumi.gray)
+        console.log(`${brush.space.repeat(6)}${marker} ${number}. ${label}`)
+      })
+      console.log('')
+      
+      const promptText = `${brush.space.repeat(4)}Enter choice ${style(`(1-${choices.length})`, sumi.gray)} [${style(String(defaultChoice), sumi.bold)}]: `
+      
+      const askForInput = () => {
+        readline.question(promptText, (answer) => {
+          const trimmedAnswer = answer.trim()
+          let choiceIndex
+          
+          if (!trimmedAnswer) {
+            // Use default if no input
+            choiceIndex = defaultIndex
+            console.log(`${style(brush.space.repeat(6) + 'Using default: ' + choices[defaultIndex].label, sumi.gray)}`)
+            completeSelection(choiceIndex)
+          } else {
+            const choice = parseInt(trimmedAnswer)
+            
+            if (isNaN(choice) || choice < 1 || choice > choices.length) {
+              // Handle invalid input with clear error messages and retry
+              handleInvalidInput(trimmedAnswer, askForInput)
+            } else {
+              choiceIndex = choice - 1
+              completeSelection(choiceIndex)
+            }
+          }
+        })
+      }
+      
+      askForInput()
+    }
   })
 }
 
@@ -551,8 +835,8 @@ SITE_URL="${siteUrl}"
 ${githubUrl ? `GITHUB_URL="${githubUrl}"` : '# GITHUB_URL=https://github.com/your-username'}
 ${emailAddress ? `EMAIL_ADDRESS="${emailAddress}"` : '# EMAIL_ADDRESS=author@example.com'}
 
-# Comments
-${enableComments.value ? 'COMMENTS_PROVIDER=giscus' : 'COMMENTS_PROVIDER=none'}
+# Giscus Comments
+${enableComments.value ? `GISCUS_ENABLED=true` : `GISCUS_ENABLED=false`}
 ${giscusRepo ? `GISCUS_REPO="${giscusRepo}"` : '# GISCUS_REPO=your-username/your-repo'}
 ${giscusRepoId ? `GISCUS_REPO_ID="${giscusRepoId}"` : '# GISCUS_REPO_ID=your-repo-id'}
 GISCUS_CATEGORY="General"
@@ -580,6 +864,7 @@ GISCUS_CATEGORY_ID="DIC_kwDOH_example"
 
 // Enhanced Ctrl+C handling with proper cleanup
 process.on('SIGINT', () => {
+  cleanup()
   console.log('')
   console.log('')
   console.log(`${style(brush.space.repeat(4) + 'Setup cancelled by user.', sumi.dim)}`)
@@ -589,11 +874,13 @@ process.on('SIGINT', () => {
 
 // Handle other termination signals for complete cleanup
 process.on('SIGTERM', () => {
+  cleanup()
   process.exit(0)
 })
 
 process.on('exit', () => {
-  // Terminal cleanup handled by Node.js automatically
+  // Ensure proper terminal cleanup
+  cleanup()
 })
 
 // Run setup

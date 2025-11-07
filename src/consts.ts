@@ -1,28 +1,21 @@
 import type { IconMap, SocialLink, Site } from '@/types'
-import { getSiteConfig, getSocialConfig } from '@/lib/env'
 
-/**
- * Get site configuration using context-aware environment loading
- * This function works in both build and runtime contexts
- */
-function createSiteConfig(): Site {
-  // For build-time constants, we rely on the environment system's fallback to process.env
-  // In Astro components, import.meta.env should be passed directly to getSiteConfig
-  const siteConfig = getSiteConfig()
-  
-  return {
-    title: siteConfig.title,
-    description: siteConfig.description,
-    href: siteConfig.url,
-    author: siteConfig.author,
-    locale: siteConfig.locale,
-    featuredNovelCount: siteConfig.featuredNovelCount,
-    novelsPerPage: siteConfig.novelsPerPage,
-  }
+// Direct environment variable access - simpler and more predictable
+// These are loaded at build/server start time from .env.local
+const SITE_URL = import.meta.env.SITE_URL || 'https://your-site.com'
+const SITE_TITLE = import.meta.env.SITE_TITLE || 'Astro Sumi'
+const SITE_DESCRIPTION = import.meta.env.SITE_DESCRIPTION || 'A clean, minimal template specifically designed for novel and book writing projects'
+const SITE_AUTHOR = import.meta.env.SITE_AUTHOR || 'Your Name'
+
+export const SITE: Site = {
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  href: SITE_URL,
+  author: SITE_AUTHOR,
+  locale: 'en-US',
+  featuredNovelCount: 3,
+  novelsPerPage: 6,
 }
-
-// Create site configuration using context-aware environment loading
-export const SITE: Site = createSiteConfig()
 
 export const NAV_LINKS: SocialLink[] = [
   {
@@ -39,57 +32,35 @@ export const NAV_LINKS: SocialLink[] = [
   },
 ]
 
-/**
- * Get social configuration using context-aware environment loading
- * This function works in both build and runtime contexts
- */
-function createSocialLinks(): SocialLink[] {
-  // For build-time constants, we rely on the environment system's fallback to process.env
-  // In Astro components, import.meta.env should be passed directly to getSocialConfig
-  const socialConfig = getSocialConfig()
-  
-  const links: SocialLink[] = []
-  
-  // Only add social links if they are configured (not using fallback URLs)
-  if (socialConfig.githubUrl) {
-    links.push({
-      href: socialConfig.githubUrl,
-      label: 'GitHub',
-    })
-  }
-  
-  if (socialConfig.emailAddress) {
-    links.push({
-      href: `mailto:${socialConfig.emailAddress}`,
-      label: 'Email',
-    })
-  }
-  
-  if (socialConfig.patreonUrl) {
-    links.push({
-      href: socialConfig.patreonUrl,
-      label: 'Patreon',
-    })
-  }
-  
-  if (socialConfig.kofiUrl) {
-    links.push({
-      href: socialConfig.kofiUrl,
-      label: 'Ko-fi',
-    })
-  }
-  
-  // Always include RSS feed
-  links.push({
-    href: '/rss.xml',
-    label: 'RSS',
-  })
-  
-  return links
+// Direct environment variable access for social links
+const GITHUB_URL = import.meta.env.GITHUB_URL
+const EMAIL_ADDRESS = import.meta.env.EMAIL_ADDRESS
+const PATREON_URL = import.meta.env.PATREON_URL
+const KOFI_URL = import.meta.env.KOFI_URL
+
+// Build social links array - only include configured links
+const socialLinks: SocialLink[] = []
+
+if (GITHUB_URL) {
+  socialLinks.push({ href: GITHUB_URL, label: 'GitHub' })
 }
 
-// Create social links using context-aware environment loading
-export const SOCIAL_LINKS: SocialLink[] = createSocialLinks()
+if (EMAIL_ADDRESS) {
+  socialLinks.push({ href: `mailto:${EMAIL_ADDRESS}`, label: 'Email' })
+}
+
+if (PATREON_URL) {
+  socialLinks.push({ href: PATREON_URL, label: 'Patreon' })
+}
+
+if (KOFI_URL) {
+  socialLinks.push({ href: KOFI_URL, label: 'Ko-fi' })
+}
+
+// Always include RSS feed
+socialLinks.push({ href: '/rss.xml', label: 'RSS' })
+
+export const SOCIAL_LINKS: SocialLink[] = socialLinks
 
 export const ICON_MAP: IconMap = {
   Website: 'lucide:globe',

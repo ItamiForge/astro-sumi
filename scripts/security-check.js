@@ -256,7 +256,7 @@ class SecurityChecker {
     }
     
     console.log('\n🔧 Recommended actions:')
-    console.log('   1. Run "npm run security:fix" to auto-fix vulnerabilities')
+    console.log('   1. Run "bun run security:fix" to auto-fix vulnerabilities')
     console.log('   2. Update dependencies manually if auto-fix fails')
     console.log('   3. Review and fix configuration issues')
     console.log('   4. Re-run security check after fixes')

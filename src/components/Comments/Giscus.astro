@@ -1,16 +1,29 @@
 ---
 /**
- * Enhanced Giscus Comments Component
- * Loads GitHub Discussions-powered comments with environment variable support
- * and per-novel configuration overrides while preserving existing functionality
+ * Giscus Comments Component
+ * GitHub Discussions-powered comments with per-novel/chapter configuration support
  */
 
-import { getGiscusConfig } from '../../lib/env'
 import type {
   ChapterCommentConfig,
   GiscusConfig,
   NovelCommentConfig,
 } from './types'
+
+// Direct environment variable access - simpler and more predictable
+const GISCUS_REPO = import.meta.env.GISCUS_REPO || 'your-username/your-repository'
+const GISCUS_REPO_ID = import.meta.env.GISCUS_REPO_ID || 'YOUR_REPO_ID'
+const GISCUS_CATEGORY = import.meta.env.GISCUS_CATEGORY || 'General'
+const GISCUS_CATEGORY_ID = import.meta.env.GISCUS_CATEGORY_ID || 'YOUR_CATEGORY_ID'
+const GISCUS_MAPPING = import.meta.env.GISCUS_MAPPING || 'pathname'
+const GISCUS_THEME = import.meta.env.GISCUS_THEME || 'fro'
+const GISCUS_LANG = import.meta.env.GISCUS_LANG || 'en'
+const GISCUS_REACTIONS_ENABLED = import.meta.env.GISCUS_REACTIONS_ENABLED || '1'
+const GISCUS_EMIT_METADATA = import.meta.env.GISCUS_EMIT_METADATA || '0'
+const GISCUS_INPUT_POSITION = import.meta.env.GISCUS_INPUT_POSITION || 'top'
+const GISCUS_LOADING = import.meta.env.GISCUS_LOADING || 'lazy'
+const GISCUS_STRICT = import.meta.env.GISCUS_STRICT || '0'
+const GISCUS_ENABLED = import.meta.env.GISCUS_ENABLED === 'true'
 
 export interface Props {
   class?: string
@@ -44,17 +57,28 @@ const {
   darkTheme = 'dark',
 } = Astro.props
 
-// Get base configuration with environment overrides and hardcoded fallbacks
-const baseConfig = getGiscusConfig(import.meta.env)
-
-// Apply per-novel overrides if provided
-const config = { ...baseConfig }
+// Build base configuration from environment variables
+const config = {
+  repo: GISCUS_REPO,
+  repoId: GISCUS_REPO_ID,
+  category: GISCUS_CATEGORY,
+  categoryId: GISCUS_CATEGORY_ID,
+  mapping: GISCUS_MAPPING as GiscusConfig['mapping'],
+  theme: GISCUS_THEME,
+  lang: GISCUS_LANG,
+  reactionsEnabled: GISCUS_REACTIONS_ENABLED as '0' | '1',
+  emitMetadata: GISCUS_EMIT_METADATA as '0' | '1',
+  inputPosition: GISCUS_INPUT_POSITION as 'top' | 'bottom',
+  loading: GISCUS_LOADING as 'lazy' | 'eager',
+  strict: GISCUS_STRICT as '0' | '1',
+  enabled: GISCUS_ENABLED,
+}
 
 // Check if comments are disabled at novel or chapter level
 const commentsEnabled =
   novelConfig?.enabled !== false &&
   chapterConfig?.enabled !== false &&
-  baseConfig.enabled
+  config.enabled
 
 if (novelConfig) {
   if (novelConfig.customCategory) {

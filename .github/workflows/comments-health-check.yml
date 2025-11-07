@@ -40,7 +40,7 @@ jobs:
           
           # Check if .env.example has required variables
           if [ -f ".env.example" ]; then
-            required_vars=("COMMENTS_PROVIDER" "GISCUS_REPO" "GISCUS_REPO_ID" "GISCUS_CATEGORY" "GISCUS_CATEGORY_ID")
+            required_vars=("GISCUS_REPO" "GISCUS_REPO_ID" "GISCUS_CATEGORY" "GISCUS_CATEGORY_ID")
             for var in "${required_vars[@]}"; do
               if ! grep -q "$var" .env.example; then
                 echo "⚠️  Warning: $var not found in .env.example"
@@ -85,7 +85,7 @@ jobs:
       - name: Check bundle size impact
         run: |
           echo "Checking bundle size..."
-          npm run build || {
+          bun run build || {
             echo "⚠️  Build failed, skipping bundle size check"
             exit 0
           }

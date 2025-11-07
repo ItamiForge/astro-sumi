@@ -218,7 +218,7 @@ jobs:
           echo "Checking bundle size impact..."
           
           # Build the project
-          npm run build
+          bun run build
           
           # Check dist directory size
           if [ -d "dist" ]; then

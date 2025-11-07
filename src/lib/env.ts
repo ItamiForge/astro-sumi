@@ -9,7 +9,7 @@
  * - Type-safe environment configuration
  * - Fallback values for optional settings
  * - Clear error messages for missing required variables
- * - Support for Giscus comment system configuration
+ * - Giscus comment system configuration
  */
 
 import { z } from 'zod'
@@ -129,20 +129,19 @@ const EnvironmentSchema = z.object({
   GISCUS_STRICT: z.enum(['0', '1']).optional(),
   GISCUS_ENABLED: z.string().transform((val) => val === 'true').optional(),
   
-  // Comments provider selection
-  COMMENTS_PROVIDER: z.enum(['giscus', 'none']).optional(),
+
   
   // Site configuration (optional)
-  SITE_URL: z.string().url().optional(),
+  SITE_URL: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
   SITE_TITLE: z.string().optional(),
   SITE_DESCRIPTION: z.string().optional(),
   SITE_AUTHOR: z.string().optional(),
   
   // Social configuration (optional)
-  GITHUB_URL: z.string().url().optional(),
-  EMAIL_ADDRESS: z.string().email().optional(),
-  PATREON_URL: z.string().url().optional(),
-  KOFI_URL: z.string().url().optional(),
+  GITHUB_URL: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
+  EMAIL_ADDRESS: z.union([z.string().email(), z.literal(''), z.undefined()]).optional(),
+  PATREON_URL: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
+  KOFI_URL: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
   
   // Repository configuration (optional)
   REPOSITORY_NAME: z.string().optional(),
@@ -181,8 +180,7 @@ export interface RawEnvironmentVariables {
   GISCUS_STRICT?: '0' | '1'
   GISCUS_ENABLED?: string
   
-  // Comments provider
-  COMMENTS_PROVIDER?: 'giscus' | 'none'
+
   
   // Site configuration
   SITE_URL?: string
@@ -211,7 +209,7 @@ export interface RawEnvironmentVariables {
 export type GiscusConfig = z.infer<typeof GiscusConfigSchema>
 
 /**
- * Default Giscus configuration (uses generic placeholder values)
+ * Default Giscus configuration with sensible defaults
  */
 export const DEFAULT_GISCUS_CONFIG: Required<GiscusConfig> = {
   repo: 'your-username/your-repository',
@@ -219,7 +217,7 @@ export const DEFAULT_GISCUS_CONFIG: Required<GiscusConfig> = {
   category: 'General',
   categoryId: 'YOUR_CATEGORY_ID',
   mapping: 'pathname',
-  theme: 'light',
+  theme: 'fro',
   lang: 'en',
   reactionsEnabled: '1',
   emitMetadata: '0',
@@ -287,9 +285,7 @@ function getValidationSuggestion(field: string, code: string, received: unknown)
       if (fieldName.includes('GISCUS_REACTIONS_ENABLED') || fieldName.includes('GISCUS_EMIT_METADATA') || fieldName.includes('GISCUS_STRICT')) {
         return `${fieldName} must be either "1" (enabled) or "0" (disabled). Giscus requires this specific format.`
       }
-      if (fieldName.includes('COMMENTS_PROVIDER')) {
-        return `${fieldName} must be one of: "giscus" (GitHub Discussions), "none" (disable comments). Default: "giscus".`
-      }
+
       if (fieldName === 'NODE_ENV') {
         return `${fieldName} must be either "development" or "production".`
       }
@@ -673,7 +669,7 @@ function analyzeSocialConfiguration(env: Record<string, any>): 'complete' | 'par
  * Analyze comments configuration status
  */
 function analyzeCommentsConfiguration(env: Record<string, any>): 'configured' | 'default' | 'disabled' {
-  if (env.GISCUS_ENABLED === 'false' || env.COMMENTS_PROVIDER === 'none') {
+  if (env.GISCUS_ENABLED === 'false') {
     return 'disabled'
   }
   
