@@ -7,11 +7,9 @@ export async function getAllAuthors(): Promise<CollectionEntry<'authors'>[]> {
     async () => {
       const authors = await getCollection('authors')
       
-      // Validate content integrity
       const validAuthors = validateContentIntegrity(
         authors,
         (author) => {
-          // Basic validation checks
           return !!(
             author.id &&
             author.data &&
@@ -23,7 +21,7 @@ export async function getAllAuthors(): Promise<CollectionEntry<'authors'>[]> {
       
       return validAuthors
     },
-    [], // Empty array as fallback
+    [],
     'getAllAuthors'
   )
 }
@@ -46,7 +44,7 @@ export async function parseAuthors(authorIds: string[] = []) {
         }
       })
     },
-    [], // Empty array as fallback
+    [],
     'parseAuthors',
     { authorIds }
   )

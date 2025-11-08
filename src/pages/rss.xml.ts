@@ -1,7 +1,7 @@
 import { SITE } from '@/consts'
 import rss from '@astrojs/rss'
 import type { APIContext } from 'astro'
-import { getAllNovels } from '@/lib/data-utils'
+import { getAllNovels } from '@/lib/content/novels'
 
 export async function GET(context: APIContext) {
   try {

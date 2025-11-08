@@ -8,11 +8,9 @@ export async function getAllChapters(): Promise<CollectionEntry<'chapters'>[]> {
     async () => {
       const chapters = await getCollection('chapters')
       
-      // Validate content integrity
       const validChapters = validateContentIntegrity(
         chapters,
         (chapter) => {
-          // Basic validation checks
           return !!(
             chapter.id &&
             chapter.data &&
@@ -29,7 +27,6 @@ export async function getAllChapters(): Promise<CollectionEntry<'chapters'>[]> {
       return validChapters
         .filter((chapter) => !chapter.data.draft)
         .sort((a, b) => {
-          // Sort by novel, then volume, then chapter
           if (a.data.novel !== b.data.novel) {
             return a.data.novel.localeCompare(b.data.novel)
           }
@@ -39,7 +36,7 @@ export async function getAllChapters(): Promise<CollectionEntry<'chapters'>[]> {
           return a.data.chapter - b.data.chapter
         })
     },
-    [], // Empty array as fallback
+    [],
     'getAllChapters'
   )
 }
@@ -57,7 +54,7 @@ export async function getChaptersByNovel(novelId: string): Promise<CollectionEnt
           return a.data.chapter - b.data.chapter
         })
     },
-    [], // Empty array as fallback
+    [],
     'getChaptersByNovel',
     { novelId }
   )
@@ -79,7 +76,7 @@ export async function getChapterById(chapterId: string): Promise<CollectionEntry
       
       return chapter
     },
-    null, // null as fallback for not found
+    null,
     'getChapterById',
     { chapterId }
   )
@@ -108,7 +105,7 @@ export async function getAdjacentChapters(currentChapterId: string): Promise<{
         older: currentIndex > 0 ? novelChapters[currentIndex - 1] : null,
       }
     },
-    { newer: null, older: null }, // Fallback with no adjacent chapters
+    { newer: null, older: null },
     'getAdjacentChapters',
     { currentChapterId }
   )
@@ -123,7 +120,7 @@ export async function getChapterReadingTime(chapterId: string): Promise<string> 
       const wordCount = calculateWordCountFromHtml(chapter.body)
       return readingTime(wordCount)
     },
-    '0 min read', // Fallback reading time
+    '0 min read',
     'getChapterReadingTime',
     { chapterId }
   )
@@ -148,7 +145,7 @@ export async function getChapterTOC(chapterId: string): Promise<TOCHeading[]> {
         depth: heading.depth,
       }))
     },
-    [], // Empty array as fallback
+    [],
     'getChapterTOC',
     { chapterId }
   )

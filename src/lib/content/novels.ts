@@ -8,11 +8,9 @@ export async function getAllNovels(): Promise<CollectionEntry<'novels'>[]> {
     async () => {
       const novels = await getCollection('novels')
       
-      // Validate content integrity
       const validNovels = validateContentIntegrity(
         novels,
         (novel) => {
-          // Basic validation checks
           return !!(
             novel.id &&
             novel.data &&
@@ -28,7 +26,7 @@ export async function getAllNovels(): Promise<CollectionEntry<'novels'>[]> {
         .filter((novel) => !novel.data.draft)
         .sort((a, b) => b.data.startDate.valueOf() - a.data.startDate.valueOf())
     },
-    [], // Empty array as fallback
+    [],
     'getAllNovels'
   )
 }
@@ -49,7 +47,7 @@ export async function getNovelById(novelId: string): Promise<CollectionEntry<'no
       
       return novel
     },
-    null, // null as fallback for not found
+    null,
     'getNovelById',
     { novelId }
   )
@@ -61,7 +59,7 @@ export async function getNovelsByAuthor(authorId: string): Promise<CollectionEnt
       const novels = await getAllNovels()
       return novels.filter((novel) => novel.data.author === authorId)
     },
-    [], // Empty array as fallback
+    [],
     'getNovelsByAuthor',
     { authorId }
   )
@@ -73,7 +71,7 @@ export async function getNovelsByTag(tag: string): Promise<CollectionEntry<'nove
       const novels = await getAllNovels()
       return novels.filter((novel) => novel.data.tags?.includes(tag))
     },
-    [], // Empty array as fallback
+    [],
     'getNovelsByTag',
     { tag }
   )
@@ -85,7 +83,7 @@ export async function getRecentNovels(count: number): Promise<CollectionEntry<'n
       const novels = await getAllNovels()
       return novels.slice(0, count)
     },
-    [], // Empty array as fallback
+    [],
     'getRecentNovels',
     { count }
   )
@@ -102,7 +100,7 @@ export async function getAllTags(): Promise<Map<string, number>> {
         return acc
       }, new Map<string, number>())
     },
-    new Map<string, number>(), // Empty map as fallback
+    new Map<string, number>(),
     'getAllTags'
   )
 }
@@ -118,7 +116,7 @@ export async function getSortedTags(): Promise<{ tag: string; count: number }[]>
           return countDiff !== 0 ? countDiff : a.tag.localeCompare(b.tag)
         })
     },
-    [], // Empty array as fallback
+    [],
     'getSortedTags'
   )
 }
@@ -136,7 +134,7 @@ export async function getNovelReadingTime(novelId: string): Promise<string> {
 
       return readingTime(totalWords)
     },
-    '0 min read', // Fallback reading time
+    '0 min read',
     'getNovelReadingTime',
     { novelId }
   )

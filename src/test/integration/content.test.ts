@@ -1,20 +1,24 @@
 import { describe, test, expect } from 'vitest'
 import {
   getAllNovels,
-  getAllChapters,
-  getChaptersByNovel,
   getNovelsByAuthor,
-  getAdjacentChapters,
-  getChapterById,
   getNovelById,
-  getAllAuthors,
   getAllTags,
   getNovelsByTag,
-  parseAuthors,
+  getNovelReadingTime
+} from '@/lib/content/novels'
+import {
+  getAllChapters,
+  getChaptersByNovel,
+  getAdjacentChapters,
+  getChapterById,
   getChapterReadingTime,
-  getNovelReadingTime,
   getChapterTOC
-} from '@/lib/data-utils'
+} from '@/lib/content/chapters'
+import {
+  getAllAuthors,
+  parseAuthors
+} from '@/lib/content/authors'
 
 describe('Content Collection Integration Tests', () => {
   describe('Basic Content Queries', () => {
