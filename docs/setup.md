@@ -21,10 +21,10 @@
    ```
 
 The setup script will guide you through:
-- Site configuration (title, author, description)
-- Social links (GitHub, email, etc.)
-- Comment system setup (optional)
-- Content management (keep samples or start fresh)
+* Site configuration (title, author, description)
+* Social links (GitHub, email, etc.)
+* Comment system setup (optional)
+* Content management (keep samples or start fresh)
 
 ## Manual Configuration
 
@@ -104,9 +104,9 @@ avatar: "/path/to/avatar.jpg"
 
 The template works with any static hosting:
 
-- **Vercel**: Connect your GitHub repo
-- **Netlify**: Deploy from Git
-- **GitHub Pages**: Use GitHub Actions
+* **Vercel**: Connect your GitHub repo
+* **Netlify**: Deploy from Git
+* **GitHub Pages**: Use GitHub Actions
 
 Build command: `bun run build`
 Output directory: `dist`

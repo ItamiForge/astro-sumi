@@ -1,5 +1,7 @@
+#!/usr/bin/env sh
+
 # Run security audit before commit
 bun run security:check
 
-# Run linting
-bun run lint:css
+# Run linting (CSS + Markdown)
+bun run lint

@@ -1,0 +1,35 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      
+      - name: Install rumdl
+        run: |
+          curl -fsSL https://github.com/LoremLabs/rumdl/releases/latest/download/rumdl-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          sudo mv rumdl /usr/local/bin/
+          rumdl --version
+      
+      - name: Run CSS linting
+        run: bun run lint:css
+      
+      - name: Run Markdown linting
+        run: bun run lint:md

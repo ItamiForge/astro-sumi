@@ -30,38 +30,38 @@ But some knowledge comes with a price, and the deeper Elena goes, the more she r
 
 This novella explores several key science fiction concepts:
 
-- **The nature of consciousness**: What makes intelligence recognizable across species barriers?
-- **Communication theory**: How do you establish meaning with a completely alien mind?
-- **Cosmic horror elements**: Some knowledge is too vast for human comprehension
-- **Hard science fiction**: Grounded in real physics and linguistic theory
-- **Psychological thriller**: The investigation takes a toll on the protagonist's mental state
+* **The nature of consciousness**: What makes intelligence recognizable across species barriers?
+* **Communication theory**: How do you establish meaning with a completely alien mind?
+* **Cosmic horror elements**: Some knowledge is too vast for human comprehension
+* **Hard science fiction**: Grounded in real physics and linguistic theory
+* **Psychological thriller**: The investigation takes a toll on the protagonist's mental state
 
 ## Content Warnings
 
 This story contains:
-- Psychological horror elements
-- Descriptions of mental deterioration
-- Existential themes that some readers may find disturbing
-- Scientific concepts that challenge anthropocentric worldviews
+* Psychological horror elements
+* Descriptions of mental deterioration
+* Existential themes that some readers may find disturbing
+* Scientific concepts that challenge anthropocentric worldviews
 
 ## Structure
 
 Unlike the multi-volume *Chronicles of Aethermoor*, this story is structured as a complete novella divided into shorter, focused chapters. This demonstrates the template's flexibility for different story lengths and formats:
 
-- **Part I: Signal** - The discovery and initial analysis
-- **Part II: Pattern** - Deeper investigation reveals disturbing implications  
-- **Part III: Understanding** - The true nature of the message is revealed
-- **Part IV: Choice** - Elena must decide how to use her knowledge
+* **Part I: Signal** - The discovery and initial analysis
+* **Part II: Pattern** - Deeper investigation reveals disturbing implications  
+* **Part III: Understanding** - The true nature of the message is revealed
+* **Part IV: Choice** - Elena must decide how to use her knowledge
 
 ## Template Usage Notes
 
 This example showcases several important template features:
 
-- **Completed status**: Shows how finished works are presented
-- **Mature content handling**: Demonstrates content warnings and age-appropriate tagging
-- **Genre flexibility**: Proves the template works for hard science fiction as well as fantasy
-- **Shorter format**: Not all stories need multiple volumes—this template supports novellas and shorter works
-- **Thematic depth**: Complex themes can be explored within the template structure
+* **Completed status**: Shows how finished works are presented
+* **Mature content handling**: Demonstrates content warnings and age-appropriate tagging
+* **Genre flexibility**: Proves the template works for hard science fiction as well as fantasy
+* **Shorter format**: Not all stories need multiple volumes—this template supports novellas and shorter works
+* **Thematic depth**: Complex themes can be explored within the template structure
 
 When using this template for science fiction:
 

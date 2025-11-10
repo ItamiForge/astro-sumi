@@ -3,22 +3,22 @@
 ## Architecture Overview
 
 ### Content Management
-- **Content Collections**: Astro's type-safe content system for novels, chapters, and authors
-- **Hierarchical Structure**: Novels → Volumes → Chapters organization
-- **Draft System**: Content can be marked as draft and excluded from production builds
-- **Validation**: Runtime content validation with error handling and fallbacks
+* **Content Collections**: Astro's type-safe content system for novels, chapters, and authors
+* **Hierarchical Structure**: Novels → Volumes → Chapters organization
+* **Draft System**: Content can be marked as draft and excluded from production builds
+* **Validation**: Runtime content validation with error handling and fallbacks
 
 ### Styling & UI
-- **Tailwind CSS 4.x**: Latest version with Vite plugin for better performance
-- **shadcn/ui Components**: Pre-built accessible React components
-- **CSS Custom Properties**: Theme system supporting light/dark modes
-- **Typography**: Optimized for long-form reading with proper spacing and contrast
+* **Tailwind CSS 4.x**: Latest version with Vite plugin for better performance
+* **shadcn/ui Components**: Pre-built accessible React components
+* **CSS Custom Properties**: Theme system supporting light/dark modes
+* **Typography**: Optimized for long-form reading with proper spacing and contrast
 
 ### Performance Features
-- **Static Generation**: Pre-built pages for optimal loading speed
-- **Image Optimization**: Astro's built-in image processing
-- **Code Splitting**: Automatic JavaScript bundling and splitting
-- **CSS Optimization**: Purged and minified stylesheets
+* **Static Generation**: Pre-built pages for optimal loading speed
+* **Image Optimization**: Astro's built-in image processing
+* **Code Splitting**: Automatic JavaScript bundling and splitting
+* **CSS Optimization**: Purged and minified stylesheets
 
 ## Content Structure
 
@@ -136,9 +136,9 @@ Colors are defined in `src/styles/global.css` using OKLCH format:
 
 ### Components
 
-- **Navigation**: Modify `src/components/Header.astro`
-- **Footer**: Edit `src/components/Footer.astro`
-- **Layouts**: Customize `src/layouts/Layout.astro`
+* **Navigation**: Modify `src/components/Header.astro`
+* **Footer**: Edit `src/components/Footer.astro`
+* **Layouts**: Customize `src/layouts/Layout.astro`
 
 ### Favicons
 
@@ -156,19 +156,19 @@ Output directory: `dist/`
 
 ### Hosting Options
 
-- **Vercel**: Connect GitHub repository
-- **Netlify**: Deploy from Git
-- **GitHub Pages**: Use GitHub Actions
-- **Cloudflare Pages**: Connect repository
+* **Vercel**: Connect GitHub repository
+* **Netlify**: Deploy from Git
+* **GitHub Pages**: Use GitHub Actions
+* **Cloudflare Pages**: Connect repository
 
 ### Environment Variables for Production
 
 Set these in your hosting platform:
 
-- `SITE_URL`: Your production domain
-- `GISCUS_*`: Comment system configuration
-- `GITHUB_URL`: Your GitHub profile
-- `EMAIL_ADDRESS`: Contact email
+* `SITE_URL`: Your production domain
+* `GISCUS_*`: Comment system configuration
+* `GITHUB_URL`: Your GitHub profile
+* `EMAIL_ADDRESS`: Contact email
 
 ## Troubleshooting
 
@@ -208,10 +208,10 @@ bun run build
 
 **Comments not working:**
 
-- Verify repository has Discussions enabled
-- Check Giscus app is installed
-- Confirm configuration values are correct
-- Ensure repository is public
+* Verify repository has Discussions enabled
+* Check Giscus app is installed
+* Confirm configuration values are correct
+* Ensure repository is public
 
 ### Performance Issues
 

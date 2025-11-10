@@ -1,0 +1,71 @@
+# rumdl configuration file
+# Optimized for novel writing and creative content
+
+# Global configuration options
+[global]
+# Disable rules that don't make sense for novel writing
+disable = [
+    "MD013",  # Line length - novels need long paragraphs for narrative flow
+    "MD033",  # Inline HTML - we use divs for page breaks and anchors
+    "MD024",  # Multiple headings with same content - chapters may have similar section names
+    "MD025",  # Multiple top-level headings - novels and docs may have multiple H1s
+    "MD026",  # Trailing punctuation in headings - creative writing may use punctuation in titles
+    "MD036",  # Emphasis instead of heading - creative writing uses emphasis for stylistic elements
+    "MD041",  # First line must be H1 - frontmatter comes first
+]
+
+# List of file/directory patterns to exclude from linting
+exclude = [
+    # Common directories to exclude
+    ".git",
+    ".github",
+    ".husky",
+    "node_modules",
+    "vendor",
+    "dist",
+    "build",
+    ".astro",
+    ".vercel",
+    "coverage",
+
+    # Specific files or patterns
+    "CHANGELOG.md",
+    "LICENSE.md",
+]
+
+# Respect .gitignore files when scanning directories
+respect_gitignore = true
+
+# Rule-specific configurations
+
+# Heading style - use ATX style (# Heading)
+[MD003]
+style = "atx"
+
+# Unordered list style - consistent asterisks
+[MD004]
+style = "asterisk"
+
+# Unordered list indentation - 2 spaces
+[MD007]
+indent = 2
+
+# Multiple consecutive blank lines - allow up to 2 for readability in long narratives
+[MD012]
+maximum = 2
+
+# Emphasis style - use asterisks for consistency
+[MD049]
+style = "asterisk"
+
+# Strong emphasis style - use asterisks for consistency
+[MD050]
+style = "asterisk"
+
+# Code fence style - use backticks
+[MD048]
+style = "backtick"
+
+# Horizontal rule style - use three dashes for scene breaks
+[MD035]
+style = "---"

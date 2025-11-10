@@ -5,12 +5,12 @@ pronouns: 'they/them'
 avatar: '/static/author-placeholder.svg'
 bio: 'A template author profile demonstrating the author schema for creative writers.'
 genres: ['fantasy', 'science fiction', 'mystery']
-website: 'https://example.com'
-twitter: 'https://twitter.com/example'
-github: 'https://github.com/example'
-email: 'author@example.com'
-patreon: 'https://patreon.com/example'
-kofi: 'https://ko-fi.com/example'
+website: '<https://example.com>'
+twitter: '<https://twitter.com/example>'
+github: '<https://github.com/example>'
+email: '<author@example.com>'
+patreon: '<https://patreon.com/example>'
+kofi: '<https://ko-fi.com/example>'
 ---
 
 # Template Author

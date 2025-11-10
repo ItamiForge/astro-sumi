@@ -4,12 +4,12 @@ A clean, minimal template for novel and book writing websites.
 
 ## Features
 
-- **Novel Organization**: Hierarchical structure with novels, volumes, and chapters
-- **Reading Interface**: Clean, distraction-free experience optimized for long-form content
-- **Multi-Author Support**: Author profiles with pen names, genres, and social links
-- **Content Management**: Draft mode, publication scheduling, and word count tracking
-- **Responsive Design**: Mobile-optimized reading experience
-- **SEO Optimized**: Built-in metadata management and RSS feed generation
+* **Novel Organization**: Hierarchical structure with novels, volumes, and chapters
+* **Reading Interface**: Clean, distraction-free experience optimized for long-form content
+* **Multi-Author Support**: Author profiles with pen names, genres, and social links
+* **Content Management**: Draft mode, publication scheduling, and word count tracking
+* **Responsive Design**: Mobile-optimized reading experience
+* **SEO Optimized**: Built-in metadata management and RSS feed generation
 
 ## Quick Start
 
@@ -81,18 +81,18 @@ A clean, minimal template for novel and book writing websites.
 
 ## Documentation
 
-- **[Setup Guide](docs/setup.md)** - Getting started and configuration
-- **[Complete Guide](docs/guide.md)** - Architecture, customization, and advanced features
-- **[Comments Setup](docs/giscus.md)** - GitHub Discussions integration
+* **[Setup Guide](docs/setup.md)** - Getting started and configuration
+* **[Complete Guide](docs/guide.md)** - Architecture, customization, and advanced features
+* **[Comments Setup](docs/giscus.md)** - GitHub Discussions integration
 
 ## Tech Stack
 
-- **[Astro 5.x](https://astro.build)** - Static site generator
-- **[Bun](https://bun.sh)** - JavaScript runtime and package manager
-- **[Tailwind CSS 4.x](https://tailwindcss.com)** - Utility-first CSS framework
-- **[shadcn/ui](https://ui.shadcn.com)** - Accessible React components
-- **[TypeScript](https://typescriptlang.org)** - Type-safe JavaScript
-- **[Vitest](https://vitest.dev)** - Testing framework
+* **[Astro 5.x](https://astro.build)** - Static site generator
+* **[Bun](https://bun.sh)** - JavaScript runtime and package manager
+* **[Tailwind CSS 4.x](https://tailwindcss.com)** - Utility-first CSS framework
+* **[shadcn/ui](https://ui.shadcn.com)** - Accessible React components
+* **[TypeScript](https://typescriptlang.org)** - Type-safe JavaScript
+* **[Vitest](https://vitest.dev)** - Testing framework
 
 ## License
 

@@ -17,14 +17,14 @@ GISCUS_CATEGORY_ID="DIC_kwDOH123456"
 ## Configuration Options
 
 ### Theme Options
-- `light` - Light theme
-- `dark` - Dark theme  
-- `preferred_color_scheme` - Auto (follows system)
+* `light` - Light theme
+* `dark` - Dark theme  
+* `preferred_color_scheme` - Auto (follows system)
 
 ### Mapping Options
-- `pathname` - Uses page path (recommended)
-- `url` - Uses full URL
-- `title` - Uses page title
+* `pathname` - Uses page path (recommended)
+* `url` - Uses full URL
+* `title` - Uses page title
 
 ## Disabling Comments
 

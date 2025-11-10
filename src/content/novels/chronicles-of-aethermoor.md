@@ -28,10 +28,10 @@ Seventeen-year-old Lyra Nightwhisper has always felt like an outsider, even amon
 
 **Aethermoor** is a world where magic and technology have evolved together over millennia. The floating cities are powered by massive Aether Crystals, which channel and amplify magical energy. Each city specializes in different aspects of magical technology:
 
-- **Aethermoor Prime**: The capital, home to the Academy and the Council of Mages
-- **Forgeheart**: Industrial city focused on magical metallurgy and enchanted weapons
-- **Verdant Reach**: Agricultural hub using growth magic and weather control
-- **Shadowport**: Trading center dealing with dimensional commerce
+* **Aethermoor Prime**: The capital, home to the Academy and the Council of Mages
+* **Forgeheart**: Industrial city focused on magical metallurgy and enchanted weapons
+* **Verdant Reach**: Agricultural hub using growth magic and weather control
+* **Shadowport**: Trading center dealing with dimensional commerce
 
 ## Characters
 
@@ -47,10 +47,10 @@ Seventeen-year-old Lyra Nightwhisper has always felt like an outsider, even amon
 
 This example novel demonstrates several key features of the template:
 
-- **Multi-volume structure**: The story is planned across three volumes, each focusing on different aspects of Lyra's journey
-- **Rich metadata**: Genre tags, content warnings, and detailed descriptions help readers find the content they're looking for
-- **World-building integration**: The novel description includes enough detail to orient readers while leaving room for discovery
-- **Character development**: Multiple viewpoint characters allow for complex storytelling
+* **Multi-volume structure**: The story is planned across three volumes, each focusing on different aspects of Lyra's journey
+* **Rich metadata**: Genre tags, content warnings, and detailed descriptions help readers find the content they're looking for
+* **World-building integration**: The novel description includes enough detail to orient readers while leaving room for discovery
+* **Character development**: Multiple viewpoint characters allow for complex storytelling
 
 When adapting this template for your own work:
 
