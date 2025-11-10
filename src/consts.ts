@@ -1,4 +1,4 @@
-import type { IconMap, SocialLink, Site } from '@/types'
+import type { IconMap, SocialLink, Site, FontConfig } from '@/types'
 
 // Direct environment variable access - simpler and more predictable
 // These are loaded at build/server start time from .env.local
@@ -70,3 +70,37 @@ export const ICON_MAP: IconMap = {
   'Ko-fi': 'lucide:lightbulb', // Using lightbulb icon for Ko-fi
   RSS: 'lucide:rss',
 }
+
+// Font Configuration - Single Source of Truth
+// Add new fonts by adding one entry here. Everything else auto-generates.
+export const FONTS: FontConfig = {
+  geist: {
+    id: 'geist',
+    name: 'Geist',
+    cssName: 'Geist',
+    file: '/fonts/GeistVF.woff2',
+    format: 'woff2-variations',
+    variable: true,
+    fallback: 'system-ui, sans-serif',
+    default: true,
+  },
+  noto: {
+    id: 'noto',
+    name: 'Noto Sans',
+    cssName: 'Noto Sans',
+    file: '/fonts/Noto_Sans/NotoSans-VariableFont_wdth,wght.ttf',
+    format: 'truetype-variations',
+    variable: true,
+    fallback: 'sans-serif',
+  },
+  handwritten: {
+    id: 'handwritten',
+    name: 'Messy Handwritten',
+    cssName: 'Messy Handwritten',
+    file: '/fonts/messy-handwritten/MessyHandwritten-Regular.ttf',
+    format: 'truetype',
+    variable: false,
+    fallback: 'cursive, Comic Sans MS',
+  },
+} as const
+

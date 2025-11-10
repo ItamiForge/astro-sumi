@@ -28,7 +28,8 @@ GISCUS_CATEGORY_ID="DIC_kwDOH123456"
 
 ## Disabling Comments
 
-### For specific chapters:
+### For specific chapters
+
 ```yaml
 ---
 title: "Chapter 1"
@@ -36,7 +37,8 @@ enableComments: false
 ---
 ```
 
-### For entire novels:
+### For entire novels
+
 ```yaml
 ---
 title: "My Novel"
@@ -47,11 +49,13 @@ enableComments: false
 ## Troubleshooting
 
 **Comments don't appear:**
+
 1. Check repository has Discussions enabled
 2. Verify Giscus app is installed
 3. Confirm configuration values are correct
 4. Ensure repository is public
 
 **Wrong category:**
+
 1. Check category name matches exactly
 2. Verify category exists in your repository

@@ -1,0 +1,32 @@
+---
+// FontStyles component - Auto-generates font declarations from FONTS config
+import { FONTS } from '@/consts'
+
+const fonts = Object.values(FONTS)
+const defaultFont = fonts.find(f => f.default) || fonts[0]
+---
+
+<style is:global set:html={`
+  /* Auto-generated @font-face rules */
+  ${fonts.map((font) => `
+    @font-face {
+      font-family: '${font.cssName}';
+      src: url('${font.file}') format('${font.format}');
+      font-weight: ${font.variable ? '100 900' : 'normal'};
+      font-style: normal;
+      font-display: swap;
+    }
+  `).join('\n')}
+
+  /* Font switching CSS custom properties */
+  :root,
+  [data-font='${defaultFont.id}'] {
+    --font-sans: '${defaultFont.cssName}', ${defaultFont.fallback};
+  }
+
+  ${fonts.filter(f => !f.default).map((font) => `
+    [data-font='${font.id}'] {
+      --font-sans: '${font.cssName}', ${font.fallback};
+    }
+  `).join('\n')}
+`}></style>

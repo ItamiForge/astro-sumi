@@ -175,6 +175,7 @@ Set these in your hosting platform:
 ### Common Issues
 
 **Content not displaying:**
+
 ```bash
 # Check content files exist
 ls src/content/novels/
@@ -186,6 +187,7 @@ bun run dev
 ```
 
 **Environment variables not loading:**
+
 ```bash
 # Verify .env.local exists and format is correct
 cat .env.local
@@ -195,6 +197,7 @@ bun run dev
 ```
 
 **Build errors:**
+
 ```bash
 # Run type checking
 astro check
@@ -204,6 +207,7 @@ bun run build
 ```
 
 **Comments not working:**
+
 - Verify repository has Discussions enabled
 - Check Giscus app is installed
 - Confirm configuration values are correct
@@ -212,6 +216,7 @@ bun run build
 ### Performance Issues
 
 **Slow build times:**
+
 ```bash
 # Clear Astro cache
 rm -rf .astro
@@ -221,6 +226,7 @@ bun update
 ```
 
 **Large bundle size:**
+
 ```bash
 # Analyze bundle
 bun run build
@@ -234,6 +240,7 @@ bun run security:audit
 ### Testing
 
 Run tests with:
+
 ```bash
 bun run test          # Watch mode
 bun run test:run      # Single run
@@ -243,6 +250,7 @@ bun run test:coverage # With coverage
 ### Security
 
 Audit dependencies:
+
 ```bash
 bun run security:audit    # Check vulnerabilities
 bun run security:fix      # Auto-fix issues
@@ -251,6 +259,7 @@ bun run security:fix      # Auto-fix issues
 ### Code Quality
 
 Format and lint:
+
 ```bash
 bun run prettier         # Format code
 bun run lint:css         # Lint CSS

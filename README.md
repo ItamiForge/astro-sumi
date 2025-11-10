@@ -14,27 +14,31 @@ A clean, minimal template for novel and book writing websites.
 ## Quick Start
 
 1. **Use this template** on GitHub or clone:
+
    ```bash
    git clone https://github.com/your-username/astro-sumi.git my-novel-site
    cd my-novel-site
    ```
 
 2. **Install dependencies**:
+
    ```bash
    bun install
    ```
 
 3. **Choose your setup**:
+
    ```bash
    # Interactive setup (recommended)
    bun run setup
-   
+
    # Or manual configuration
    cp .env.example .env.local
    # Edit .env.local with your values
    ```
 
 4. **Start development**:
+
    ```bash
    bun run dev
    ```
@@ -42,6 +46,7 @@ A clean, minimal template for novel and book writing websites.
 ## Commands
 
 ### Development
+
 | Command | Description |
 |---------|-------------|
 | `bun run dev` | Start development server |
@@ -50,6 +55,7 @@ A clean, minimal template for novel and book writing websites.
 | `bun run setup` | Interactive configuration |
 
 ### Code Quality
+
 | Command | Description |
 |---------|-------------|
 | `bun run test` | Run tests |
@@ -58,12 +64,14 @@ A clean, minimal template for novel and book writing websites.
 | `bun run lint:css` | Lint CSS |
 
 ### Security
+
 | Command | Description |
 |---------|-------------|
 | `bun run security:audit` | Check vulnerabilities |
 | `bun run security:fix` | Fix vulnerabilities |
 
 ### Package Management
+
 | Command | Description |
 |---------|-------------|
 | `bun install` | Install dependencies |

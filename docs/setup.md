@@ -3,16 +3,19 @@
 ## Quick Start
 
 1. **Install dependencies**:
+
    ```bash
    bun install
    ```
 
 2. **Run interactive setup**:
+
    ```bash
    bun run setup
    ```
 
 3. **Start development**:
+
    ```bash
    bun run dev
    ```

@@ -21,3 +21,19 @@ type IconName = ComponentProps<typeof Icon>['name']
 export type IconMap = {
   [key: string]: IconName
 }
+
+export type Font = {
+  id: string
+  name: string
+  cssName: string
+  file: string
+  format: string
+  variable: boolean
+  fallback: string
+  default?: boolean
+}
+
+export type FontConfig = {
+  [key: string]: Font
+}
+

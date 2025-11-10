@@ -14,8 +14,8 @@ const STATIC_ASSETS = [
   '/authors/',
   '/tags/',
   '/about/',
-  '/static/logo.svg',
   '/static/logo.png',
+  '/static/dark_logo.png',
   '/favicon.svg',
   '/favicon.ico',
   // Add critical CSS and JS files (these will be generated during build)

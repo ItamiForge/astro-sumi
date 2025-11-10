@@ -3,7 +3,7 @@ name: 'Template Author'
 penName: 'T.A. Example'
 pronouns: 'they/them'
 avatar: '/static/author-placeholder.svg'
-bio: 'A template author profile demonstrating the author schema for creative writers. Replace this with your own author information.'
+bio: 'A template author profile demonstrating the author schema for creative writers.'
 genres: ['fantasy', 'science fiction', 'mystery']
 website: 'https://example.com'
 twitter: 'https://twitter.com/example'
@@ -12,9 +12,10 @@ email: 'author@example.com'
 patreon: 'https://patreon.com/example'
 kofi: 'https://ko-fi.com/example'
 ---
+
 # Template Author
 
-This is an example author profile that shows how creative writers can present themselves using Astro Sumi. 
+This is an example author profile that shows how creative writers can present themselves using Astro Sumi.
 
 ## About the Author
 

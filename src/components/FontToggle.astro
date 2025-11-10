@@ -1,0 +1,76 @@
+---
+import { Icon } from '@/components/Icon'
+import { Button } from '@/components/ui/button'
+---
+
+<Button
+  id="font-toggle"
+  variant="ghost"
+  size="icon"
+  title="Change font"
+  className="-my-2 -me-2 size-8"
+>
+  <Icon name="pen-tool" className="size-4" />
+  <span class="sr-only">Change font</span>
+</Button>
+
+<script is:inline data-astro-rerun>
+  ;(() => {
+    const validFonts = ['geist', 'noto', 'handwritten'] // Auto-sync with FONTS config keys
+    const font = (() => {
+      const stored = localStorage?.getItem('font') ?? ''
+      if (validFonts.includes(stored)) return stored
+      return 'geist'
+    })()
+
+    document.documentElement.setAttribute('data-font', font)
+    window.localStorage.setItem('font', font)
+  })()
+</script>
+
+<script>
+  import { FONTS } from '@/consts'
+  
+  const fontOrder = Object.keys(FONTS) // Auto-generated from config
+  
+  function handleToggleClick() {
+    const element = document.documentElement
+    const currentFont = element.getAttribute('data-font') || fontOrder[0]
+    
+    const currentIndex = fontOrder.indexOf(currentFont)
+    const newFont = fontOrder[(currentIndex + 1) % fontOrder.length]
+
+    element.classList.add('[&_*]:transition-none')
+    element.setAttribute('data-font', newFont)
+    window.getComputedStyle(element).getPropertyValue('opacity')
+
+    requestAnimationFrame(() => {
+      element.classList.remove('[&_*]:transition-none')
+    })
+
+    localStorage.setItem('font', newFont)
+  }
+
+  function initFontToggle() {
+    document
+      .getElementById('font-toggle')
+      ?.addEventListener('click', handleToggleClick)
+  }
+
+  initFontToggle()
+
+  document.addEventListener('astro:after-swap', () => {
+    const storedFont = localStorage.getItem('font') || fontOrder[0]
+    const element = document.documentElement
+
+    element.classList.add('[&_*]:transition-none')
+    window.getComputedStyle(element).getPropertyValue('opacity')
+    element.setAttribute('data-font', storedFont)
+
+    requestAnimationFrame(() => {
+      element.classList.remove('[&_*]:transition-none')
+    })
+
+    initFontToggle()
+  })
+</script>
