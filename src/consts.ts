@@ -4,7 +4,9 @@ import type { IconMap, SocialLink, Site, FontConfig } from '@/types'
 // These are loaded at build/server start time from .env.local
 const SITE_URL = import.meta.env.SITE_URL || 'https://your-site.com'
 const SITE_TITLE = import.meta.env.SITE_TITLE || 'Astro Sumi'
-const SITE_DESCRIPTION = import.meta.env.SITE_DESCRIPTION || 'A clean, minimal template specifically designed for novel and book writing projects'
+const SITE_DESCRIPTION =
+  import.meta.env.SITE_DESCRIPTION ||
+  'A clean, minimal template specifically designed for novel and book writing projects'
 const SITE_AUTHOR = import.meta.env.SITE_AUTHOR || 'Your Name'
 
 export const SITE: Site = {
@@ -14,6 +16,8 @@ export const SITE: Site = {
   author: SITE_AUTHOR,
   locale: 'en-US',
   featuredNovelCount: 3,
+  // Planned feature: Will be used when implementing pagination for /novels/[...page].astro
+  // Currently all novels display on a single page. Pagination will be added when novel count grows.
   novelsPerPage: 6,
 }
 
@@ -103,4 +107,3 @@ export const FONTS: FontConfig = {
     fallback: 'cursive, Comic Sans MS',
   },
 } as const
-

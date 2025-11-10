@@ -7,18 +7,28 @@ import PaginationStatic from '@/components/ui/pagination-static.astro'
 import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
 import { formatDate } from '@/lib/utils'
+import type { GetStaticPaths, Page } from 'astro'
 import { Image } from 'astro:assets'
+import type { CollectionEntry } from 'astro:content'
 import { getCollection } from 'astro:content'
 
-const allNovels = await getCollection('novels')
-const publishedNovels = allNovels
-  .filter((novel) => !novel.data.draft)
-  .sort((a, b) => b.data.startDate.valueOf() - a.data.startDate.valueOf())
+export const getStaticPaths = (async ({ paginate }) => {
+  const allNovels = await getCollection('novels')
+  const publishedNovels = allNovels
+    .filter((novel) => !novel.data.draft)
+    .sort((a, b) => b.data.startDate.valueOf() - a.data.startDate.valueOf())
 
-// Paginate manually for first page
-const pageSize = SITE.novelsPerPage
-const totalPages = Math.ceil(publishedNovels.length / pageSize)
-const novelsOnPage = publishedNovels.slice(0, pageSize)
+  return paginate(publishedNovels, {
+    pageSize: SITE.novelsPerPage,
+  })
+}) satisfies GetStaticPaths
+
+type Props = {
+  page: Page<CollectionEntry<'novels'>>
+}
+
+const { page } = Astro.props
+const publishedNovels = page.data
 ---
 
 <Layout containerType="wide">
@@ -32,7 +42,7 @@ const novelsOnPage = publishedNovels.slice(0, pageSize)
       class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
     >
       {
-        novelsOnPage.map((novel) => (
+        publishedNovels.map((novel) => (
           <article class="group bg-card text-card-foreground relative overflow-hidden rounded-lg border shadow-sm transition-all hover:shadow-md">
             <a href={`/novels/${novel.id}`} class="block">
               {novel.data.coverImage ? (
@@ -113,7 +123,7 @@ const novelsOnPage = publishedNovels.slice(0, pageSize)
     </section>
 
     {
-      novelsOnPage.length === 0 && (
+      publishedNovels.length === 0 && (
         <div class="py-12 text-center">
           <Icon
             name="book-open"
@@ -125,11 +135,12 @@ const novelsOnPage = publishedNovels.slice(0, pageSize)
       )
     }
 
+    {/* Pagination Controls */}
     {
-      totalPages > 1 && (
+      page.lastPage > 1 && (
         <PaginationStatic
-          currentPage={1}
-          totalPages={totalPages}
+          currentPage={page.currentPage}
+          totalPages={page.lastPage}
           baseUrl="/novels"
         />
       )

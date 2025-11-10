@@ -12,7 +12,7 @@
     "setup": "node scripts/setup.js",
     "prettier": "prettier --write **/*.{ts,tsx,astro} --ignore-path .gitignore",
     "lint": "bun run lint:css && bun run lint:md",
-    "lint:css": "stylelint \"src/**/*.css\"",
+    "lint:css": "stylelint \"src/**/*.css\" --formatter verbose",
     "lint:md": "rumdl check .",
     "format": "bun run prettier && bun run format:css && bun run format:md",
     "format:css": "stylelint \"src/**/*.css\" --fix",
@@ -28,7 +28,6 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "-": "^0.0.1",
     "@astrojs/check": "^0.9.5",
     "@astrojs/markdown-remark": "^6.3.8",
     "@astrojs/mdx": "^4.3.9",

@@ -11,10 +11,12 @@ import type {
 } from './types'
 
 // Direct environment variable access - simpler and more predictable
-const GISCUS_REPO = import.meta.env.GISCUS_REPO || 'your-username/your-repository'
+const GISCUS_REPO =
+  import.meta.env.GISCUS_REPO || 'your-username/your-repository'
 const GISCUS_REPO_ID = import.meta.env.GISCUS_REPO_ID || 'YOUR_REPO_ID'
 const GISCUS_CATEGORY = import.meta.env.GISCUS_CATEGORY || 'General'
-const GISCUS_CATEGORY_ID = import.meta.env.GISCUS_CATEGORY_ID || 'YOUR_CATEGORY_ID'
+const GISCUS_CATEGORY_ID =
+  import.meta.env.GISCUS_CATEGORY_ID || 'YOUR_CATEGORY_ID'
 const GISCUS_MAPPING = import.meta.env.GISCUS_MAPPING || 'pathname'
 const GISCUS_THEME = import.meta.env.GISCUS_THEME || 'fro'
 const GISCUS_LANG = import.meta.env.GISCUS_LANG || 'en'

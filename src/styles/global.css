@@ -47,14 +47,8 @@
   --breakpoint-tablet: 1024px;
   --breakpoint-desktop: 1400px;
 
-  /* Container max-widths */
-  --container-reading: 75ch;
-  --container-wide: 1200px;
-  --container-fluid: 1400px;
-
-  /* Spacing values */
-  --spacing-container: 1rem;
-  --spacing-container-mobile: 16px;
+  /* Container max-widths - simplified */
+  --container-max-width: 1200px;
 }
 
 [data-theme='dark'] {
@@ -72,6 +66,19 @@
 }
 
 @layer base {
+  /* Performance optimizations for smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    /* GPU acceleration for smooth scrolling */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
   *,
   ::after,
   ::before,
@@ -79,118 +86,36 @@
   ::file-selector-button {
     @apply border-border outline-ring/50 tracking-tight;
   }
+
+  /* Optimize images and media for performance */
+  img,
+  video,
+  iframe {
+    content-visibility: auto;
+  }
 }
 
-/* Responsive Container System */
+/* Simplified Container System */
 @layer components {
-  /* Base container for all content types */
-  .container-responsive {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: var(--spacing-container);
-    padding-right: var(--spacing-container);
-  }
-
-  /* Reading-optimized container for novel content */
-  .container-reading {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: var(--spacing-container);
-    padding-right: var(--spacing-container);
-    max-width: var(--container-reading);
-  }
-
-  /* Wide container for novel metadata and navigation */
-  .container-wide {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: var(--spacing-container);
-    padding-right: var(--spacing-container);
-    max-width: var(--container-wide);
-  }
-
-  /* Full-width container with minimal constraints */
+  .container-responsive,
+  .container-reading,
+  .container-wide,
   .container-fluid {
     width: 100%;
+    max-width: var(--container-max-width);
     margin-left: auto;
     margin-right: auto;
-    padding-left: var(--spacing-container);
-    padding-right: var(--spacing-container);
-    max-width: var(--container-fluid);
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 
-  /* Responsive breakpoint behaviors */
   @media (max-width: 767px) {
     .container-responsive,
     .container-reading,
     .container-wide,
     .container-fluid {
-      width: 90%;
-      min-width: calc(
-        100vw - 32px
-      ); /* Ensure minimum 16px padding on each side */
-
-      max-width: calc(100vw - 32px);
-      padding-left: var(--spacing-container-mobile);
-      padding-right: var(--spacing-container-mobile);
-    }
-
-    /* Ensure containers never exceed 90% width or go below minimum padding */
-    .container-responsive {
-      width: min(90vw, calc(100vw - 32px));
-    }
-
-    .container-reading {
-      width: min(90vw, calc(100vw - 32px));
-    }
-
-    .container-wide {
-      width: min(90vw, calc(100vw - 32px));
-    }
-
-    .container-fluid {
-      width: min(90vw, calc(100vw - 32px));
-    }
-  }
-
-  @media (min-width: 768px) and (max-width: 1023px) {
-    .container-responsive,
-    .container-reading,
-    .container-wide,
-    .container-fluid {
-      width: 85%;
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
-
-    /* Tablet-specific optimizations */
-    .container-reading {
-      width: 80%; /* Slightly narrower for better reading on tablets */
-    }
-  }
-
-  @media (min-width: 1024px) and (max-width: 1399px) {
-    .container-responsive,
-    .container-reading,
-    .container-wide,
-    .container-fluid {
-      width: 75%;
-      padding-left: 2rem;
-      padding-right: 2rem;
-    }
-  }
-
-  @media (min-width: 1400px) {
-    .container-responsive,
-    .container-reading,
-    .container-wide,
-    .container-fluid {
-      width: 70%;
-      padding-left: 2rem;
-      padding-right: 2rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
   }
 
@@ -592,260 +517,6 @@
 
     .mobile-min-h-touch {
       min-height: 44px; /* iOS minimum touch target */
-    }
-  }
-}
-
-/* Typography Utilities */
-@utility small {
-  @apply text-sm leading-6 [&_code]:text-xs [&_img,video,figure,details,blockquote,.katex-display,.expressive-code]:my-4! [&_li,ol]:mt-0 [&_p]:my-2! [&_ul]:my-0;
-}
-
-/* Typography Styles - moved from typography.css to avoid Tailwind v4 conflicts */
-@layer components {
-  .prose {
-    color: hsl(var(--foreground));
-    font-size: 1rem;
-    line-height: 1.75;
-
-    /* Reading optimizations */
-    text-align: justify;
-    hyphens: auto;
-
-    /* Responsive font sizing */
-    @media (min-width: 640px) {
-      font-size: 1.0625rem; /* 17px */
-      line-height: 1.8;
-    }
-
-    @media (min-width: 1024px) {
-      font-size: 1.125rem; /* 18px */
-      line-height: 1.85;
-    }
-
-    @media (min-width: 1280px) {
-      font-size: 1.1875rem; /* 19px */
-      line-height: 1.9;
-    }
-
-    :where(p):not(:where(.not-prose, .not-prose *)) {
-      @apply text-foreground/80;
-
-      margin-top: 1.25rem;
-      margin-bottom: 1.25rem;
-      text-align: justify;
-      hyphens: auto;
-
-      /* Enhanced paragraph spacing for reading */
-      @media (min-width: 640px) {
-        margin-top: 1.375rem;
-        margin-bottom: 1.375rem;
-      }
-
-      @media (min-width: 1024px) {
-        margin-top: 1.5rem;
-        margin-bottom: 1.5rem;
-      }
-    }
-
-    :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
-      color: hsl(var(--foreground));
-      font-weight: 500;
-      scroll-margin-top: 8rem;
-    }
-
-    @media (min-width: 1280px) {
-      :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
-        scroll-margin-top: 5rem;
-      }
-    }
-
-    :first-child:not(:where(.not-prose, .not-prose *)) {
-      @apply mt-0;
-    }
-
-    /* Don't use an <h1> in your posts, one is already generated in novels/[...id].astro */
-    :where(h1):not(:where(.not-prose, .not-prose *)) {
-      @apply mt-8 mb-6 text-4xl;
-    }
-
-    :where(h2):not(:where(.not-prose, .not-prose *)) {
-      @apply mt-8 mb-4 text-2xl;
-    }
-
-    :where(h3):not(:where(.not-prose, .not-prose *)) {
-      @apply mt-8 mb-4 text-xl;
-    }
-
-    :where(h4):not(:where(.not-prose, .not-prose *)) {
-      @apply mt-7 mb-3 text-lg;
-    }
-
-    :where(h5, h6):not(:where(.not-prose, .not-prose *)) {
-      @apply mt-5 mb-3;
-    }
-
-    :where(a):not(:where(.not-prose, .not-prose *)) {
-      @apply text-foreground decoration-muted-foreground hover:decoration-foreground font-medium break-words underline underline-offset-[3px] transition-colors;
-    }
-
-    :where(strong):not(:where(.not-prose, .not-prose *)) {
-      @apply text-foreground font-medium;
-    }
-
-    :where(ul):not(:where(.not-prose, .not-prose *)) {
-      @apply marker:text-foreground/30 my-5 ml-6 list-disc [&>li]:mt-2;
-    }
-
-    :where(ol):not(:where(.not-prose, .not-prose *)) {
-      @apply marker:text-foreground/30 my-5 ml-6 list-decimal [&>li]:mt-2;
-      @apply [&[type='A']]:list-[upper-alpha] [&[type='I']]:list-[upper-roman] [&[type='a']]:list-[lower-alpha] [&[type='i']]:list-[lower-roman];
-    }
-
-    :where(li):not(:where(.not-prose, .not-prose *)) {
-      @apply text-foreground/80 pl-2 [&>p]:my-0;
-    }
-
-    :where(ul ul, ol ol, ul ol, ol ul):not(:where(.not-prose, .not-prose *)) {
-      @apply marker:text-foreground/30 my-2 ml-6;
-    }
-
-    :where(code):not(:where(.not-prose, .not-prose *)) {
-      @apply bg-muted/50 text-foreground relative rounded-sm px-[0.3rem] py-[0.2rem] text-sm font-medium break-words;
-      @apply [&>span[data-line='']>*]:text-(--shiki-light) dark:[&>span[data-line='']>*]:text-(--shiki-dark);
-    }
-
-    :where(blockquote):not(:where(.not-prose, .not-prose *)) {
-      @apply [&_*]:text-muted-foreground small my-6 border-l-2 pl-6;
-    }
-
-    :where(hr):not(:where(.not-prose, .not-prose *)) {
-      @apply my-8 border-t;
-    }
-
-    :where(table):not(:where(.not-prose, .not-prose *)) {
-      @apply mx-auto my-6 block max-w-fit overflow-x-auto text-sm;
-    }
-
-    :where(thead):not(:where(.not-prose, .not-prose *)) {
-      @apply border-muted-foreground/30 border-b;
-    }
-
-    :where(th):not(:where(.not-prose, .not-prose *)) {
-      @apply px-4 py-2 font-medium;
-      @apply text-left [&[align=center]]:text-center [&[align=right]]:text-right;
-    }
-
-    :where(tr):not(:where(.not-prose, .not-prose *)) {
-      @apply border-muted-foreground/30 border-y first:border-t-0 last:border-b-0;
-    }
-
-    :where(td):not(:where(.not-prose, .not-prose *)) {
-      @apply text-foreground/80 small px-4 py-2 align-top break-words [&>*]:first:mt-0! [&>*]:last:mb-0!;
-      @apply text-left [&[align=center]]:text-center [&[align=right]]:text-right;
-    }
-
-    :where(img, video, figure, .expressive-code):not(
-      :where(.not-prose, .not-prose *)
-    ) {
-      @apply mx-auto my-6;
-    }
-
-    :where(pre):not(:where(.not-prose, .not-prose *)) {
-      @apply max-h-[min(68vh,1000px)]! overflow-y-auto [&::-webkit-scrollbar-corner]:hidden;
-    }
-
-    :where(summary):not(:where(.not-prose, .not-prose *)) {
-      @apply [&~*]:small [&~*>*]:first:mt-0! [&~*>*]:last:mb-0!;
-    }
-
-    :where(kbd):not(:where(.not-prose, .not-prose *)) {
-      @apply text-foreground bg-muted rounded-md border px-2 py-1 text-xs font-medium;
-    }
-
-    :where(.katex-display):not(:where(.not-prose, .not-prose *)) {
-      @apply text-foreground/80 my-6 overflow-x-auto overflow-y-hidden py-2 tracking-normal;
-    }
-  }
-
-  /* Reading-specific typography for chapter pages */
-  .reading-content {
-    /* Enhanced reading experience */
-    line-height: 2;
-    text-align: justify;
-    hyphens: auto;
-    word-spacing: 0.05em;
-    letter-spacing: 0.01em;
-
-    /* Optimal paragraph spacing for long-form content */
-    :where(p):not(:where(.not-prose, .not-prose *)) {
-      margin-top: 1.75rem;
-      margin-bottom: 1.75rem;
-      text-indent: 1.5em;
-
-      /* First paragraph should not be indented */
-      &:first-of-type {
-        text-indent: 0;
-      }
-
-      /* Paragraphs after headings should not be indented */
-      :where(h1, h2, h3, h4, h5, h6) + & {
-        text-indent: 0;
-      }
-    }
-
-    /* Enhanced vertical rhythm */
-    :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
-      margin-top: 2.5rem;
-      margin-bottom: 1.25rem;
-      line-height: 1.3;
-    }
-
-    /* Chapter breaks and scene separators */
-    :where(hr):not(:where(.not-prose, .not-prose *)) {
-      margin-top: 3rem;
-      margin-bottom: 3rem;
-      border: none;
-      text-align: center;
-
-      &::before {
-        content: '* * *';
-        color: hsl(var(--muted-foreground));
-        font-size: 1.2em;
-        letter-spacing: 0.5em;
-      }
-    }
-
-    /* Responsive adjustments for reading content */
-    @media (min-width: 640px) {
-      line-height: 2.1;
-
-      :where(p):not(:where(.not-prose, .not-prose *)) {
-        margin-top: 2rem;
-        margin-bottom: 2rem;
-        text-indent: 2em;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      line-height: 2.2;
-      word-spacing: 0.08em;
-
-      :where(p):not(:where(.not-prose, .not-prose *)) {
-        margin-top: 2.25rem;
-        margin-bottom: 2.25rem;
-        text-indent: 2.5em;
-      }
-    }
-
-    @media (min-width: 1280px) {
-      line-height: 2.3;
-
-      :where(p):not(:where(.not-prose, .not-prose *)) {
-        margin-top: 2.5rem;
-        margin-bottom: 2.5rem;
-        text-indent: 3em;
-      }
     }
   }
 }

@@ -1,11 +1,11 @@
 ---
 import { Separator } from '@/components/ui/separator'
-import { SOCIAL_LINKS, SITE } from '@/consts'
+import { SITE, SOCIAL_LINKS } from '@/consts'
 import Link from './Link.astro'
 import SocialIcons from './SocialIcons.astro'
 
 // Get GitHub link from SOCIAL_LINKS (no hardcoded fallback)
-const githubLink = SOCIAL_LINKS.find(link => link.label === 'GitHub')?.href
+const githubLink = SOCIAL_LINKS.find((link) => link.label === 'GitHub')?.href
 ---
 
 <footer
@@ -17,15 +17,15 @@ const githubLink = SOCIAL_LINKS.find(link => link.label === 'GitHub')?.href
     </span>
     <Separator orientation="vertical" className="hidden h-4! sm:block" />
     <p class="text-muted-foreground text-sm">
-      Made with 🤍 by {githubLink ? (
-        <Link
-          href={githubLink}
-          class="text-foreground"
-          external
-          underline>{SITE.author}</Link>
-      ) : (
-        <span class="text-foreground">{SITE.author}</span>
-      )}!
+      Made with 🤍 by {
+        githubLink ? (
+          <Link href={githubLink} class="text-foreground" external underline>
+            {SITE.author}
+          </Link>
+        ) : (
+          <span class="text-foreground">{SITE.author}</span>
+        )
+      }!
     </p>
   </div>
   <SocialIcons links={SOCIAL_LINKS} />

@@ -1,3 +1,13 @@
+/**
+ * Pagination Component - Planned Feature
+ *
+ * This component is currently unused but kept for future implementation.
+ * It will be used when the novels list grows beyond the configured novelsPerPage limit.
+ *
+ * Planned usage: /novels/[...page].astro with Astro's paginate() function
+ * See: .kiro/specs/codebase-cleanup-v2/pagination-analysis.md for details
+ */
+
 import * as React from 'react'
 import {
   ChevronLeftIcon,

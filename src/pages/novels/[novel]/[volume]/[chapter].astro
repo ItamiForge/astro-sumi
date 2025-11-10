@@ -85,36 +85,7 @@ const progressPercentage = Math.round(
       `Chapter ${chapter.data.chapter} of ${novel.data.title}`}
   />
 
-  <!-- Reading Progress Bar -->
-  <div
-    class="bg-background/80 fixed top-0 right-0 left-0 z-50 border-b backdrop-blur-sm"
-  >
-    <div class="container-reading py-2">
-      <div
-        class="text-muted-foreground flex items-center justify-between text-xs"
-      >
-        <div class="flex items-center gap-2">
-          <Icon name="book-open" className="size-3" />
-          <span>{novel.data.title}</span>
-          <span>•</span>
-          <span>Chapter {chapter.data.chapter}</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span>{currentChapterNumber} of {totalChapters}</span>
-          <div class="bg-muted h-1 w-16 overflow-hidden rounded-full">
-            <div
-              class="bg-primary h-full transition-all duration-300"
-              style={`width: ${progressPercentage}%`}
-            >
-            </div>
-          </div>
-          <span>{progressPercentage}%</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="container-reading pt-16">
+  <div class="container-reading">
     <Breadcrumbs
       items={[
         { href: '/novels', label: 'Novels', icon: 'lucide:book-open' },
@@ -373,20 +344,36 @@ const progressPercentage = Math.round(
   <div
     class="mobile-touch-spacing fixed right-4 bottom-4 z-40 flex flex-col gap-2 lg:right-8 xl:right-12"
   >
-    <!-- Scroll to top button -->
-    <Button
-      variant="outline"
-      size="icon"
-      className="group mobile-focus-visible mobile-no-hover hidden shadow-lg"
+    <!-- Scroll to top button with progress ring -->
+    <button
+      class="group mobile-focus-visible mobile-no-hover bg-background border-border hover:bg-muted/50 relative hidden h-12 w-12 rounded-full border shadow-lg transition-colors"
       id="scroll-to-top"
       title="Scroll to top"
       aria-label="Scroll to top"
     >
       <Icon
         name="arrow-up"
-        className="mx-auto size-4 transition-all group-hover:-translate-y-0.5"
+        className="absolute inset-0 z-10 m-auto size-4 transition-all group-hover:-translate-y-0.5"
       />
-    </Button>
+      <!-- Circular progress ring around the button -->
+      <svg
+        class="pointer-events-none absolute inset-0 -rotate-90"
+        viewBox="0 0 48 48"
+      >
+        <circle
+          id="scroll-progress-ring"
+          cx="24"
+          cy="24"
+          r="22"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3"
+          class="text-primary transition-all duration-300"
+          stroke-dasharray="138.23"
+          stroke-dashoffset="138.23"
+          stroke-linecap="round"></circle>
+      </svg>
+    </button>
 
     <!-- Page navigation toggle (mobile) -->
     {
@@ -450,30 +437,65 @@ const progressPercentage = Math.round(
   <script>
     document.addEventListener('astro:page-load', () => {
       const scrollToTopButton = document.getElementById('scroll-to-top')
-      const footer = document.querySelector('footer')
       const togglePageNav = document.getElementById('toggle-page-nav')
       const mobilePageNav = document.getElementById('mobile-page-nav')
       const closePageNav = document.getElementById('close-page-nav')
       const mobilePageLinks = document.querySelectorAll('.mobile-page-link')
 
-      // Scroll to top functionality
-      if (scrollToTopButton && footer) {
+      // Scroll to top functionality with progress ring
+      if (scrollToTopButton) {
+        const progressRing = document.getElementById('scroll-progress-ring')
+        const article = document.querySelector(
+          '.reading-content',
+        ) as HTMLElement
+
         scrollToTopButton.addEventListener('click', () => {
           window.scrollTo({ top: 0, behavior: 'smooth' })
         })
 
-        window.addEventListener('scroll', () => {
-          const footerRect = footer.getBoundingClientRect()
-          const isFooterVisible = footerRect.top <= window.innerHeight
-          const article = document.querySelector(
-            '.reading-content',
-          ) as HTMLElement
+        const updateScrollProgress = () => {
+          if (!article || !progressRing) return
 
-          // Show button when user has scrolled past the chapter header
-          const shouldShow = window.scrollY > 300 && !isFooterVisible && article
+          const articleTop =
+            article.getBoundingClientRect().top + window.pageYOffset
+          const articleHeight = article.offsetHeight
+          const windowHeight = window.innerHeight
+          const scrollTop = window.pageYOffset
+
+          // Calculate reading progress within the article
+          const articleProgress = Math.max(
+            0,
+            Math.min(
+              100,
+              ((scrollTop + windowHeight - articleTop) / articleHeight) * 100,
+            ),
+          )
+
+          // Show button when user has scrolled down
+          const shouldShow = window.scrollY > 200
 
           scrollToTopButton.classList.toggle('hidden', !shouldShow)
+
+          // Update progress ring (circumference = 2 * π * r = 138.23)
+          const circumference = 138.23
+          const offset = circumference - (articleProgress / 100) * circumference
+          progressRing.style.strokeDashoffset = offset.toString()
+        }
+
+        // Use requestAnimationFrame for smooth updates
+        let ticking = false
+        window.addEventListener('scroll', () => {
+          if (!ticking) {
+            window.requestAnimationFrame(() => {
+              updateScrollProgress()
+              ticking = false
+            })
+            ticking = true
+          }
         })
+
+        // Initial update
+        updateScrollProgress()
       }
 
       // Mobile page navigation
@@ -520,46 +542,6 @@ const progressPercentage = Math.round(
           }
         })
       })
-
-      // Reading progress tracking
-      const progressBar = document.querySelector(
-        '.fixed .bg-primary',
-      ) as HTMLElement
-      if (progressBar) {
-        window.addEventListener('scroll', () => {
-          const article = document.querySelector(
-            '.reading-content',
-          ) as HTMLElement
-          if (article) {
-            const articleTop =
-              article.getBoundingClientRect().top + window.pageYOffset
-            const articleHeight = article.offsetHeight
-            const windowHeight = window.innerHeight
-            const scrollTop = window.pageYOffset
-
-            // Calculate reading progress within the article
-            const articleProgress = Math.max(
-              0,
-              Math.min(
-                100,
-                ((scrollTop + windowHeight - articleTop) / articleHeight) * 100,
-              ),
-            )
-
-            // Update progress bar width with smooth transition
-            progressBar.style.width = `${articleProgress}%`
-
-            // Update chapter progress percentage in the progress bar
-            const progressText = document.querySelector(
-              '.fixed .bg-background\\/80 span:last-child',
-            )
-            if (progressText && articleProgress > 0) {
-              const readingProgress = Math.round(articleProgress)
-              progressText.textContent = `${readingProgress}%`
-            }
-          }
-        })
-      }
     })
   </script>
 

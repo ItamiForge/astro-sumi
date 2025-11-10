@@ -2,16 +2,16 @@
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
 import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
-import Layout from '@/layouts/Layout.astro'
 import { SITE } from '@/consts'
+import Layout from '@/layouts/Layout.astro'
 ---
 
 <Layout containerType="wide">
   <PageHead slot="head" title="About" />
-  
+
   <!-- Background image with overlay -->
   <div class="about-background"></div>
-  
+
   <Breadcrumbs items={[{ label: 'About', icon: 'lucide:info' }]} />
 
   <section class="rounded-lg border">
@@ -19,10 +19,10 @@ import { SITE } from '@/consts'
       <h3 class="text-3xl leading-none font-medium">{SITE.title}</h3>
       <p class="text-muted-foreground text-sm">Novel Writing Template</p>
     </div>
-    <div class="p-6 pt-0 space-y-4">
+    <div class="space-y-4 p-6 pt-0">
       <p class="text-muted-foreground text-sm">
-        {SITE.title} is a clean, minimal template specifically designed for
-        novel and book writing projects. Built with <Link
+        {SITE.title} is a clean, minimal template specifically designed for novel
+        and book writing projects. Built with <Link
           href="https://astro.build"
           class="text-foreground"
           external
@@ -37,17 +37,17 @@ import { SITE } from '@/consts'
           class="text-foreground"
           external
           underline>shadcn/ui</Link
-        >, it provides an excellent foundation for creative writers to
-        showcase their work online.
+        >, it provides an excellent foundation for creative writers to showcase
+        their work online.
       </p>
       <p class="text-muted-foreground text-sm">
         This template supports hierarchical content organization with novels,
-        volumes, and chapters, making it perfect for long-form storytelling.
-        The reading interface is optimized for distraction-free reading with
-        clean typography and intuitive navigation.
+        volumes, and chapters, making it perfect for long-form storytelling. The
+        reading interface is optimized for distraction-free reading with clean
+        typography and intuitive navigation.
       </p>
       <div class="pt-2">
-        <h4 class="text-lg font-medium mb-2">Attribution</h4>
+        <h4 class="mb-2 text-lg font-medium">Attribution</h4>
         <p class="text-muted-foreground text-sm">
           This project is based on <Link
             href="https://github.com/jktrn/astro-erudite"
@@ -59,7 +59,8 @@ import { SITE } from '@/consts'
             class="text-foreground"
             external
             underline>jktrn</Link
-          >. It has been adapted and extended for novel and book writing workflows.
+          >. It has been adapted and extended for novel and book writing
+          workflows.
         </p>
       </div>
     </div>

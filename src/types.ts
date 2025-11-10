@@ -36,4 +36,3 @@ export type Font = {
 export type FontConfig = {
   [key: string]: Font
 }
-

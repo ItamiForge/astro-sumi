@@ -10,6 +10,7 @@ disable = [
     "MD024",  # Multiple headings with same content - chapters may have similar section names
     "MD025",  # Multiple top-level headings - novels and docs may have multiple H1s
     "MD026",  # Trailing punctuation in headings - creative writing may use punctuation in titles
+    "MD034",  # Bare URLs - breaks YAML frontmatter validation when auto-fixed
     "MD036",  # Emphasis instead of heading - creative writing uses emphasis for stylistic elements
     "MD041",  # First line must be H1 - frontmatter comes first
 ]

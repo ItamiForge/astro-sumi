@@ -1,0 +1,138 @@
+---
+import { Icon } from '@/components/Icon'
+import { cn } from '@/lib/utils'
+
+interface Props {
+  currentPage: number
+  totalPages: number
+  baseUrl: string
+  class?: string
+}
+
+const { currentPage, totalPages, baseUrl, class: className } = Astro.props
+
+const getPageUrl = (page: number) => {
+  if (page === 1) return baseUrl
+  return `${baseUrl}/${page}`
+}
+
+// Generate page numbers to show
+const pages: (number | 'ellipsis')[] = []
+
+if (totalPages <= 7) {
+  // Show all pages if 7 or fewer
+  for (let i = 1; i <= totalPages; i++) {
+    pages.push(i)
+  }
+} else {
+  // Always show first page
+  pages.push(1)
+
+  if (currentPage > 3) {
+    pages.push('ellipsis')
+  }
+
+  // Show pages around current page
+  const start = Math.max(2, currentPage - 1)
+  const end = Math.min(totalPages - 1, currentPage + 1)
+
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
+  }
+
+  if (currentPage < totalPages - 2) {
+    pages.push('ellipsis')
+  }
+
+  // Always show last page
+  pages.push(totalPages)
+}
+---
+
+<nav
+  role="navigation"
+  aria-label="pagination"
+  class={cn('mx-auto flex w-full justify-center', className)}
+>
+  <ul class="flex flex-row flex-wrap items-center gap-1">
+    <!-- Previous Button -->
+    <li>
+      {
+        currentPage > 1 ? (
+          <a
+            href={getPageUrl(currentPage - 1)}
+            aria-label="Go to previous page"
+            class="hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring inline-flex h-10 items-center justify-center gap-1 rounded-md px-4 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+          >
+            <Icon name="chevron-left" className="size-4" />
+            <span class="hidden sm:inline">Previous</span>
+          </a>
+        ) : (
+          <span
+            aria-label="Go to previous page"
+            class="pointer-events-none inline-flex h-10 items-center justify-center gap-1 rounded-md px-4 text-sm font-medium opacity-50"
+          >
+            <Icon name="chevron-left" className="size-4" />
+            <span class="hidden sm:inline">Previous</span>
+          </span>
+        )
+      }
+    </li>
+
+    <!-- Page Numbers -->
+    {
+      pages.map((page) =>
+        page === 'ellipsis' ? (
+          <li>
+            <span class="flex h-9 w-9 items-center justify-center">
+              <span class="text-muted-foreground">...</span>
+              <span class="sr-only">More pages</span>
+            </span>
+          </li>
+        ) : (
+          <li>
+            {page === currentPage ? (
+              <span
+                aria-current="page"
+                class="border-input bg-background inline-flex h-9 w-9 items-center justify-center rounded-md border text-sm font-medium shadow-sm"
+              >
+                {page}
+              </span>
+            ) : (
+              <a
+                href={getPageUrl(page)}
+                class="hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
+              >
+                {page}
+              </a>
+            )}
+          </li>
+        ),
+      )
+    }
+
+    <!-- Next Button -->
+    <li>
+      {
+        currentPage < totalPages ? (
+          <a
+            href={getPageUrl(currentPage + 1)}
+            aria-label="Go to next page"
+            class="hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring inline-flex h-10 items-center justify-center gap-1 rounded-md px-4 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+          >
+            <span class="hidden sm:inline">Next</span>
+            <Icon name="chevron-right" className="size-4" />
+          </a>
+        ) : (
+          <span
+            aria-label="Go to next page"
+            class="pointer-events-none inline-flex h-10 items-center justify-center gap-1 rounded-md px-4 text-sm font-medium opacity-50"
+          >
+            <span class="hidden sm:inline">Next</span>
+            <Icon name="chevron-right" className="size-4" />
+          </span>
+        )
+      }
+    </li>
+  </ul>
+</nav>

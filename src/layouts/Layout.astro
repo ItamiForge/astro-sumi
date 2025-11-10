@@ -1,8 +1,9 @@
 ---
 import '@/styles/global.css'
+import '@/styles/performance.css'
 
-import Footer from '@/components/Footer.astro'
 import FontStyles from '@/components/FontStyles.astro'
+import Footer from '@/components/Footer.astro'
 import Head from '@/components/Head.astro'
 import Header from '@/components/Header.astro'
 import { SITE } from '@/consts'
@@ -31,6 +32,7 @@ const containerClass = `container-${containerType}`
   <body class="flex h-fit min-h-screen flex-col gap-y-6 font-sans">
     <header
       class="bg-background/50 sticky top-0 z-50 divide-y backdrop-blur-sm xl:divide-none"
+      style="will-change: transform; transform: translateZ(0);"
     >
       <Header />
       <slot name="subposts-navigation" />

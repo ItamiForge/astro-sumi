@@ -1,0 +1,90 @@
+/* Performance Optimizations */
+
+/* Optimize card rendering with CSS containment */
+article.group {
+  contain: layout style paint;
+  content-visibility: auto;
+}
+
+/* Optimize transitions to use GPU-accelerated properties only */
+.transition-all {
+  transition-property: transform, opacity, box-shadow !important;
+  transition-duration: 0.2s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity, box-shadow;
+}
+
+/* Prevent layout shifts */
+img,
+video {
+  height: auto;
+  max-width: 100%;
+}
+
+/* Optimize hover effects */
+.group:hover {
+  transform: translateZ(0);
+}
+
+/* Optimize image transforms */
+.group:hover img {
+  transform: scale(1.05) translateZ(0);
+}
+
+/* Reduce paint on scroll for sticky elements */
+header[class*='sticky'] {
+  contain: layout style;
+  will-change: transform;
+}
+
+/* Optimize backdrop blur */
+.backdrop-blur-sm {
+  backdrop-filter: blur(8px);
+
+  /* Use a solid fallback for better performance on low-end devices */
+  @supports not (backdrop-filter: blur(8px)) {
+    background-color: var(--background);
+  }
+}
+
+/* Optimize grid layouts */
+.grid {
+  contain: layout;
+}
+
+/* Reduce repaints for text content */
+.line-clamp-2,
+.line-clamp-3 {
+  contain: layout style;
+}
+
+/* Optimize pagination controls */
+nav[role='navigation'] {
+  contain: layout style;
+}
+
+/* Optimize font rendering */
+body {
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Optimize for 60fps scrolling */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}

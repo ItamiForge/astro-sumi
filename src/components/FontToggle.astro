@@ -30,13 +30,13 @@ import { Button } from '@/components/ui/button'
 
 <script>
   import { FONTS } from '@/consts'
-  
+
   const fontOrder = Object.keys(FONTS) // Auto-generated from config
-  
+
   function handleToggleClick() {
     const element = document.documentElement
     const currentFont = element.getAttribute('data-font') || fontOrder[0]
-    
+
     const currentIndex = fontOrder.indexOf(currentFont)
     const newFont = fontOrder[(currentIndex + 1) % fontOrder.length]
 

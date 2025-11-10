@@ -2,6 +2,9 @@
 
 A clean, minimal template for novel and book writing websites.
 
+* (WIP, still working on proper css and other utilities, plus hosting and deployment)
+* DO NOT USE YET!
+
 ## Features
 
 * **Novel Organization**: Hierarchical structure with novels, volumes, and chapters
