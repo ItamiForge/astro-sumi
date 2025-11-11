@@ -15,8 +15,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,6 +32,29 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
       
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Cache rumdl
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/rumdl
+          key: ${{ runner.os }}-rumdl-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rumdl-
+      
+      - name: Install rumdl
+        run: |
+          if ! command -v rumdl &> /dev/null; then
+            cargo install rumdl
+          fi
+      
+      - name: Run CSS linting
+        run: bun run lint:css
+      
+      - name: Run Markdown linting
+        run: bun run lint:md
+      
       - name: Build site
         run: bun run build
       
@@ -36,14 +62,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
+      
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

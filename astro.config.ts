@@ -22,6 +22,7 @@ const siteUrl = env['SITE_URL'] || 'https://your-site.com'
 
 export default defineConfig({
   site: siteUrl,
+  base: '/astro-sumi',
   integrations: [
     mdx(),
     react(),
