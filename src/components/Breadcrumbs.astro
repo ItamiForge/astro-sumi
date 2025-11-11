@@ -8,6 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { withBase } from '@/lib/utils/url'
 import type { ComponentProps } from 'react'
 
 type IconName = ComponentProps<typeof Icon>['name']
@@ -28,7 +29,7 @@ const { items } = Astro.props
 <Breadcrumb>
   <BreadcrumbList>
     <BreadcrumbItem>
-      <BreadcrumbLink href="/">
+      <BreadcrumbLink href={withBase('/')}>
         <Icon name="home" className="size-4 shrink-0" />
       </BreadcrumbLink>
     </BreadcrumbItem>

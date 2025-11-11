@@ -6,6 +6,7 @@ import { badgeVariants } from '@/components/ui/badge'
 import PaginationStatic from '@/components/ui/pagination-static.astro'
 import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
+import { withBase } from "@/lib/utils/url"
 import { formatDate } from '@/lib/utils'
 import type { GetStaticPaths, Page } from 'astro'
 import { Image } from 'astro:assets'
@@ -44,7 +45,7 @@ const publishedNovels = page.data
       {
         publishedNovels.map((novel) => (
           <article class="group bg-card text-card-foreground relative overflow-hidden rounded-lg border shadow-sm transition-all hover:shadow-md">
-            <a href={`/novels/${novel.id}`} class="block">
+            <a href={withBase(`/novels/${novel.id}`)} class="block">
               {novel.data.coverImage ? (
                 <div class="aspect-[3/4] overflow-hidden">
                   <Image

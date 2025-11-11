@@ -7,6 +7,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
 import { getAllNovels } from '@/lib/content/novels'
+import { withBase } from "@/lib/utils/url"
 import { formatDate } from '@/lib/utils'
 import { Image } from 'astro:assets'
 
@@ -59,7 +60,7 @@ const featuredNovels = novels.slice(0, 3) // Show first 3 novels
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {featuredNovels.map((novel) => (
             <article class="group bg-card text-card-foreground relative overflow-hidden rounded-lg border shadow-sm transition-all hover:shadow-md">
-              <a href={`/novels/${novel.id}`} class="block">
+              <a href={withBase(`/novels/${novel.id}`)} class="block">
                 {novel.data.coverImage ? (
                   <div class="aspect-[3/4] overflow-hidden">
                     <Image

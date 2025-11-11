@@ -1,5 +1,6 @@
 ---
 import { SITE } from '@/consts'
+import { withBase } from '@/lib/utils/url'
 import type { CollectionEntry } from 'astro:content'
 
 interface Props {
@@ -10,7 +11,7 @@ const { novel } = Astro.props
 
 const title = novel.data.title || SITE.title
 const description = novel.data.description || SITE.description
-const image = new URL('/static/1200x630.webp', Astro.site)
+const image = new URL(withBase('/static/1200x630.webp'), Astro.site)
 const author = novel.data.author || SITE.author
 ---
 

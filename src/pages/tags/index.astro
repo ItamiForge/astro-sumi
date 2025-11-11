@@ -5,6 +5,7 @@ import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import Layout from '@/layouts/Layout.astro'
+import { withBase } from "@/lib/utils/url"
 import { getSortedTags } from '@/lib/content/novels'
 
 const sortedTags = await getSortedTags()
@@ -19,7 +20,7 @@ const sortedTags = await getSortedTags()
       {
         sortedTags.map(({ tag, count }) => (
           <Link
-            href={`/tags/${tag}`}
+            href={withBase(`/tags/${tag}`)}
             class={badgeVariants({ variant: 'muted' })}
           >
             <Icon name="hash" className="size-3" />

@@ -6,6 +6,7 @@ import PageHead from '@/components/PageHead.astro'
 import { Button } from '@/components/ui/button'
 import Layout from '@/layouts/Layout.astro'
 import { formatDate } from '@/lib/utils'
+import { withBase } from '@/lib/utils/url'
 import { getCollection, render } from 'astro:content'
 
 export async function getStaticPaths() {
@@ -144,7 +145,7 @@ const progressPercentage = Math.round(
           author && (
             <div class="flex items-center gap-1">
               <Icon name="user" className="size-4" />
-              <a href={`/authors/${author.id}`} class="hover:text-primary">
+              <a href={withBase(`/authors/${author.id}`)} class="hover:text-primary">
                 {author.data.name}
               </a>
             </div>
@@ -186,7 +187,7 @@ const progressPercentage = Math.round(
         {
           previousChapter ? (
             <a
-              href={getChapterUrl(novel, previousChapter)}
+              href={withBase(getChapterUrl(novel, previousChapter))}
               class="hover:text-primary mobile-focus-visible mobile-no-hover group inline-flex items-center gap-2 text-sm transition-colors"
             >
               <Icon
@@ -208,7 +209,7 @@ const progressPercentage = Math.round(
 
       <div class="text-center">
         <a
-          href={`/novels/${novel.id}`}
+          href={withBase(`/novels/${novel.id}`)}
           class="hover:text-primary mobile-focus-visible mobile-no-hover group inline-flex items-center gap-2 text-sm transition-colors"
         >
           <Icon
@@ -223,7 +224,7 @@ const progressPercentage = Math.round(
         {
           nextChapter ? (
             <a
-              href={getChapterUrl(novel, nextChapter)}
+              href={withBase(getChapterUrl(novel, nextChapter))}
               class="hover:text-primary mobile-focus-visible mobile-no-hover group inline-flex items-center gap-2 text-sm transition-colors"
             >
               <div class="text-right">
@@ -268,7 +269,7 @@ const progressPercentage = Math.round(
         {
           previousChapter ? (
             <a
-              href={getChapterUrl(novel, previousChapter)}
+              href={withBase(getChapterUrl(novel, previousChapter))}
               class="hover:text-primary mobile-focus-visible mobile-no-hover group inline-flex items-center gap-2 text-sm transition-colors"
             >
               <Icon
@@ -291,7 +292,7 @@ const progressPercentage = Math.round(
 
       <div class="px-4 text-center">
         <a
-          href={`/novels/${novel.id}`}
+          href={withBase(`/novels/${novel.id}`)}
           class="hover:text-primary mobile-focus-visible mobile-no-hover group inline-flex items-center gap-2 text-sm transition-colors"
         >
           <Icon
@@ -306,7 +307,7 @@ const progressPercentage = Math.round(
         {
           nextChapter ? (
             <a
-              href={getChapterUrl(novel, nextChapter)}
+              href={withBase(getChapterUrl(novel, nextChapter))}
               class="hover:text-primary mobile-focus-visible mobile-no-hover group inline-flex items-center gap-2 text-sm transition-colors"
             >
               <div class="text-right">

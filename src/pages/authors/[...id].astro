@@ -5,6 +5,7 @@ import { Icon } from '@/components/Icon'
 import PageHead from '@/components/PageHead.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import Layout from '@/layouts/Layout.astro'
+import { withBase } from "@/lib/utils/url"
 import { formatDate } from '@/lib/utils'
 import { Image } from 'astro:assets'
 import { getCollection } from 'astro:content'
@@ -51,7 +52,7 @@ const authorNovels = allNovels
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {authorNovels.map((novel) => (
             <article class="group bg-card text-card-foreground relative overflow-hidden rounded-lg border shadow-sm transition-all hover:shadow-md">
-              <a href={`/novels/${novel.id}`} class="block">
+              <a href={withBase(`/novels/${novel.id}`)} class="block">
                 {novel.data.coverImage ? (
                   <div class="aspect-[3/4] overflow-hidden">
                     <Image
