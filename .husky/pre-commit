@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 # Run security audit before commit
-bun run security:check
+bun run security:fix
 
 # Auto-fix formatting issues (CSS, Markdown, Prettier)
 bun run format
