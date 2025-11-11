@@ -2,7 +2,6 @@
  * Lazy-loaded ScrollArea component for better performance with error boundary
  */
 import { lazy, Suspense } from 'react'
-import type { ComponentProps } from 'react'
 import { UIErrorBoundary } from './error-boundary'
 
 // Lazy load the ScrollArea component
@@ -10,8 +9,10 @@ const ScrollArea = lazy(() =>
   import('./scroll-area').then((module) => ({ default: module.ScrollArea })),
 )
 
-interface LazyScrollAreaProps extends ComponentProps<typeof ScrollArea> {
+interface LazyScrollAreaProps {
   fallback?: React.ReactNode
+  className?: string
+  children?: React.ReactNode
 }
 
 export function LazyScrollArea({
