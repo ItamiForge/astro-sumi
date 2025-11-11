@@ -49,11 +49,8 @@ jobs:
             cargo install rumdl
           fi
       
-      - name: Run CSS linting
-        run: bun run lint:css
-      
-      - name: Run Markdown linting
-        run: bun run lint:md
+      - name: Run linting checks
+        run: bun run lint
       
       - name: Build site
         run: bun run build

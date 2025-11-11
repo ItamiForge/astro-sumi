@@ -3,5 +3,5 @@
 # Run security audit before commit
 bun run security:check
 
-# Run linting (CSS + Markdown)
-bun run lint
+# Auto-fix formatting issues (CSS, Markdown, Prettier)
+bun run format

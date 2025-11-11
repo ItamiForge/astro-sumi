@@ -20,9 +20,12 @@ const env = loadEnv('development', process.cwd(), '')
 // Get site URL with fallback
 const siteUrl = env['SITE_URL'] || 'https://your-site.com'
 
+// Only use base path for production builds (GitHub Pages)
+const base = process.env['NODE_ENV'] === 'production' ? '/astro-sumi' : '/'
+
 export default defineConfig({
   site: siteUrl,
-  base: '/astro-sumi',
+  base: base,
   integrations: [
     mdx(),
     react(),
