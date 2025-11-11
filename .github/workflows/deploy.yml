@@ -32,25 +32,10 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
       
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-      
-      - name: Cache rumdl
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/bin/rumdl
-          key: ${{ runner.os }}-rumdl-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-rumdl-
-      
-      - name: Install rumdl
-        run: |
-          if ! command -v rumdl &> /dev/null; then
-            cargo install rumdl
-          fi
-      
-      - name: Run linting checks
-        run: bun run lint
+      # Quality checks handled by pre-commit hooks
+      # Uncomment below to add CI-level checks in the future:
+      # - name: Run checks
+      #   run: bun run lint
       
       - name: Build site
         run: bun run build
