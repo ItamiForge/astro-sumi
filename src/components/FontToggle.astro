@@ -35,10 +35,11 @@ import { Button } from '@/components/ui/button'
 
   function handleToggleClick() {
     const element = document.documentElement
-    const currentFont = element.getAttribute('data-font') || fontOrder[0]
+    const currentFont =
+      element.getAttribute('data-font') || fontOrder[0] || 'geist'
 
     const currentIndex = fontOrder.indexOf(currentFont)
-    const newFont = fontOrder[(currentIndex + 1) % fontOrder.length]
+    const newFont = fontOrder[(currentIndex + 1) % fontOrder.length] || 'geist'
 
     element.classList.add('[&_*]:transition-none')
     element.setAttribute('data-font', newFont)
@@ -60,7 +61,7 @@ import { Button } from '@/components/ui/button'
   initFontToggle()
 
   document.addEventListener('astro:after-swap', () => {
-    const storedFont = localStorage.getItem('font') || fontOrder[0]
+    const storedFont = localStorage.getItem('font') || fontOrder[0] || 'geist'
     const element = document.documentElement
 
     element.classList.add('[&_*]:transition-none')

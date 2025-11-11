@@ -53,7 +53,7 @@ export class ErrorBoundary extends Component<
     }
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log the error
     Logger.error('React Error Boundary caught an error', error, {
       componentStack: errorInfo.componentStack,
@@ -71,7 +71,7 @@ export class ErrorBoundary extends Component<
     }
   }
 
-  componentDidUpdate(prevProps: ErrorBoundaryProps) {
+  override componentDidUpdate(prevProps: ErrorBoundaryProps) {
     const { resetOnPropsChange, resetKeys } = this.props
     const { hasError } = this.state
 
@@ -109,13 +109,13 @@ export class ErrorBoundary extends Component<
     }, 100)
   }
 
-  componentWillUnmount() {
+  override componentWillUnmount() {
     if (this.resetTimeoutId) {
       clearTimeout(this.resetTimeoutId)
     }
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       // Custom fallback UI
       if (this.props.fallback) {
@@ -176,13 +176,13 @@ export class UIErrorBoundary extends Component<
     return { hasError: true }
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     Logger.error('UI Error Boundary caught an error', error, {
       componentStack: errorInfo.componentStack,
     })
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       return (
         this.props.fallback || (

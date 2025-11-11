@@ -52,7 +52,7 @@ const authors = await parseAuthors([entry.data.author])
                     client:load
                     src={author.avatar}
                     alt={author.name}
-                    fallback={author.name[0]}
+                    fallback={author.name[0] ?? '?'}
                     className="size-5 rounded-full"
                   />
                   <span>{author.name}</span>

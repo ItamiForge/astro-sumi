@@ -1,19 +1,13 @@
 import type { IconMap, SocialLink, Site, FontConfig } from '@/types'
+import { siteConfig, socialLinks } from '@/lib/env'
 
-// Direct environment variable access - simpler and more predictable
-// These are loaded at build/server start time from .env.local
-const SITE_URL = import.meta.env.SITE_URL || 'https://your-site.com'
-const SITE_TITLE = import.meta.env.SITE_TITLE || 'Astro Sumi'
-const SITE_DESCRIPTION =
-  import.meta.env.SITE_DESCRIPTION ||
-  'A clean, minimal template specifically designed for novel and book writing projects'
-const SITE_AUTHOR = import.meta.env.SITE_AUTHOR || 'Your Name'
-
+// Use validated environment configuration from src/lib/env.ts
+// This provides type-safe, validated access to environment variables with helpful error messages
 export const SITE: Site = {
-  title: SITE_TITLE,
-  description: SITE_DESCRIPTION,
-  href: SITE_URL,
-  author: SITE_AUTHOR,
+  title: siteConfig.title,
+  description: siteConfig.description,
+  href: siteConfig.url,
+  author: siteConfig.author,
   locale: 'en-US',
   featuredNovelCount: 3,
   // Planned feature: Will be used when implementing pagination for /novels/[...page].astro
@@ -36,35 +30,33 @@ export const NAV_LINKS: SocialLink[] = [
   },
 ]
 
-// Direct environment variable access for social links
-const GITHUB_URL = import.meta.env.GITHUB_URL
-const EMAIL_ADDRESS = import.meta.env.EMAIL_ADDRESS
-const PATREON_URL = import.meta.env.PATREON_URL
-const KOFI_URL = import.meta.env.KOFI_URL
+// Build social links array from validated environment - only include configured links
+const buildSocialLinks = (): SocialLink[] => {
+  const links: SocialLink[] = []
 
-// Build social links array - only include configured links
-const socialLinks: SocialLink[] = []
+  if (socialLinks.github) {
+    links.push({ href: socialLinks.github, label: 'GitHub' })
+  }
 
-if (GITHUB_URL) {
-  socialLinks.push({ href: GITHUB_URL, label: 'GitHub' })
+  if (socialLinks.email) {
+    links.push({ href: `mailto:${socialLinks.email}`, label: 'Email' })
+  }
+
+  if (socialLinks.patreon) {
+    links.push({ href: socialLinks.patreon, label: 'Patreon' })
+  }
+
+  if (socialLinks.kofi) {
+    links.push({ href: socialLinks.kofi, label: 'Ko-fi' })
+  }
+
+  // Always include RSS feed
+  links.push({ href: '/rss.xml', label: 'RSS' })
+
+  return links
 }
 
-if (EMAIL_ADDRESS) {
-  socialLinks.push({ href: `mailto:${EMAIL_ADDRESS}`, label: 'Email' })
-}
-
-if (PATREON_URL) {
-  socialLinks.push({ href: PATREON_URL, label: 'Patreon' })
-}
-
-if (KOFI_URL) {
-  socialLinks.push({ href: KOFI_URL, label: 'Ko-fi' })
-}
-
-// Always include RSS feed
-socialLinks.push({ href: '/rss.xml', label: 'RSS' })
-
-export const SOCIAL_LINKS: SocialLink[] = socialLinks
+export const SOCIAL_LINKS: SocialLink[] = buildSocialLinks()
 
 export const ICON_MAP: IconMap = {
   Website: 'lucide:globe',

@@ -29,11 +29,14 @@ describe('Content Collection Integration Tests', () => {
       
       // Verify novel structure
       const novel = novels[0]
-      expect(novel).toHaveProperty('id')
-      expect(novel).toHaveProperty('data')
-      expect(novel.data).toHaveProperty('title')
-      expect(novel.data).toHaveProperty('author')
-      expect(novel.data).toHaveProperty('startDate')
+      expect(novel).toBeDefined()
+      if (novel) {
+        expect(novel).toHaveProperty('id')
+        expect(novel).toHaveProperty('data')
+        expect(novel.data).toHaveProperty('title')
+        expect(novel.data).toHaveProperty('author')
+        expect(novel.data).toHaveProperty('startDate')
+      }
     })
 
     test('getAllChapters returns array of chapters', async () => {
@@ -43,12 +46,15 @@ describe('Content Collection Integration Tests', () => {
       
       // Verify chapter structure
       const chapter = chapters[0]
-      expect(chapter).toHaveProperty('id')
-      expect(chapter).toHaveProperty('data')
-      expect(chapter.data).toHaveProperty('title')
-      expect(chapter.data).toHaveProperty('novel')
-      expect(chapter.data).toHaveProperty('volume')
-      expect(chapter.data).toHaveProperty('chapter')
+      expect(chapter).toBeDefined()
+      if (chapter) {
+        expect(chapter).toHaveProperty('id')
+        expect(chapter).toHaveProperty('data')
+        expect(chapter.data).toHaveProperty('title')
+        expect(chapter.data).toHaveProperty('novel')
+        expect(chapter.data).toHaveProperty('volume')
+        expect(chapter.data).toHaveProperty('chapter')
+      }
     })
 
     test('getAllAuthors returns array of authors', async () => {
@@ -58,9 +64,12 @@ describe('Content Collection Integration Tests', () => {
       
       // Verify author structure
       const author = authors[0]
-      expect(author).toHaveProperty('id')
-      expect(author).toHaveProperty('data')
-      expect(author.data).toHaveProperty('name')
+      expect(author).toBeDefined()
+      if (author) {
+        expect(author).toHaveProperty('id')
+        expect(author).toHaveProperty('data')
+        expect(author.data).toHaveProperty('name')
+      }
     })
   })
 
@@ -69,7 +78,8 @@ describe('Content Collection Integration Tests', () => {
       const novels = await getAllNovels()
       expect(novels.length).toBeGreaterThan(0)
       
-      const novelId = novels[0].id
+      const novelId = novels[0]?.id
+      if (!novelId) return
       const chapters = await getChaptersByNovel(novelId)
       
       expect(Array.isArray(chapters)).toBe(true)
@@ -84,9 +94,9 @@ describe('Content Collection Integration Tests', () => {
           const prev = chapters[i - 1]
           const curr = chapters[i]
           
-          if (prev.data.volume === curr.data.volume) {
+          if (prev && curr && prev.data.volume === curr.data.volume) {
             expect(prev.data.chapter).toBeLessThanOrEqual(curr.data.chapter)
-          } else {
+          } else if (prev && curr) {
             expect(prev.data.volume).toBeLessThan(curr.data.volume)
           }
         }
@@ -97,7 +107,8 @@ describe('Content Collection Integration Tests', () => {
       const authors = await getAllAuthors()
       expect(authors.length).toBeGreaterThan(0)
       
-      const authorId = authors[0].id
+      const authorId = authors[0]?.id
+      if (!authorId) return
       const novels = await getNovelsByAuthor(authorId)
       
       expect(Array.isArray(novels)).toBe(true)
@@ -113,6 +124,7 @@ describe('Content Collection Integration Tests', () => {
       
       // Test with first chapter of a novel
       const firstChapter = chapters[0]
+      if (!firstChapter) return
       const adjacent = await getAdjacentChapters(firstChapter.id)
       
       expect(adjacent).toHaveProperty('newer')
@@ -141,7 +153,8 @@ describe('Content Collection Integration Tests', () => {
       const chapters = await getAllChapters()
       expect(chapters.length).toBeGreaterThan(0)
       
-      const chapterId = chapters[0].id
+      const chapterId = chapters[0]?.id
+      if (!chapterId) return
       const chapter = await getChapterById(chapterId)
       
       expect(chapter).not.toBeNull()
@@ -157,7 +170,8 @@ describe('Content Collection Integration Tests', () => {
       const novels = await getAllNovels()
       expect(novels.length).toBeGreaterThan(0)
       
-      const novelId = novels[0].id
+      const novelId = novels[0]?.id
+      if (!novelId) return
       const novel = await getNovelById(novelId)
       
       expect(novel).not.toBeNull()
@@ -199,6 +213,7 @@ describe('Content Collection Integration Tests', () => {
       const allTags = await getAllTags()
       if (allTags.size > 0) {
         const firstTag = Array.from(allTags.keys())[0]
+        if (!firstTag) return
         const novels = await getNovelsByTag(firstTag)
         
         expect(Array.isArray(novels)).toBe(true)
@@ -212,15 +227,20 @@ describe('Content Collection Integration Tests', () => {
     test('parseAuthors handles valid author IDs', async () => {
       const authors = await getAllAuthors()
       if (authors.length > 0) {
-        const authorIds = [authors[0].id]
+        const firstAuthor = authors[0]
+        if (!firstAuthor) return
+        const authorIds = [firstAuthor.id]
         const parsedAuthors = await parseAuthors(authorIds)
         
         expect(Array.isArray(parsedAuthors)).toBe(true)
         expect(parsedAuthors.length).toBe(1)
-        expect(parsedAuthors[0]).toHaveProperty('id')
-        expect(parsedAuthors[0]).toHaveProperty('name')
-        expect(parsedAuthors[0]).toHaveProperty('isRegistered')
-        expect(parsedAuthors[0].isRegistered).toBe(true)
+        const parsedAuthor = parsedAuthors[0]
+        if (parsedAuthor) {
+          expect(parsedAuthor).toHaveProperty('id')
+          expect(parsedAuthor).toHaveProperty('name')
+          expect(parsedAuthor).toHaveProperty('isRegistered')
+          expect(parsedAuthor.isRegistered).toBe(true)
+        }
       }
     })
 
@@ -229,14 +249,19 @@ describe('Content Collection Integration Tests', () => {
       
       expect(Array.isArray(parsedAuthors)).toBe(true)
       expect(parsedAuthors.length).toBe(1)
-      expect(parsedAuthors[0].id).toBe('non-existent-author')
-      expect(parsedAuthors[0].isRegistered).toBe(false)
+      const parsedAuthor = parsedAuthors[0]
+      if (parsedAuthor) {
+        expect(parsedAuthor.id).toBe('non-existent-author')
+        expect(parsedAuthor.isRegistered).toBe(false)
+      }
     })
 
     test('getChapterReadingTime calculates reading time', async () => {
       const chapters = await getAllChapters()
       if (chapters.length > 0) {
-        const readingTime = await getChapterReadingTime(chapters[0].id)
+        const firstChapter = chapters[0]
+        if (!firstChapter) return
+        const readingTime = await getChapterReadingTime(firstChapter.id)
         expect(typeof readingTime).toBe('string')
         expect(readingTime).toMatch(/\d+ min read/)
       }
@@ -250,7 +275,9 @@ describe('Content Collection Integration Tests', () => {
     test('getNovelReadingTime calculates total reading time', async () => {
       const novels = await getAllNovels()
       if (novels.length > 0) {
-        const readingTime = await getNovelReadingTime(novels[0].id)
+        const firstNovel = novels[0]
+        if (!firstNovel) return
+        const readingTime = await getNovelReadingTime(firstNovel.id)
         expect(typeof readingTime).toBe('string')
         expect(readingTime).toMatch(/\d+ min read/)
       }
@@ -259,7 +286,9 @@ describe('Content Collection Integration Tests', () => {
     test('getChapterTOC returns table of contents', async () => {
       const chapters = await getAllChapters()
       if (chapters.length > 0) {
-        const toc = await getChapterTOC(chapters[0].id)
+        const firstChapter = chapters[0]
+        if (!firstChapter) return
+        const toc = await getChapterTOC(firstChapter.id)
         expect(Array.isArray(toc)).toBe(true)
         
         // If TOC has entries, verify structure

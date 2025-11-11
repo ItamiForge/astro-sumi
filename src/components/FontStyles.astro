@@ -4,6 +4,9 @@ import { FONTS } from '@/consts'
 
 const fonts = Object.values(FONTS)
 const defaultFont = fonts.find((f) => f.default) || fonts[0]
+if (!defaultFont) {
+  throw new Error('No fonts configured in FONTS constant')
+}
 ---
 
 <style

@@ -34,7 +34,7 @@ const socialLinks: SocialLink[] = [
         client:load
         src={avatar}
         alt={`Avatar of ${name}`}
-        fallback={name[0]}
+        fallback={name[0] ?? '?'}
         className={cn(
           'size-32 rounded-md [&>[data-slot="avatar-fallback"]]:rounded-md',
           !isAuthorPage &&

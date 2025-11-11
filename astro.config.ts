@@ -18,7 +18,7 @@ import tailwindcss from '@tailwindcss/vite'
 const env = loadEnv('development', process.cwd(), '')
 
 // Get site URL with fallback
-const siteUrl = env.SITE_URL || 'https://your-site.com'
+const siteUrl = env['SITE_URL'] || 'https://your-site.com'
 
 export default defineConfig({
   site: siteUrl,
@@ -27,6 +27,14 @@ export default defineConfig({
     react(),
     sitemap(),
   ],
+  build: {
+    inlineStylesheets: 'auto',
+  },
+  image: {
+    service: {
+      entrypoint: 'astro/assets/services/sharp',
+    },
+  },
   vite: {
     plugins: [tailwindcss()],
   },

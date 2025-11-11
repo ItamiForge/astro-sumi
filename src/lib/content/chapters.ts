@@ -101,8 +101,8 @@ export async function getAdjacentChapters(currentChapterId: string): Promise<{
       }
 
       return {
-        newer: currentIndex < novelChapters.length - 1 ? novelChapters[currentIndex + 1] : null,
-        older: currentIndex > 0 ? novelChapters[currentIndex - 1] : null,
+        newer: currentIndex < novelChapters.length - 1 ? (novelChapters[currentIndex + 1] ?? null) : null,
+        older: currentIndex > 0 ? (novelChapters[currentIndex - 1] ?? null) : null,
       }
     },
     { newer: null, older: null },

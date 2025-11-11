@@ -219,7 +219,7 @@ const { headings } = Astro.props
 
       state.listElement.querySelectorAll('.mobile-toc-item').forEach((item) => {
         const tocItem = item as HTMLElement
-        const headingId = tocItem.dataset.headingId
+        const headingId = tocItem.dataset['headingId']
         if (headingId && headingIds.includes(headingId)) {
           tocItem.classList.add('text-foreground')
         } else {
@@ -227,7 +227,7 @@ const { headings } = Astro.props
         }
       })
 
-      if (headingIds.length > 0) {
+      if (headingIds.length > 0 && headingIds[0]) {
         this.scrollToActive(headingIds[0])
       }
 
