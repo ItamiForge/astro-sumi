@@ -7,8 +7,8 @@ import { buttonVariants } from '@/components/ui/button'
 import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
 import { getAllNovels } from '@/lib/content/novels'
-import { withBase } from "@/lib/utils/url"
 import { formatDate } from '@/lib/utils'
+import { withBase } from '@/lib/utils/url'
 import { Image } from 'astro:assets'
 
 const novels = await getAllNovels()

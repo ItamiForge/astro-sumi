@@ -145,7 +145,10 @@ const progressPercentage = Math.round(
           author && (
             <div class="flex items-center gap-1">
               <Icon name="user" className="size-4" />
-              <a href={withBase(`/authors/${author.id}`)} class="hover:text-primary">
+              <a
+                href={withBase(`/authors/${author.id}`)}
+                class="hover:text-primary"
+              >
                 {author.data.name}
               </a>
             </div>

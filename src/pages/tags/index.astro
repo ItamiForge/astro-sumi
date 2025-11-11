@@ -5,8 +5,8 @@ import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import Layout from '@/layouts/Layout.astro'
-import { withBase } from "@/lib/utils/url"
 import { getSortedTags } from '@/lib/content/novels'
+import { withBase } from '@/lib/utils/url'
 
 const sortedTags = await getSortedTags()
 ---

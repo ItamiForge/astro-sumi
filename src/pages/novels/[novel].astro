@@ -4,8 +4,8 @@ import { Icon } from '@/components/Icon'
 import PageHead from '@/components/PageHead.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import Layout from '@/layouts/Layout.astro'
-import { withBase } from "@/lib/utils/url"
 import { formatDate } from '@/lib/utils'
+import { withBase } from '@/lib/utils/url'
 import { Image } from 'astro:assets'
 import { getCollection } from 'astro:content'
 
@@ -315,7 +315,9 @@ const totalWords = novelChapters.reduce(
                     <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                       {chapters.map((chapter) => (
                         <a
-                          href={withBase(`/novels/${novel.id}/volume-${chapter.data.volume}${chapter.data.volumeTitle ? `-${chapter.data.volumeTitle.toLowerCase().replace(/\s+/g, '-')}` : ''}/chapter-${chapter.data.chapter}-${chapter.data.title.toLowerCase().replace(/\s+/g, '-')}`)}
+                          href={withBase(
+                            `/novels/${novel.id}/volume-${chapter.data.volume}${chapter.data.volumeTitle ? `-${chapter.data.volumeTitle.toLowerCase().replace(/\s+/g, '-')}` : ''}/chapter-${chapter.data.chapter}-${chapter.data.title.toLowerCase().replace(/\s+/g, '-')}`,
+                          )}
                           class="group hover:bg-muted/50 block rounded-lg border p-4 transition-all duration-200 hover:shadow-md"
                         >
                           <div class="flex items-start justify-between gap-3">

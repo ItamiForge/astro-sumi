@@ -10,7 +10,7 @@ interface Props {
   [key: string]: any
 }
 
-const { href, external, class: className, underline, ...rest} = Astro.props
+const { href, external, class: className, underline, ...rest } = Astro.props
 
 // Add base path to internal links
 const finalHref = external ? href : withBase(href)
