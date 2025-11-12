@@ -25,7 +25,7 @@
 /* Geist Mono for code blocks - always consistent */
 @font-face {
   font-family: 'Geist Mono';
-  src: url('/fonts/GeistMonoVF.woff2') format('woff2-variations');
+  src: url('/fonts/geist/geist-mono.woff2') format('woff2-variations');
   font-weight: 100 900;
   font-style: normal;
   font-display: optional;

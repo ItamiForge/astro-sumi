@@ -1,6 +1,7 @@
 ---
 import { Icon } from '@/components/Icon'
 import { cn } from '@/lib/utils'
+import { withBase } from '@/lib/utils/url'
 
 interface Props {
   currentPage: number
@@ -12,8 +13,8 @@ interface Props {
 const { currentPage, totalPages, baseUrl, class: className } = Astro.props
 
 const getPageUrl = (page: number) => {
-  if (page === 1) return baseUrl
-  return `${baseUrl}/${page}`
+  if (page === 1) return withBase(baseUrl)
+  return withBase(`${baseUrl}/${page}`)
 }
 
 // Generate page numbers to show
