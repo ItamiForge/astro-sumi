@@ -2,6 +2,7 @@
 import Link from '@/components/Link.astro'
 import AvatarComponent from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
+import { withBase } from '@/lib/utils/url'
 import type { SocialLink } from '@/types'
 import type { CollectionEntry } from 'astro:content'
 import SocialIcons from './SocialIcons.astro'
@@ -14,6 +15,9 @@ const { author } = Astro.props
 const { name, avatar, bio, pronouns } = author.data
 const currentPath = Astro.url.pathname
 const isAuthorPage = currentPath === `/authors/${author.id}`
+
+// Apply base path to avatar if it's not an external URL
+const avatarSrc = avatar && !avatar.startsWith('http') ? withBase(avatar) : avatar
 
 const socialLinks: SocialLink[] = [
   author.data.website && { href: author.data.website, label: 'Website' },
@@ -32,7 +36,7 @@ const socialLinks: SocialLink[] = [
     >
       <AvatarComponent
         client:load
-        src={avatar}
+        src={avatarSrc}
         alt={`Avatar of ${name}`}
         fallback={name[0] ?? '?'}
         className={cn(

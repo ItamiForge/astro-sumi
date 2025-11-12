@@ -33,7 +33,9 @@ export default defineConfig({
   ],
   build: {
     inlineStylesheets: 'auto',
+    assets: '_astro',
   },
+  compressHTML: true,
   image: {
     service: {
       entrypoint: 'astro/assets/services/sharp',
@@ -41,6 +43,17 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      cssMinify: true,
+      minify: 'esbuild',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom'],
+          },
+        },
+      },
+    },
   },
   server: {
     port: 1234,

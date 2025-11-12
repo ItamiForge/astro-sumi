@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { parseAuthors } from '@/lib/content/authors'
 import { formatDate } from '@/lib/utils'
+import { withBase } from '@/lib/utils/url'
 import { Image } from 'astro:assets'
 import type { CollectionEntry } from 'astro:content'
 import Link from './Link.astro'
@@ -16,6 +17,12 @@ interface Props {
 const { entry } = Astro.props
 const formattedDate = formatDate(entry.data.startDate)
 const authors = await parseAuthors([entry.data.author])
+
+// Apply base path to avatars at component level where import.meta.env is available
+const authorsWithBasePath = authors.map(author => ({
+  ...author,
+  avatar: author.avatar.startsWith('http') ? author.avatar : withBase(author.avatar)
+}))
 ---
 
 <div
@@ -44,9 +51,9 @@ const authors = await parseAuthors([entry.data.author])
         class="text-muted-foreground mb-2 flex flex-wrap items-center gap-x-2 text-xs"
       >
         {
-          authors.length > 0 && (
+          authorsWithBasePath.length > 0 && (
             <>
-              {authors.map((author) => (
+              {authorsWithBasePath.map((author) => (
                 <div class="flex items-center gap-x-1.5">
                   <AvatarComponent
                     client:load

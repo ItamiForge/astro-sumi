@@ -7,6 +7,9 @@ const defaultFont = fonts.find((f) => f.default) || fonts[0]
 if (!defaultFont) {
   throw new Error('No fonts configured in FONTS constant')
 }
+
+// Get base URL for font paths
+const baseUrl = import.meta.env.BASE_URL
 ---
 
 <style
@@ -14,17 +17,23 @@ if (!defaultFont) {
   set:html={`
   /* Auto-generated @font-face rules */
   ${fonts
-    .map(
-      (font) => `
+    .map((font) => {
+      const fontPath = font.file.startsWith('/')
+        ? font.file.slice(1)
+        : font.file
+      const fullPath = baseUrl.endsWith('/')
+        ? `${baseUrl}${fontPath}`
+        : `${baseUrl}/${fontPath}`
+      return `
     @font-face {
       font-family: '${font.cssName}';
-      src: url('${font.file}') format('${font.format}');
+      src: url('${fullPath}') format('${font.format}');
       font-weight: ${font.variable ? '100 900' : 'normal'};
       font-style: normal;
-      font-display: swap;
+      font-display: optional;
     }
-  `,
-    )
+  `
+    })
     .join('\n')}
 
   /* Font switching CSS custom properties */

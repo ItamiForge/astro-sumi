@@ -13,6 +13,12 @@ export function withBase(path: string): string {
   }
 
   const base = import.meta.env.BASE_URL
+  
+  // Special case: root path should return base without extra trailing slash
+  if (path === '/') {
+    return base
+  }
+  
   // Ensure base ends with / and path doesn't start with /
   const cleanBase = base.endsWith('/') ? base : `${base}/`
   const cleanPath = path.startsWith('/') ? path.slice(1) : path

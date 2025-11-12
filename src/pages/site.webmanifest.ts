@@ -2,18 +2,21 @@ import { SITE } from '@/consts'
 import type { APIRoute } from 'astro'
 
 export const GET: APIRoute = () => {
+  const base = import.meta.env.BASE_URL
+  const baseUrl = base.endsWith('/') ? base : `${base}/`
+  
   const manifest = {
     name: SITE.title,
     short_name: SITE.title,
     icons: [
       {
-        src: '/web-app-manifest-192x192.webp',
+        src: `${baseUrl}web-app-manifest-192x192.webp`,
         sizes: '192x192',
         type: 'image/webp',
         purpose: 'maskable',
       },
       {
-        src: '/web-app-manifest-512x512.webp',
+        src: `${baseUrl}web-app-manifest-512x512.webp`,
         sizes: '512x512',
         type: 'image/webp',
         purpose: 'maskable',
