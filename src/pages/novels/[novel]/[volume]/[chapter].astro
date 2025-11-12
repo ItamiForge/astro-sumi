@@ -5,7 +5,6 @@ import { Icon } from '@/components/Icon'
 import PageHead from '@/components/PageHead.astro'
 import { Button } from '@/components/ui/button'
 import Layout from '@/layouts/Layout.astro'
-import { formatDate } from '@/lib/utils'
 import { withBase } from '@/lib/utils/url'
 import { getCollection, render } from 'astro:content'
 
@@ -104,7 +103,7 @@ const progressPercentage = Math.round(
     />
 
     <!-- Chapter Header -->
-    <div class="mb-8 mt-12 text-center">
+    <div class="mt-12 mb-8 text-center">
       <h1 class="text-3xl font-bold lg:text-4xl">
         Chapter {chapter.data.chapter}: {chapter.data.title}
       </h1>
