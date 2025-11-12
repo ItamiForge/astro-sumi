@@ -19,9 +19,11 @@ const formattedDate = formatDate(entry.data.startDate)
 const authors = await parseAuthors([entry.data.author])
 
 // Apply base path to avatars at component level where import.meta.env is available
-const authorsWithBasePath = authors.map(author => ({
+const authorsWithBasePath = authors.map((author) => ({
   ...author,
-  avatar: author.avatar.startsWith('http') ? author.avatar : withBase(author.avatar)
+  avatar: author.avatar.startsWith('http')
+    ? author.avatar
+    : withBase(author.avatar),
 }))
 ---
 
