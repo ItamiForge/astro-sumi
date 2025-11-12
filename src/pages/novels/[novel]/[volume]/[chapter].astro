@@ -104,57 +104,10 @@ const progressPercentage = Math.round(
     />
 
     <!-- Chapter Header -->
-    <div class="mb-8 space-y-4 text-center">
-      <div class="space-y-2">
-        <p class="text-muted-foreground text-sm">
-          Volume {chapter.data.volume}{
-            chapter.data.volumeTitle && ` • ${chapter.data.volumeTitle}`
-          }
-        </p>
-        <h1 class="text-3xl font-bold lg:text-4xl">
-          Chapter {chapter.data.chapter}: {chapter.data.title}
-        </h1>
-      </div>
-
-      {
-        chapter.data.summary && (
-          <p class="text-muted-foreground mx-auto max-w-2xl text-lg">
-            {chapter.data.summary}
-          </p>
-        )
-      }
-
-      <div
-        class="text-muted-foreground flex items-center justify-center gap-6 text-sm"
-      >
-        <div class="flex items-center gap-1">
-          <Icon name="calendar" className="size-4" />
-          {formatDate(chapter.data.publishDate)}
-        </div>
-
-        {
-          chapter.data.wordCount && (
-            <div class="flex items-center gap-1">
-              <Icon name="file-text" className="size-4" />
-              {chapter.data.wordCount.toLocaleString()} words
-            </div>
-          )
-        }
-
-        {
-          author && (
-            <div class="flex items-center gap-1">
-              <Icon name="user" className="size-4" />
-              <a
-                href={withBase(`/authors/${author.id}`)}
-                class="hover:text-primary"
-              >
-                {author.data.name}
-              </a>
-            </div>
-          )
-        }
-      </div>
+    <div class="mb-8 mt-12 text-center">
+      <h1 class="text-3xl font-bold lg:text-4xl">
+        Chapter {chapter.data.chapter}: {chapter.data.title}
+      </h1>
     </div>
 
     <!-- Page Navigation (if chapter has page breaks) -->
