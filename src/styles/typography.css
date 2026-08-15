@@ -208,6 +208,23 @@
       }
     }
 
+    a.wiki-link {
+      text-decoration: underline dotted;
+      text-underline-offset: 0.22em;
+      text-decoration-thickness: 1px;
+      text-decoration-color: color-mix(in oklch, var(--foreground) 35%, transparent);
+    }
+
+    a.wiki-link:hover,
+    a.wiki-link:focus-visible {
+      text-decoration-style: solid;
+      text-decoration-color: var(--foreground);
+    }
+
+    a.wiki-link-missing {
+      text-decoration-color: var(--destructive);
+    }
+
     /* Responsive adjustments for reading content */
     @media (min-width: 640px) {
       line-height: 1.85;

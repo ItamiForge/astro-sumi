@@ -35,13 +35,13 @@ pageBreaks: [
 
 ## The Dream
 
-Kael woke with a gasp, his bronze sword already in hand before his eyes fully opened. The dream clung to him like morning mist—vivid, impossible, and utterly real. He had been someone else. Somewhere else. Some*when* else.
+[[character:kael|Kael]] woke with a gasp, his bronze sword already in hand before his eyes fully opened. The dream clung to him like morning mist—vivid, impossible, and utterly real. He had been someone else. Somewhere else. Some*when* else.
 
 In the dream, he wore armor of gleaming steel, not bronze. He stood atop a castle wall—though he'd never seen a castle, didn't even know what the word meant until it appeared in his mind—and faced an army of shadows that blotted out the sun. Beside him stood four others, their faces blurred but their presence as familiar as his own heartbeat.
 
 "Again," he muttered, lowering his sword. The same dream, every night for a moon's turning. Each time more vivid, more insistent, more *real*.
 
-Outside his hut, the village of Thornhaven was stirring to life. He could hear the bronze-smith's hammer already ringing, the bleating of goats, the chatter of early risers heading to the fields. Normal sounds. Comforting sounds. Sounds that had nothing to do with impossible dreams of steel and shadows.
+Outside his hut, the village of [[location:thornhaven|Thornhaven]] was stirring to life. He could hear the bronze-smith's hammer already ringing, the bleating of goats, the chatter of early risers heading to the fields. Normal sounds. Comforting sounds. Sounds that had nothing to do with impossible dreams of steel and shadows.
 
 Kael splashed water on his face from the clay basin and tried to shake off the lingering unease. He was a hunter, nothing more. The best in Thornhaven, perhaps, but still just a man who tracked deer and protected the village from wolves. He wasn't a warrior from some other life. He wasn't destined for anything beyond the next hunt.
 
@@ -61,15 +61,15 @@ Thornhaven sat in a valley between two rivers, protected by ancient oak forests 
 
 Until recently.
 
-Kael walked through the village, nodding to familiar faces. Old Mara grinding grain. Young Finn practicing with his wooden sword. The bronze-smith, whose name was also Kael—Kael the Elder, they called him to avoid confusion—hammering out a new plow blade.
+Kael walked through the village, nodding to familiar faces. Old Mara grinding grain. Young Finn practicing with his wooden sword. The bronze-smith, whose name was also Kael—[[character:kael-the-elder|Kael the Elder]], they called him to avoid confusion—hammering out a new plow blade.
 
 But something was different this morning. He could see it in the way people moved, the tension in their shoulders, the worried glances toward the northern forest. The same unease that had been growing for weeks, like a storm building on the horizon.
 
-"Kael!" A voice called out. He turned to see Lyssa, the village healer, hurrying toward him. She was younger than him by a few summers, with dark hair braided back and eyes that seemed to see more than they should. "Have you heard?"
+"Kael!" A voice called out. He turned to see [[character:lyssa|Lyssa]], the village healer, hurrying toward him. She was younger than him by a few summers, with dark hair braided back and eyes that seemed to see more than they should. "Have you heard?"
 
 "Heard what?"
 
-"Three hunters went into the northern forest yesterday. Only one came back." Her voice dropped to a whisper. "He's raving about shadows that move on their own, about darkness that swallows light. Elder Thom thinks it's fever, but..."
+"Three hunters went into the [[location:northern-forest|northern forest]] yesterday. Only one came back." Her voice dropped to a whisper. "He's raving about shadows that move on their own, about darkness that swallows light. [[character:elder-thom|Elder Thom]] thinks it's fever, but..."
 
 "But you don't," Kael finished. He'd known Lyssa since childhood. She had a gift for healing that went beyond herbs and poultices, though she tried to hide it. The village elders didn't trust magic, even the helpful kind.
 

@@ -1,0 +1,36 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import CodexCard from '@/components/codex/CodexCard.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getAllSpecies } from '@/lib/content/world'
+import { wikiHref } from '@/lib/wiki/parse'
+
+const species = await getAllSpecies()
+const cards = species.map((entry) => ({
+  kind: 'species' as const,
+  slug: entry.id,
+  name: entry.data.name,
+  kicker: 'kindred',
+  shortBio: entry.data.shortBio,
+  href: wikiHref('species', entry.id),
+}))
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title="Kindreds"
+    description="Peoples and other living kinds of the cosmos."
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { label: 'Kindreds', icon: 'lucide:sparkles' },
+    ]}
+  />
+  <h1 class="text-3xl font-medium">Kindreds</h1>
+  <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    {cards.map((card) => <CodexCard card={card} />)}
+  </div>
+</Layout>

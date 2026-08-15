@@ -1,0 +1,144 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Monogram from '@/components/codex/Monogram.astro'
+import { Icon } from '@/components/Icon'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getChapterPath } from '@/lib/content/chapters'
+import {
+  appearancesForSlug,
+  getAllCharacters,
+  getAllSpecies,
+  getLocationById,
+} from '@/lib/content/world'
+import { withBase } from '@/lib/utils/url'
+import { wikiHref } from '@/lib/wiki/parse'
+import { render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const species = await getAllSpecies()
+  return species.map((kindred) => ({
+    params: { id: kindred.id },
+    props: { kindred },
+  }))
+}
+
+const { kindred } = Astro.props
+const { Content } = await render(kindred)
+const homeworld = kindred.data.homeworld
+  ? await getLocationById(kindred.data.homeworld)
+  : null
+const members = (await getAllCharacters()).filter(
+  (character) => character.data.species === kindred.id,
+)
+const appearances = await appearancesForSlug(kindred.id, 'species')
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title={kindred.data.name}
+    description={kindred.data.shortBio}
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { href: '/codex/kindreds', label: 'Kindreds', icon: 'lucide:sparkles' },
+      { label: kindred.data.name, icon: 'lucide:sparkles' },
+    ]}
+  />
+
+  <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
+    <aside class="space-y-4">
+      <Monogram
+        name={kindred.data.name}
+        slug={kindred.id}
+        class="h-40 w-full text-5xl"
+      />
+      <div class="bg-muted/30 space-y-3 rounded-lg p-4 text-sm">
+        {
+          kindred.data.era && (
+            <p class="text-muted-foreground">{kindred.data.era}</p>
+          )
+        }
+        {
+          kindred.data.lifespan && (
+            <p>
+              <span class="text-muted-foreground">Lifespan · </span>
+              {kindred.data.lifespan}
+            </p>
+          )
+        }
+        {
+          homeworld && (
+            <p>
+              <span class="text-muted-foreground">Home · </span>
+              <a
+                class="hover:text-primary"
+                href={withBase(wikiHref('location', homeworld.id))}
+              >
+                {homeworld.data.name}
+              </a>
+            </p>
+          )
+        }
+      </div>
+    </aside>
+
+    <div class="space-y-8">
+      <div>
+        <h1 class="text-3xl font-medium lg:text-4xl">{kindred.data.name}</h1>
+        <p class="text-muted-foreground mt-3 text-lg">
+          {kindred.data.shortBio}
+        </p>
+      </div>
+
+      <article class="reading-content">
+        <Content />
+      </article>
+
+      {
+        members.length > 0 && (
+          <section class="space-y-3">
+            <h2 class="text-xl font-medium">Known of this kind</h2>
+            <ul class="space-y-2 text-sm">
+              {members.map((member) => (
+                <li>
+                  <a
+                    class="hover:text-primary font-medium"
+                    href={withBase(wikiHref('character', member.id))}
+                  >
+                    {member.data.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        appearances.length > 0 && (
+          <section class="space-y-3">
+            <h2 class="flex items-center gap-2 text-xl font-medium">
+              <Icon name="book-open" className="size-4" />
+              Mentions
+            </h2>
+            <ul class="space-y-2 text-sm">
+              {appearances.map((chapter) => (
+                <li>
+                  <a
+                    class="hover:text-primary"
+                    href={withBase(getChapterPath(chapter.data.novel, chapter))}
+                  >
+                    Chapter {chapter.data.chapter} · {chapter.data.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+    </div>
+  </div>
+</Layout>

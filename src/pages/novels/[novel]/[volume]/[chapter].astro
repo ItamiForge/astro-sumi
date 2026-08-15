@@ -1,10 +1,12 @@
 ---
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import ChapterPresence from '@/components/codex/ChapterPresence.astro'
 import Giscus from '@/components/Comments/Giscus.astro'
 import { Icon } from '@/components/Icon'
 import PageHead from '@/components/PageHead.astro'
 import { Button } from '@/components/ui/button'
 import Layout from '@/layouts/Layout.astro'
+import { cardsForMentions } from '@/lib/content/world'
 import { withBase } from '@/lib/utils/url'
 import { getCollection, render } from 'astro:content'
 
@@ -48,6 +50,7 @@ export async function getStaticPaths() {
 
 const { novel, chapter, novelChapters } = Astro.props
 const { Content } = await render(chapter)
+const mentionCards = await cardsForMentions(chapter.body)
 
 // Get navigation chapters
 const currentIndex = novelChapters.findIndex((c) => c.id === chapter.id)
@@ -204,6 +207,8 @@ const progressPercentage = Math.round(
     <article class="reading-content mb-12">
       <Content />
     </article>
+
+    <ChapterPresence cards={mentionCards} />
 
     <!-- Comments Section -->
     <section class="comments-section mb-8">

@@ -1,0 +1,36 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import CodexCard from '@/components/codex/CodexCard.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getAllFactions } from '@/lib/content/world'
+import { wikiHref } from '@/lib/wiki/parse'
+
+const factions = await getAllFactions()
+const cards = factions.map((entry) => ({
+  kind: 'faction' as const,
+  slug: entry.id,
+  name: entry.data.name,
+  kicker: entry.data.kind,
+  shortBio: entry.data.shortBio,
+  href: wikiHref('faction', entry.id),
+}))
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title="Factions"
+    description="Houses, villages, orders, and darker companies."
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { label: 'Factions', icon: 'lucide:shield' },
+    ]}
+  />
+  <h1 class="text-3xl font-medium">Factions</h1>
+  <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    {cards.map((card) => <CodexCard card={card} />)}
+  </div>
+</Layout>

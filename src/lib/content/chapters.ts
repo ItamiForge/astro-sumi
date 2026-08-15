@@ -1,4 +1,13 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content'
+
+export function getChapterPath(
+  novelId: string,
+  chapter: CollectionEntry<'chapters'>,
+): string {
+  const volumeSlug = `volume-${chapter.data.volume}${chapter.data.volumeTitle ? `-${chapter.data.volumeTitle.toLowerCase().replace(/\s+/g, '-')}` : ''}`
+  const chapterSlug = `chapter-${chapter.data.chapter}-${chapter.data.title.toLowerCase().replace(/\s+/g, '-')}`
+  return `/novels/${novelId}/${volumeSlug}/${chapterSlug}`
+}
 import { calculateWordCountFromHtml, readingTime } from '../utils'
 import { safeContentLoad, ContentError } from '../errors'
 import { validateContentIntegrity } from '../validation'

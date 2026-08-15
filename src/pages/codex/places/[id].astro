@@ -1,0 +1,155 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Monogram from '@/components/codex/Monogram.astro'
+import { Icon } from '@/components/Icon'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getChapterPath } from '@/lib/content/chapters'
+import {
+  appearancesForSlug,
+  getAllLocations,
+  getChildLocations,
+  getLocationById,
+} from '@/lib/content/world'
+import { withBase } from '@/lib/utils/url'
+import { wikiHref } from '@/lib/wiki/parse'
+import { render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const locations = await getAllLocations()
+  return locations.map((location) => ({
+    params: { id: location.id },
+    props: { location },
+  }))
+}
+
+const { location } = Astro.props
+const { Content } = await render(location)
+const parent = location.data.parent
+  ? await getLocationById(location.data.parent)
+  : null
+const children = await getChildLocations(location.id)
+const appearances = await appearancesForSlug(location.id, 'location')
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title={location.data.name}
+    description={location.data.shortBio}
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { href: '/codex/places', label: 'Places', icon: 'lucide:map-pin' },
+      { label: location.data.name, icon: 'lucide:landmark' },
+    ]}
+  />
+
+  <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
+    <aside class="space-y-4">
+      <Monogram
+        name={location.data.name}
+        slug={location.id}
+        class="h-40 w-full text-5xl"
+      />
+      <div class="bg-muted/30 space-y-3 rounded-lg p-4 text-sm">
+        <p class="capitalize">{location.data.kind}</p>
+        {
+          location.data.era && (
+            <p class="text-muted-foreground">{location.data.era}</p>
+          )
+        }
+        {
+          location.data.climate && (
+            <p>
+              <span class="text-muted-foreground">Climate · </span>
+              {location.data.climate}
+            </p>
+          )
+        }
+        {
+          location.data.government && (
+            <p>
+              <span class="text-muted-foreground">Rule · </span>
+              {location.data.government}
+            </p>
+          )
+        }
+        {
+          parent && (
+            <p>
+              <span class="text-muted-foreground">Within · </span>
+              <a
+                class="hover:text-primary"
+                href={withBase(wikiHref('location', parent.id))}
+              >
+                {parent.data.name}
+              </a>
+            </p>
+          )
+        }
+      </div>
+    </aside>
+
+    <div class="space-y-8">
+      <div>
+        <h1 class="text-3xl font-medium lg:text-4xl">{location.data.name}</h1>
+        <p class="text-muted-foreground mt-3 text-lg">
+          {location.data.shortBio}
+        </p>
+      </div>
+
+      <article class="reading-content">
+        <Content />
+      </article>
+
+      {
+        children.length > 0 && (
+          <section class="space-y-3">
+            <h2 class="text-xl font-medium">Within this place</h2>
+            <ul class="space-y-2 text-sm">
+              {children.map((child) => (
+                <li>
+                  <a
+                    class="hover:text-primary font-medium"
+                    href={withBase(wikiHref('location', child.id))}
+                  >
+                    {child.data.name}
+                  </a>
+                  <span class="text-muted-foreground">
+                    {' '}
+                    · {child.data.kind}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        appearances.length > 0 && (
+          <section class="space-y-3">
+            <h2 class="flex items-center gap-2 text-xl font-medium">
+              <Icon name="book-open" className="size-4" />
+              Scenes
+            </h2>
+            <ul class="space-y-2 text-sm">
+              {appearances.map((chapter) => (
+                <li>
+                  <a
+                    class="hover:text-primary"
+                    href={withBase(getChapterPath(chapter.data.novel, chapter))}
+                  >
+                    Chapter {chapter.data.chapter} · {chapter.data.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+    </div>
+  </div>
+</Layout>

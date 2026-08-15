@@ -11,6 +11,7 @@ import rehypeExternalLinks from 'rehype-external-links'
 import rehypeKatex from 'rehype-katex'
 import remarkEmoji from 'remark-emoji'
 import remarkMath from 'remark-math'
+import { rehypeWikiLinks } from './src/lib/wiki/rehype-wiki-links'
 
 import tailwindcss from '@tailwindcss/vite'
 
@@ -81,6 +82,7 @@ export default defineConfig({
       ],
       rehypeHeadingIds,
       rehypeKatex,
+      [rehypeWikiLinks, { base }],
     ],
     remarkPlugins: [remarkMath, remarkEmoji],
   },

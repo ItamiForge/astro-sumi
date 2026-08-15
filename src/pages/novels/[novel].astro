@@ -1,11 +1,18 @@
 ---
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import CodexCard from '@/components/codex/CodexCard.astro'
 import { Icon } from '@/components/Icon'
 import PageHead from '@/components/PageHead.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import Layout from '@/layouts/Layout.astro'
+import {
+  getCharactersByNovel,
+  getFactionsByNovel,
+  getLocationsByNovel,
+} from '@/lib/content/world'
 import { formatDate } from '@/lib/utils'
 import { withBase } from '@/lib/utils/url'
+import { wikiHref } from '@/lib/wiki/parse'
 import { Image } from 'astro:assets'
 import { getCollection } from 'astro:content'
 
@@ -55,6 +62,36 @@ const totalWords = novelChapters.reduce(
   (sum, chapter) => sum + (chapter.data.wordCount || 0),
   0,
 )
+
+const worldCharacters = await getCharactersByNovel(novel.id)
+const worldLocations = await getLocationsByNovel(novel.id)
+const worldFactions = await getFactionsByNovel(novel.id)
+const worldCards = [
+  ...worldCharacters.slice(0, 4).map((entry) => ({
+    kind: 'character' as const,
+    slug: entry.id,
+    name: entry.data.name,
+    kicker: entry.data.titles?.[0] ?? entry.data.role,
+    shortBio: entry.data.shortBio,
+    href: wikiHref('character', entry.id),
+  })),
+  ...worldLocations.slice(0, 3).map((entry) => ({
+    kind: 'location' as const,
+    slug: entry.id,
+    name: entry.data.name,
+    kicker: entry.data.kind,
+    shortBio: entry.data.shortBio,
+    href: wikiHref('location', entry.id),
+  })),
+  ...worldFactions.slice(0, 2).map((entry) => ({
+    kind: 'faction' as const,
+    slug: entry.id,
+    name: entry.data.name,
+    kicker: entry.data.kind,
+    shortBio: entry.data.shortBio,
+    href: wikiHref('faction', entry.id),
+  })),
+]
 ---
 
 <Layout containerType="wide">
@@ -280,6 +317,27 @@ const totalWords = novelChapters.reduce(
             <p class="text-muted-foreground leading-relaxed xl:text-lg xl:leading-relaxed">
               {novel.data.summary}
             </p>
+          </div>
+        )
+      }
+
+      {
+        worldCards.length > 0 && (
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl font-semibold">The World</h2>
+              <a
+                href={withBase('/codex')}
+                class="text-muted-foreground hover:text-primary text-sm"
+              >
+                Open the Codex
+              </a>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {worldCards.map((card) => (
+                <CodexCard card={card} />
+              ))}
+            </div>
           </div>
         )
       }

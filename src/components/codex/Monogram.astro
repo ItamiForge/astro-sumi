@@ -1,0 +1,24 @@
+---
+import { accentFromSlug } from '@/lib/wiki/parse'
+
+interface Props {
+  name: string
+  slug: string
+  class?: string
+}
+
+const { name, slug, class: className = 'size-12' } = Astro.props
+const accent = accentFromSlug(slug)
+const initial = name.trim().charAt(0).toUpperCase() || '?'
+---
+
+<div
+  class:list={[
+    'flex items-center justify-center rounded-md font-medium',
+    className,
+  ]}
+  style={`background: ${accent.background}; color: ${accent.foreground};`}
+  aria-hidden="true"
+>
+  {initial}
+</div>

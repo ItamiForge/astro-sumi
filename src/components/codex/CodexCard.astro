@@ -1,0 +1,33 @@
+---
+import type { WikiCard } from '@/lib/content/world'
+import { withBase } from '@/lib/utils/url'
+import Monogram from './Monogram.astro'
+
+interface Props {
+  card: WikiCard
+}
+
+const { card } = Astro.props
+---
+
+<a
+  href={withBase(card.href)}
+  class="group hover:bg-muted/50 block rounded-xl border p-4 transition-colors"
+>
+  <div class="flex gap-3">
+    <Monogram
+      name={card.name}
+      slug={card.slug}
+      class="size-12 shrink-0 text-lg"
+    />
+    <div class="min-w-0">
+      <p class="text-muted-foreground text-xs tracking-wide uppercase">
+        {card.kicker}
+      </p>
+      <h3 class="group-hover:text-primary font-medium">{card.name}</h3>
+      <p class="text-muted-foreground mt-1 line-clamp-3 text-sm">
+        {card.shortBio}
+      </p>
+    </div>
+  </div>
+</a>

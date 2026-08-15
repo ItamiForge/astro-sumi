@@ -13,6 +13,7 @@ disable = [
     "MD034",  # Bare URLs - breaks YAML frontmatter validation when auto-fixed
     "MD036",  # Emphasis instead of heading - creative writing uses emphasis for stylistic elements
     "MD041",  # First line must be H1 - frontmatter comes first
+    "MD042",  # Empty link - wiki links [[kind:slug|label]] are not markdown links
 ]
 
 # List of file/directory patterns to exclude from linting

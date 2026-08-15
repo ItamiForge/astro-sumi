@@ -1,6 +1,13 @@
 import { glob } from 'astro/loaders'
 import { defineCollection, z } from 'astro:content'
 
+const visibility = z.enum(['public', 'spoiler', 'secret']).default('public')
+
+const relationship = z.object({
+  person: z.string(),
+  kind: z.string(),
+})
+
 const novels = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/novels' }),
   schema: ({ image }) =>
@@ -12,7 +19,7 @@ const novels = defineCollection({
         .enum(['draft', 'ongoing', 'completed', 'hiatus'])
         .default('draft'),
       coverImage: image().optional(),
-      author: z.string(), // Reference to author ID
+      author: z.string(),
       startDate: z.coerce.date(),
       lastUpdated: z.coerce.date().optional(),
       wordCount: z.number().optional(),
@@ -26,23 +33,22 @@ const novels = defineCollection({
 const chapters = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/chapters' }),
   schema: z.object({
-    title: z.string().max(100), // Chapter title
-    novel: z.string(), // Reference to novel slug
+    title: z.string().max(100),
+    novel: z.string(),
     volume: z.number(),
-    volumeTitle: z.string().optional(), // For URL: volume-1-the-beginning
+    volumeTitle: z.string().optional(),
     chapter: z.number(),
     publishDate: z.coerce.date(),
     wordCount: z.number().optional(),
-    pageCount: z.number().optional(), // Estimated pages in this chapter
+    pageCount: z.number().optional(),
     summary: z.string().max(200).optional(),
     draft: z.boolean().default(false),
-    order: z.number().default(0), // For sorting within same volume/chapter
-    // Page navigation hints (optional)
+    order: z.number().default(0),
     pageBreaks: z
       .array(
         z.object({
           title: z.string(),
-          anchor: z.string(), // For #page-2 anchors
+          anchor: z.string(),
         }),
       )
       .optional(),
@@ -67,4 +73,141 @@ const authors = defineCollection({
   }),
 })
 
-export const collections = { novels, chapters, authors }
+const characters = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/characters' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      aliases: z.array(z.string()).optional(),
+      titles: z.array(z.string()).optional(),
+      pronouns: z.string().optional(),
+      role: z
+        .enum([
+          'protagonist',
+          'deuteragonist',
+          'supporting',
+          'antagonist',
+          'mentioned',
+          'mythic',
+        ])
+        .default('supporting'),
+      status: z
+        .enum(['alive', 'dead', 'unknown', 'mythic', 'reincarnating'])
+        .default('unknown'),
+      species: z.string().optional(),
+      home: z.string().optional(),
+      allegiance: z.array(z.string()).optional(),
+      relationships: z.array(relationship).optional(),
+      incarnationOf: z.string().optional(),
+      novel: z.string().optional(),
+      era: z.string().optional(),
+      shortBio: z.string().max(280),
+      portrait: image().optional(),
+      tags: z.array(z.string()).optional(),
+      visibility,
+      revealedIn: z.string().optional(),
+      draft: z.boolean().default(false),
+    }),
+})
+
+const locations = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/locations' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      aliases: z.array(z.string()).optional(),
+      kind: z
+        .enum([
+          'galaxy',
+          'sector',
+          'system',
+          'world',
+          'region',
+          'city',
+          'site',
+          'ship',
+          'station',
+          'other',
+        ])
+        .default('other'),
+      parent: z.string().optional(),
+      novel: z.string().optional(),
+      era: z.string().optional(),
+      climate: z.string().optional(),
+      government: z.string().optional(),
+      shortBio: z.string().max(280),
+      image: image().optional(),
+      coords: z
+        .object({
+          map: z.string(),
+          x: z.number(),
+          y: z.number(),
+        })
+        .optional(),
+      tags: z.array(z.string()).optional(),
+      visibility,
+      revealedIn: z.string().optional(),
+      draft: z.boolean().default(false),
+    }),
+})
+
+const factions = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/factions' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      aliases: z.array(z.string()).optional(),
+      motto: z.string().optional(),
+      kind: z
+        .enum([
+          'village',
+          'house',
+          'order',
+          'empire',
+          'cult',
+          'crew',
+          'fleet',
+          'guild',
+          'other',
+        ])
+        .default('other'),
+      headquarters: z.string().optional(),
+      novel: z.string().optional(),
+      era: z.string().optional(),
+      shortBio: z.string().max(280),
+      banner: image().optional(),
+      tags: z.array(z.string()).optional(),
+      visibility,
+      revealedIn: z.string().optional(),
+      draft: z.boolean().default(false),
+    }),
+})
+
+const species = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/species' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      aliases: z.array(z.string()).optional(),
+      homeworld: z.string().optional(),
+      lifespan: z.string().optional(),
+      novel: z.string().optional(),
+      era: z.string().optional(),
+      shortBio: z.string().max(280),
+      image: image().optional(),
+      tags: z.array(z.string()).optional(),
+      visibility,
+      revealedIn: z.string().optional(),
+      draft: z.boolean().default(false),
+    }),
+})
+
+export const collections = {
+  novels,
+  chapters,
+  authors,
+  characters,
+  locations,
+  factions,
+  species,
+}

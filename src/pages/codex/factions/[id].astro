@@ -1,0 +1,144 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Monogram from '@/components/codex/Monogram.astro'
+import { Icon } from '@/components/Icon'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getChapterPath } from '@/lib/content/chapters'
+import {
+  appearancesForSlug,
+  getAllCharacters,
+  getAllFactions,
+  getLocationById,
+} from '@/lib/content/world'
+import { withBase } from '@/lib/utils/url'
+import { wikiHref } from '@/lib/wiki/parse'
+import { render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const factions = await getAllFactions()
+  return factions.map((faction) => ({
+    params: { id: faction.id },
+    props: { faction },
+  }))
+}
+
+const { faction } = Astro.props
+const { Content } = await render(faction)
+const headquarters = faction.data.headquarters
+  ? await getLocationById(faction.data.headquarters)
+  : null
+const members = (await getAllCharacters()).filter((character) =>
+  character.data.allegiance?.includes(faction.id),
+)
+const appearances = await appearancesForSlug(faction.id, 'faction')
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title={faction.data.name}
+    description={faction.data.shortBio}
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { href: '/codex/factions', label: 'Factions', icon: 'lucide:shield' },
+      { label: faction.data.name, icon: 'lucide:shield' },
+    ]}
+  />
+
+  <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
+    <aside class="space-y-4">
+      <Monogram
+        name={faction.data.name}
+        slug={faction.id}
+        class="h-40 w-full text-5xl"
+      />
+      <div class="bg-muted/30 space-y-3 rounded-lg p-4 text-sm">
+        <p class="capitalize">{faction.data.kind}</p>
+        {faction.data.motto && <p class="italic">{faction.data.motto}</p>}
+        {
+          faction.data.era && (
+            <p class="text-muted-foreground">{faction.data.era}</p>
+          )
+        }
+        {
+          headquarters && (
+            <p>
+              <span class="text-muted-foreground">Seat · </span>
+              <a
+                class="hover:text-primary"
+                href={withBase(wikiHref('location', headquarters.id))}
+              >
+                {headquarters.data.name}
+              </a>
+            </p>
+          )
+        }
+      </div>
+    </aside>
+
+    <div class="space-y-8">
+      <div>
+        <h1 class="text-3xl font-medium lg:text-4xl">{faction.data.name}</h1>
+        <p class="text-muted-foreground mt-3 text-lg">
+          {faction.data.shortBio}
+        </p>
+      </div>
+
+      <article class="reading-content">
+        <Content />
+      </article>
+
+      {
+        members.length > 0 && (
+          <section class="space-y-3">
+            <h2 class="text-xl font-medium">Known members</h2>
+            <ul class="space-y-2 text-sm">
+              {members.map((member) => (
+                <li>
+                  <a
+                    class="hover:text-primary font-medium"
+                    href={withBase(wikiHref('character', member.id))}
+                  >
+                    {member.data.name}
+                  </a>
+                  {member.data.titles?.[0] && (
+                    <span class="text-muted-foreground">
+                      {' '}
+                      · {member.data.titles[0]}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        appearances.length > 0 && (
+          <section class="space-y-3">
+            <h2 class="flex items-center gap-2 text-xl font-medium">
+              <Icon name="book-open" className="size-4" />
+              Mentions
+            </h2>
+            <ul class="space-y-2 text-sm">
+              {appearances.map((chapter) => (
+                <li>
+                  <a
+                    class="hover:text-primary"
+                    href={withBase(getChapterPath(chapter.data.novel, chapter))}
+                  >
+                    Chapter {chapter.data.chapter} · {chapter.data.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+    </div>
+  </div>
+</Layout>

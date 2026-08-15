@@ -1,0 +1,198 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Monogram from '@/components/codex/Monogram.astro'
+import { Icon } from '@/components/Icon'
+import PageHead from '@/components/PageHead.astro'
+import { badgeVariants } from '@/components/ui/badge'
+import Layout from '@/layouts/Layout.astro'
+import { getChapterPath } from '@/lib/content/chapters'
+import {
+  appearancesForSlug,
+  getAllCharacters,
+  getCharacterById,
+  getFactionById,
+  getLocationById,
+  getSpeciesById,
+} from '@/lib/content/world'
+import { withBase } from '@/lib/utils/url'
+import { wikiHref } from '@/lib/wiki/parse'
+import { render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const characters = await getAllCharacters()
+  return characters.map((character) => ({
+    params: { id: character.id },
+    props: { character },
+  }))
+}
+
+const { character } = Astro.props
+const { Content } = await render(character)
+const appearances = await appearancesForSlug(character.id, 'character')
+
+const home = character.data.home
+  ? await getLocationById(character.data.home)
+  : null
+const kindred = character.data.species
+  ? await getSpeciesById(character.data.species)
+  : null
+const factions = (
+  await Promise.all(
+    (character.data.allegiance ?? []).map((id) => getFactionById(id)),
+  )
+).filter(Boolean)
+const related = (
+  await Promise.all(
+    (character.data.relationships ?? []).map(async (rel) => ({
+      ...rel,
+      person: await getCharacterById(rel.person),
+    })),
+  )
+).filter((rel) => rel.person)
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title={character.data.name}
+    description={character.data.shortBio}
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { href: '/codex/people', label: 'People', icon: 'lucide:users' },
+      { label: character.data.name, icon: 'lucide:user' },
+    ]}
+  />
+
+  <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
+    <aside class="space-y-4">
+      <Monogram
+        name={character.data.name}
+        slug={character.id}
+        class="h-40 w-full text-5xl"
+      />
+      <div class="bg-muted/30 space-y-3 rounded-lg p-4 text-sm">
+        {
+          character.data.titles && (
+            <p class="text-muted-foreground">
+              {character.data.titles.join(' · ')}
+            </p>
+          )
+        }
+        <p class="capitalize">
+          {character.data.role} · {character.data.status}
+        </p>
+        {
+          character.data.era && (
+            <p class="text-muted-foreground">{character.data.era}</p>
+          )
+        }
+        {
+          kindred && (
+            <p>
+              <span class="text-muted-foreground">Kindred · </span>
+              <a
+                class="hover:text-primary"
+                href={withBase(wikiHref('species', kindred.id))}
+              >
+                {kindred.data.name}
+              </a>
+            </p>
+          )
+        }
+        {
+          home && (
+            <p>
+              <span class="text-muted-foreground">Home · </span>
+              <a
+                class="hover:text-primary"
+                href={withBase(wikiHref('location', home.id))}
+              >
+                {home.data.name}
+              </a>
+            </p>
+          )
+        }
+      </div>
+      {
+        factions.length > 0 && (
+          <div class="flex flex-wrap gap-2">
+            {factions.map(
+              (faction) =>
+                faction && (
+                  <a
+                    href={withBase(wikiHref('faction', faction.id))}
+                    class={badgeVariants({ variant: 'muted' })}
+                  >
+                    {faction.data.name}
+                  </a>
+                ),
+            )}
+          </div>
+        )
+      }
+    </aside>
+
+    <div class="space-y-8">
+      <div>
+        <h1 class="text-3xl font-medium lg:text-4xl">{character.data.name}</h1>
+        <p class="text-muted-foreground mt-3 text-lg">
+          {character.data.shortBio}
+        </p>
+      </div>
+
+      <article class="reading-content">
+        <Content />
+      </article>
+
+      {
+        related.length > 0 && (
+          <section class="space-y-3">
+            <h2 class="text-xl font-medium">Bonds</h2>
+            <ul class="space-y-2 text-sm">
+              {related.map(
+                (rel) =>
+                  rel.person && (
+                    <li>
+                      <a
+                        class="hover:text-primary font-medium"
+                        href={withBase(wikiHref('character', rel.person.id))}
+                      >
+                        {rel.person.data.name}
+                      </a>
+                      <span class="text-muted-foreground"> · {rel.kind}</span>
+                    </li>
+                  ),
+              )}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        appearances.length > 0 && (
+          <section class="space-y-3">
+            <h2 class="flex items-center gap-2 text-xl font-medium">
+              <Icon name="book-open" className="size-4" />
+              Appearances
+            </h2>
+            <ul class="space-y-2 text-sm">
+              {appearances.map((chapter) => (
+                <li>
+                  <a
+                    class="hover:text-primary"
+                    href={withBase(getChapterPath(chapter.data.novel, chapter))}
+                  >
+                    {chapter.data.novel}: Chapter {chapter.data.chapter} ·{' '}
+                    {chapter.data.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+    </div>
+  </div>
+</Layout>

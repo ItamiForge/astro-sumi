@@ -14,15 +14,15 @@ order: 2
 
 # Chapter 2: The Battle of the Northern Pass
 
-The shadow creatures came first—twisted things that had once been animals, corrupted by the Darkness. Wolves with eyes like burning coals, bears whose fur dripped with black ichor, birds whose wings blotted out the sun.
+The [[species:shadow-creatures|shadow creatures]] came first—twisted things that had once been animals, corrupted by [[faction:the-darkness|the Darkness]]. Wolves with eyes like burning coals, bears whose fur dripped with black ichor, birds whose wings blotted out the sun.
 
-Kael met them with bronze and fury. His sword sang through the air, each strike precise, each movement flowing from muscle memory that spanned lifetimes. Beside him, Ryn danced through the shadows, his twin daggers finding weak points with deadly accuracy.
+[[character:kael|Kael]] met them with bronze and fury. His sword sang through the air, each strike precise, each movement flowing from muscle memory that spanned lifetimes. Beside him, [[character:ryn|Ryn]] danced through the shadows, his twin daggers finding weak points with deadly accuracy.
 
-Mira stood at the center of their formation, her hands weaving patterns in the air. Fire erupted from her palms, not the natural orange flames of a campfire but the pure white heat of magical fury. The shadow creatures screamed as they burned, their corrupted forms unable to withstand the purifying flame.
+[[character:mira|Mira]] stood at the center of their formation, her hands weaving patterns in the air. Fire erupted from her palms, not the natural orange flames of a campfire but the pure white heat of magical fury. The shadow creatures screamed as they burned, their corrupted forms unable to withstand the purifying flame.
 
-Lyssa moved among them all, her healing touch keeping them in the fight. A slash across Kael's arm closed before the blood could flow. A broken rib in Ryn's chest mended with a golden glow. She was their anchor, their lifeline, the one who kept them standing when they should have fallen.
+[[character:lyssa|Lyssa]] moved among them all, her healing touch keeping them in the fight. A slash across Kael's arm closed before the blood could flow. A broken rib in Ryn's chest mended with a golden glow. She was their anchor, their lifeline, the one who kept them standing when they should have fallen.
 
-And Aria... Aria saw. She saw the attacks before they came, the weak points in the enemy's formation, the moments when the tide of battle would shift. Her voice rang out with warnings and guidance, directing them like a conductor leading an orchestra.
+And [[character:aria|Aria]]... Aria saw. She saw the attacks before they came, the weak points in the enemy's formation, the moments when the tide of battle would shift. Her voice rang out with warnings and guidance, directing them like a conductor leading an orchestra.
 
 "Left flank!" she called. "Three more coming!"
 

@@ -1,0 +1,36 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import CodexCard from '@/components/codex/CodexCard.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getAllCharacters } from '@/lib/content/world'
+import { wikiHref } from '@/lib/wiki/parse'
+
+const characters = await getAllCharacters()
+const cards = characters.map((entry) => ({
+  kind: 'character' as const,
+  slug: entry.id,
+  name: entry.data.name,
+  kicker: entry.data.titles?.[0] ?? entry.data.role,
+  shortBio: entry.data.shortBio,
+  href: wikiHref('character', entry.id),
+}))
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title="People"
+    description="Character folios of the Codex."
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { label: 'People', icon: 'lucide:users' },
+    ]}
+  />
+  <h1 class="text-3xl font-medium">People</h1>
+  <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    {cards.map((card) => <CodexCard card={card} />)}
+  </div>
+</Layout>

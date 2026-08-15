@@ -1,0 +1,36 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import CodexCard from '@/components/codex/CodexCard.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getAllLocations } from '@/lib/content/world'
+import { wikiHref } from '@/lib/wiki/parse'
+
+const locations = await getAllLocations()
+const cards = locations.map((entry) => ({
+  kind: 'location' as const,
+  slug: entry.id,
+  name: entry.data.name,
+  kicker: entry.data.kind,
+  shortBio: entry.data.shortBio,
+  href: wikiHref('location', entry.id),
+}))
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title="Places"
+    description="Location dossiers of the Codex."
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { label: 'Places', icon: 'lucide:map-pin' },
+    ]}
+  />
+  <h1 class="text-3xl font-medium">Places</h1>
+  <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    {cards.map((card) => <CodexCard card={card} />)}
+  </div>
+</Layout>
