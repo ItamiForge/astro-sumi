@@ -9,11 +9,15 @@ import { Button } from '@/components/ui/button'
     const measure = localStorage?.getItem('sumi:reading-measure') || 'default'
     const leading = localStorage?.getItem('sumi:reading-leading') || 'default'
     const atmosphere = localStorage?.getItem('sumi:atmosphere') || 'default'
+    const reader = localStorage?.getItem('sumi:reader') || 'first-time'
+    const immersive = localStorage?.getItem('sumi:immersive') === 'true'
     const root = document.documentElement
     root.setAttribute('data-reading-size', size)
     root.setAttribute('data-reading-measure', measure)
     root.setAttribute('data-reading-leading', leading)
     root.setAttribute('data-atmosphere', atmosphere)
+    root.setAttribute('data-reader', reader)
+    if (immersive) root.setAttribute('data-immersive', '')
   })()
 </script>
 
@@ -119,6 +123,34 @@ import { Button } from '@/components/ui/button'
           >
         </div>
       </fieldset>
+
+      <fieldset class="space-y-2">
+        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
+          Spoilers
+        </legend>
+        <div class="flex flex-wrap gap-2" data-reading-group="reader">
+          <button type="button" class="reading-chip" data-value="first-time"
+            >First-time</button
+          >
+          <button type="button" class="reading-chip" data-value="scholar"
+            >Scholar</button
+          >
+        </div>
+      </fieldset>
+
+      <fieldset class="space-y-2">
+        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
+          Chrome
+        </legend>
+        <div class="flex flex-wrap gap-2" data-reading-group="immersive">
+          <button type="button" class="reading-chip" data-value="false"
+            >Full site</button
+          >
+          <button type="button" class="reading-chip" data-value="true"
+            >Immersive</button
+          >
+        </div>
+      </fieldset>
     </div>
   </div>
 </div>
@@ -126,7 +158,10 @@ import { Button } from '@/components/ui/button'
 <script>
   import {
     READING_KEYS,
+    applyImmersive,
+    applyReaderMode,
     isAtmosphere,
+    isReaderMode,
     isReadingLeading,
     isReadingMeasure,
     isReadingSize,
@@ -137,6 +172,8 @@ import { Button } from '@/components/ui/button'
     measure: 'data-reading-measure',
     leading: 'data-reading-leading',
     atmosphere: 'data-atmosphere',
+    reader: 'data-reader',
+    immersive: 'data-immersive',
   }
 
   const STORAGE: Record<string, string> = {
@@ -144,6 +181,8 @@ import { Button } from '@/components/ui/button'
     measure: READING_KEYS.measure,
     leading: READING_KEYS.leading,
     atmosphere: READING_KEYS.atmosphere,
+    reader: READING_KEYS.reader,
+    immersive: READING_KEYS.immersive,
   }
 
   function currentValue(group: string) {
@@ -159,13 +198,28 @@ import { Button } from '@/components/ui/button'
       const value = localStorage.getItem(READING_KEYS.leading) || 'default'
       return isReadingLeading(value) ? value : 'default'
     }
+    if (group === 'reader') {
+      const value = localStorage.getItem(READING_KEYS.reader) || 'first-time'
+      return isReaderMode(value) ? value : 'first-time'
+    }
+    if (group === 'immersive') {
+      return localStorage.getItem(READING_KEYS.immersive) === 'true'
+        ? 'true'
+        : 'false'
+    }
     const value = localStorage.getItem(READING_KEYS.atmosphere) || 'default'
     return isAtmosphere(value) ? value : 'default'
   }
 
   function apply(group: string, value: string) {
-    document.documentElement.setAttribute(ATTR[group] || '', value)
-    localStorage.setItem(STORAGE[group] || '', value)
+    if (group === 'reader' && isReaderMode(value)) {
+      applyReaderMode(value)
+    } else if (group === 'immersive') {
+      applyImmersive(value === 'true')
+    } else {
+      document.documentElement.setAttribute(ATTR[group] || '', value)
+      localStorage.setItem(STORAGE[group] || '', value)
+    }
     document
       .querySelectorAll(`[data-reading-group="${group}"] .reading-chip`)
       .forEach((chip) => {
@@ -197,7 +251,14 @@ import { Button } from '@/components/ui/button'
       if (event.target === panel) hide()
     })
 
-    for (const group of ['size', 'measure', 'leading', 'atmosphere']) {
+    for (const group of [
+      'size',
+      'measure',
+      'leading',
+      'atmosphere',
+      'reader',
+      'immersive',
+    ]) {
       apply(group, currentValue(group))
       document
         .querySelectorAll(`[data-reading-group="${group}"] .reading-chip`)

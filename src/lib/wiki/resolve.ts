@@ -8,6 +8,10 @@ const KIND_DIRS: Record<WikiKind, string> = {
   location: 'locations',
   faction: 'factions',
   species: 'species',
+  term: 'terms',
+  event: 'events',
+  document: 'documents',
+  relic: 'relics',
 }
 
 export type WikiSlugIndex = Map<string, WikiKind>

@@ -10,8 +10,6 @@ export const SITE: Site = {
   author: siteConfig.author,
   locale: 'en-US',
   featuredNovelCount: 3,
-  // Planned feature: Will be used when implementing pagination for /novels/[...page].astro
-  // Currently all novels display on a single page. Pagination will be added when novel count grows.
   novelsPerPage: 6,
 }
 

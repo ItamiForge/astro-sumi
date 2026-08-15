@@ -3,202 +3,124 @@ import ContinueReading from '@/components/ContinueReading.astro'
 import { Icon } from '@/components/Icon'
 import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
-import { badgeVariants } from '@/components/ui/badge'
-import { buttonVariants } from '@/components/ui/button'
 import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
 import { getAllNovels } from '@/lib/content/novels'
-import { getAllMaps } from '@/lib/content/world'
 import { formatDate } from '@/lib/utils'
 import { withBase } from '@/lib/utils/url'
 import { Image } from 'astro:assets'
 
 const novels = await getAllNovels()
-const featuredNovels = novels.slice(0, SITE.featuredNovelCount)
-const maps = await getAllMaps()
+const featured = novels[0]
+const rail = novels.slice(1, 5)
 ---
 
 <Layout containerType="wide">
   <PageHead slot="head" title="Home" />
 
-  <section class="rounded-lg border p-6 sm:p-8">
-    <p class="text-muted-foreground text-sm">Novel writing template</p>
-    <h1 class="mt-2 text-3xl font-medium lg:text-4xl">{SITE.title}</h1>
-    <p class="text-muted-foreground mt-3 max-w-2xl text-base leading-relaxed">
-      Fork this repo, replace the sample books, and host your own long-form
-      world: novels, a Codex of people and places, and an atlas of maps. The
-      stories here are examples, not a single canon.
-    </p>
-    <div class="mt-6 flex flex-wrap gap-3">
-      <Link href="/novels" class={buttonVariants({ variant: 'default' })}>
-        Browse novels
-      </Link>
-      <Link href="/codex" class={buttonVariants({ variant: 'outline' })}>
-        Open the Codex
-      </Link>
-      <Link href="/codex/atlas" class={buttonVariants({ variant: 'ghost' })}>
-        Open the Atlas
-      </Link>
+  <div class="issue-rule border-y py-3">
+    <div class="editorial-cats flex flex-wrap items-center gap-x-5 gap-y-2">
+      <span class="text-primary text-xs tracking-[0.16em]">[ Materials ]</span>
+      <Link href="/novels">Novels</Link>
+      <Link href="/codex">Codex</Link>
+      <Link href="/codex/atlas">Atlas</Link>
+      <Link href="/codex/glossary">Glossary</Link>
+      <Link href="/codex/annals">Annals</Link>
+      <Link href="/codex/library">Library</Link>
     </div>
-  </section>
+  </div>
 
   <ContinueReading />
 
-  <section class="grid gap-4 sm:grid-cols-3">
-    <a
-      href={withBase('/novels')}
-      class="hover:bg-muted/40 rounded-lg border p-4"
-    >
-      <Icon name="book-open" className="mb-2 size-5" />
-      <p class="font-medium">Reading chamber</p>
-      <p class="text-muted-foreground mt-1 text-sm">
-        Volumes, chapters, type settings, and continue-where-you-left-off.
-      </p>
-    </a>
-    <a
-      href={withBase('/codex')}
-      class="hover:bg-muted/40 rounded-lg border p-4"
-    >
-      <Icon name="users" className="mb-2 size-5" />
-      <p class="font-medium">Codex</p>
-      <p class="text-muted-foreground mt-1 text-sm">
-        Character cards, places, factions, and wiki-links in the prose.
-      </p>
-    </a>
-    <a
-      href={withBase('/codex/atlas')}
-      class="hover:bg-muted/40 rounded-lg border p-4"
-    >
-      <Icon name="map" className="mb-2 size-5" />
-      <p class="font-medium">Atlas</p>
-      <p class="text-muted-foreground mt-1 text-sm">
-        {
-          maps.length > 0
-            ? `${maps.length} sample plate${maps.length === 1 ? '' : 's'} you can replace with your own.`
-            : 'Add maps in src/content/maps to pin your world.'
-        }
-      </p>
-    </a>
-  </section>
-
   {
-    featuredNovels.length > 0 && (
-      <section class="flex flex-col gap-y-6">
-        <h2 class="text-2xl font-medium">Featured Novels</h2>
-        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredNovels.map((novel) => (
-            <article class="group bg-card text-card-foreground relative overflow-hidden rounded-lg border shadow-sm transition-all hover:shadow-md">
-              <a href={withBase(`/novels/${novel.id}`)} class="block">
-                {novel.data.coverImage ? (
-                  <div class="aspect-[3/4] overflow-hidden">
-                    <Image
-                      src={novel.data.coverImage}
-                      alt={novel.data.title}
-                      width={300}
-                      height={400}
-                      class="h-full w-full object-cover transition-transform group-hover:scale-105"
-                    />
-                  </div>
-                ) : (
-                  <div class="bg-muted flex aspect-[3/4] items-center justify-center">
-                    <Icon
-                      name="book-open"
-                      className="text-muted-foreground size-12"
-                    />
-                  </div>
-                )}
-
-                <div class="p-4">
-                  <h3 class="group-hover:text-primary mb-2 line-clamp-2 text-lg font-semibold">
-                    {novel.data.title}
-                  </h3>
-
-                  <p class="text-muted-foreground mb-3 line-clamp-3 text-sm">
-                    {novel.data.description}
-                  </p>
-
-                  <div class="mb-3 flex flex-wrap gap-1">
-                    {novel.data.genre?.slice(0, 2).map((genre) => (
-                      <span class={badgeVariants({ variant: 'muted' })}>
-                        {genre}
-                      </span>
-                    ))}
-                    {novel.data.genre && novel.data.genre.length > 2 && (
-                      <span class={badgeVariants({ variant: 'outline' })}>
-                        +{novel.data.genre.length - 2}
-                      </span>
-                    )}
-                  </div>
-
-                  <div class="text-muted-foreground flex items-center justify-between text-xs">
-                    <div class="flex items-center gap-1">
-                      <Icon name="calendar" className="size-3" />
-                      {formatDate(novel.data.startDate)}
-                    </div>
-
-                    <div class="flex items-center gap-1">
-                      <Icon
-                        name={
-                          novel.data.status === 'completed'
-                            ? 'lucide:check-circle'
-                            : novel.data.status === 'ongoing'
-                              ? 'lucide:play-circle'
-                              : novel.data.status === 'hiatus'
-                                ? 'lucide:pause-circle'
-                                : 'lucide:edit'
-                        }
-                        className="size-3"
-                      />
-                      <span class="capitalize">{novel.data.status}</span>
-                    </div>
-                  </div>
-
-                  {novel.data.wordCount && (
-                    <div class="text-muted-foreground mt-2 text-xs">
-                      <Icon name="file-text" className="mr-1 inline size-3" />
-                      {novel.data.wordCount.toLocaleString()} words
-                    </div>
-                  )}
-                </div>
-              </a>
-            </article>
-          ))}
-        </div>
-        <div class="flex justify-center">
-          <Link
-            href="/novels"
-            class={buttonVariants({ variant: 'ghost' }) + ' group'}
+    featured ? (
+      <section class="fade-up grid gap-0 lg:grid-cols-[minmax(0,1.6fr)_minmax(16rem,1fr)]">
+        <article class="lg:border-border min-w-0 lg:border-r lg:pr-10">
+          <a
+            href={withBase(`/novels/${featured.id}`)}
+            class="hero-frame group block"
+            transition:name="hero-art"
           >
-            See all novels{' '}
-            <span class="ml-1.5 transition-transform group-hover:translate-x-1">
-              &rarr;
-            </span>
-          </Link>
-        </div>
-      </section>
-    )
-  }
+            {featured.data.coverImage ? (
+              <Image
+                src={featured.data.coverImage}
+                alt={featured.data.title}
+                width={1200}
+                height={640}
+                class="aspect-[16/8] w-full object-cover"
+              />
+            ) : (
+              <div class="hero-fallback bg-muted text-muted-foreground flex aspect-[16/8] items-center justify-center">
+                <Icon name="book-open" className="size-16" />
+              </div>
+            )}
+          </a>
+          <p class="text-primary mt-5 text-xs tracking-[0.16em] uppercase">
+            [ Novel ] · {featured.data.status}
+            {featured.data.wordCount
+              ? ` · ${featured.data.wordCount.toLocaleString()} words`
+              : ''}
+          </p>
+          <div class="mt-3 grid gap-4 md:grid-cols-[1.2fr_0.8fr] md:items-start">
+            <h1 class="font-serif text-4xl leading-[1.05] font-semibold tracking-tight lg:text-5xl">
+              <Link href={`/novels/${featured.id}`}>{featured.data.title}</Link>
+            </h1>
+            <p class="text-muted-foreground text-sm leading-relaxed md:pt-2">
+              {featured.data.description}
+            </p>
+          </div>
+          <p class="text-muted-foreground mt-4 text-xs">
+            {formatDate(featured.data.startDate)}
+            {featured.data.genre?.length
+              ? ` · ${featured.data.genre.slice(0, 2).join(' / ')}`
+              : ''}
+          </p>
+        </article>
 
-  {
-    featuredNovels.length === 0 && (
-      <section class="py-12 text-center">
-        <Icon
-          name="book-open"
-          className="text-muted-foreground mx-auto mb-4 size-16"
-        />
-        <h2 class="mb-2 text-xl font-semibold">
-          Welcome to Your Novel Template
-        </h2>
-        <p class="text-muted-foreground mb-4">
-          Start by adding your first novel to the{' '}
-          <code class="bg-muted rounded px-1 py-0.5 text-sm">
-            src/content/novels/
-          </code>{' '}
-          directory.
+        <aside class="fade-up-delay mt-10 space-y-0 lg:mt-0 lg:pl-8">
+          {rail.map((novel, index) => (
+            <a
+              href={withBase(`/novels/${novel.id}`)}
+              class="hover:bg-muted/30 block border-b py-5 first:pt-0 last:border-b-0"
+            >
+              <p class="text-primary text-xs tracking-[0.14em] uppercase">
+                [ {novel.data.status} ] · {index + 2}
+              </p>
+              <h2 class="mt-2 font-serif text-xl leading-tight font-semibold">
+                {novel.data.title}
+              </h2>
+              <p class="text-muted-foreground mt-2 line-clamp-3 text-sm leading-relaxed">
+                {novel.data.description}
+              </p>
+            </a>
+          ))}
+          {novels.length > 5 && (
+            <Link
+              href="/novels"
+              class="text-muted-foreground hover:text-foreground mt-4 inline-block text-sm"
+            >
+              All novels →
+            </Link>
+          )}
+        </aside>
+      </section>
+    ) : (
+      <section class="fade-up py-16">
+        <p class="text-primary text-xs tracking-[0.16em] uppercase">
+          [ Empty shelf ]
         </p>
-        <Link href="/about" class={buttonVariants({ variant: 'outline' })}>
-          Learn More
-        </Link>
+        <h1 class="mt-3 font-serif text-4xl font-semibold">{SITE.title}</h1>
+        <p class="text-muted-foreground mt-4 max-w-xl">
+          Add a novel in{' '}
+          <code class="bg-muted rounded px-1 text-sm">src/content/novels/</code>
+          or open the{' '}
+          <Link href="/admin/" underline>
+            CMS
+          </Link>
+          . Run
+          <code class="bg-muted rounded px-1 text-sm">bun run fresh</code>
+          on a fork to clear the sample books first.
+        </p>
       </section>
     )
   }

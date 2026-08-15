@@ -3,6 +3,7 @@ import { rehypeEpicAlerts } from '@/lib/wiki/rehype-epic-alerts'
 import type { HastNode } from '@/lib/wiki/rehype-wiki-links'
 import {
   isAtmosphere,
+  isReaderMode,
   isReadingLeading,
   isReadingMeasure,
   isReadingSize,
@@ -16,6 +17,8 @@ describe('reading settings', () => {
     expect(isReadingLeading('loose')).toBe(true)
     expect(isAtmosphere('starlight')).toBe(true)
     expect(isAtmosphere('neon')).toBe(false)
+    expect(isReaderMode('scholar')).toBe(true)
+    expect(isReaderMode('caught-up')).toBe(false)
   })
 })
 

@@ -69,10 +69,6 @@ function getChapterUrl(novel: any, chapter: any) {
   return `/novels/${novel.id}/${volumeSlug}/${chapterSlug}`
 }
 
-// Get author information
-const allAuthors = await getCollection('authors')
-const author = allAuthors.find((a) => a.id === novel.data.author)
-
 // Calculate reading progress
 const totalChapters = novelChapters.length
 const currentChapterNumber = currentIndex + 1
@@ -425,18 +421,44 @@ const nextHref = nextChapter ? withBase(getChapterUrl(novel, nextChapter)) : ''
         const novelTitle = chamber.getAttribute('data-continue-title')
         const chapterTitle = chamber.getAttribute('data-continue-chapter')
         if (href && novelId && novelTitle && chapterTitle) {
-          const state: ContinueState = {
-            novelId,
-            novelTitle,
-            chapterTitle,
-            href,
-            updatedAt: Date.now(),
+          const persist = () => {
+            const state: ContinueState = {
+              novelId,
+              novelTitle,
+              chapterTitle,
+              href,
+              scrollY: window.scrollY,
+              updatedAt: Date.now(),
+            }
+            try {
+              localStorage.setItem(READING_KEYS.continue, JSON.stringify(state))
+            } catch {
+              /* private mode */
+            }
           }
+
           try {
-            localStorage.setItem(READING_KEYS.continue, JSON.stringify(state))
+            const raw = localStorage.getItem(READING_KEYS.continue)
+            const previous = raw ? (JSON.parse(raw) as ContinueState) : null
+            if (previous?.href === href && (previous.scrollY ?? 0) > 80) {
+              requestAnimationFrame(() =>
+                window.scrollTo({ top: previous.scrollY ?? 0 }),
+              )
+            }
           } catch {
-            /* private mode */
+            /* ignore */
           }
+
+          persist()
+          let ticking = false
+          window.addEventListener('scroll', () => {
+            if (ticking) return
+            ticking = true
+            requestAnimationFrame(() => {
+              persist()
+              ticking = false
+            })
+          })
         }
 
         const prevHref = chamber.getAttribute('data-prev-chapter')

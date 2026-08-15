@@ -5,44 +5,48 @@ import ReadingSettings from '@/components/ReadingSettings.astro'
 import ThemeToggle from '@/components/ThemeToggle.astro'
 import { NAV_LINKS, SITE } from '@/consts'
 import { withBase } from '@/lib/utils/url'
+
+const current = Astro.url.pathname.replace(/\/$/, '') || '/'
+const homePath = withBase('/').replace(/\/$/, '') || '/'
 ---
 
-<div>
+<div class="masthead">
   <div
-    class="container-responsive flex items-center justify-between gap-4 py-3"
+    class="container-responsive flex flex-wrap items-center justify-between gap-4 py-4"
   >
-    <Link href="/" class="flex shrink-0 items-center justify-center gap-3">
-      <img
-        src={withBase('/static/logo-48.webp')}
-        srcset={`${withBase('/static/logo-48.webp')} 1x, ${withBase('/static/logo-96.webp')} 2x`}
-        alt="Logo"
-        width="24"
-        height="24"
-        class="size-5 sm:size-6 dark:hidden"
-      />
-      <img
-        src={withBase('/static/dark_logo-48.webp')}
-        srcset={`${withBase('/static/dark_logo-48.webp')} 1x, ${withBase('/static/dark_logo-96.webp')} 2x`}
-        alt="Logo"
-        width="24"
-        height="24"
-        class="hidden size-5 sm:size-6 dark:block"
-      />
+    <Link href="/" class="flex min-w-0 items-baseline gap-3">
       <span
-        class="hidden h-full text-lg leading-none font-medium min-[400px]:block"
-        >{SITE.title}</span
+        class="font-serif text-2xl leading-none font-semibold tracking-tight sm:text-3xl"
       >
+        {SITE.title}
+      </span>
+      <span
+        class="text-muted-foreground hidden max-w-xs text-xs leading-snug sm:block"
+      >
+        A template for serials, a Codex, and maps.
+      </span>
     </Link>
     <div class="flex items-center gap-4">
-      <nav class="flex items-center gap-4 text-sm sm:gap-6">
+      <nav class="editorial-nav hidden items-center gap-5 md:flex">
         {
-          NAV_LINKS.map((item) => (
-            <Link
-              href={item.href}
-              class="text-foreground/60 hover:text-foreground capitalize transition-colors"
-            >
-              {item.label}
-            </Link>
+          NAV_LINKS.map((item) => {
+            const href = withBase(item.href).replace(/\/$/, '')
+            const active =
+              href === homePath
+                ? current === homePath
+                : current === href || current.startsWith(`${href}/`)
+            return (
+              <Link href={item.href} aria-current={active ? 'page' : undefined}>
+                {item.label}
+              </Link>
+            )
+          })
+        }
+      </nav>
+      <nav class="editorial-nav flex items-center gap-3 text-sm md:hidden">
+        {
+          NAV_LINKS.slice(0, 3).map((item) => (
+            <Link href={item.href}>{item.label}</Link>
           ))
         }
       </nav>

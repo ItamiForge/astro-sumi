@@ -1,0 +1,58 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Backlinks from '@/components/codex/Backlinks.astro'
+import Monogram from '@/components/codex/Monogram.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { backlinksForSlug, getAllDocuments } from '@/lib/content/world'
+import { render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const documents = await getAllDocuments()
+  return documents.map((doc) => ({
+    params: { id: doc.id },
+    props: { doc },
+  }))
+}
+
+const { doc } = Astro.props
+const { Content } = await render(doc)
+const links = await backlinksForSlug(doc.id, 'document')
+---
+
+<Layout containerType="wide">
+  <PageHead slot="head" title={doc.data.name} description={doc.data.shortBio} />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { href: '/codex/library', label: 'Library', icon: 'lucide:scroll' },
+      { label: doc.data.name, icon: 'lucide:scroll' },
+    ]}
+  />
+
+  <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
+    <aside class="space-y-4">
+      <Monogram
+        name={doc.data.name}
+        slug={doc.id}
+        class="h-40 w-full text-5xl"
+      />
+      <div class="bg-muted/30 space-y-3 rounded-lg p-4 text-sm">
+        <p class="capitalize">{doc.data.kind}</p>
+        {doc.data.era && <p class="text-muted-foreground">{doc.data.era}</p>}
+      </div>
+    </aside>
+    <div class="space-y-8">
+      <div>
+        <h1 class="font-serif text-3xl font-medium lg:text-4xl">
+          {doc.data.name}
+        </h1>
+        <p class="text-muted-foreground mt-3 text-lg">{doc.data.shortBio}</p>
+      </div>
+      <article class="reading-content">
+        <Content />
+      </article>
+      <Backlinks links={links} />
+    </div>
+  </div>
+</Layout>

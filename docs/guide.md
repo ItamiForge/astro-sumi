@@ -1,104 +1,57 @@
-# Complete Guide
+# Guide
 
-## Architecture Overview
+Astro Sumi is a static novel-site template. Canon lives in markdown under `src/content/`. The public site is generated at build time.
 
-### Content Management
+## Content
 
-* **Content Collections**: Astro's type-safe content system for novels, chapters, authors, Codex entities, and maps
-* **Hierarchical Structure**: Novels → Volumes → Chapters organization
-* **Draft System**: Content can be marked as draft and excluded from production builds
-* **Validation**: Runtime content validation with error handling and fallbacks
+| Folder | Route |
+| --- | --- |
+| `src/content/novels/` | `/novels/:id` |
+| `src/content/chapters/` | `/novels/:novel/:volume/:chapter` |
+| `src/content/authors/` | `/authors/:id` |
+| `src/content/characters/` | `/codex/people/:id` |
+| `src/content/locations/` | `/codex/places/:id` |
+| `src/content/factions/` | `/codex/factions/:id` |
+| `src/content/species/` | `/codex/kindreds/:id` |
+| `src/content/maps/` | `/codex/atlas/:id` |
+| `src/content/terms/` | `/codex/glossary/:id` |
+| `src/content/events/` | `/codex/annals/:id` |
+| `src/content/documents/` | `/codex/library/:id` |
+| `src/content/relics/` | `/codex/relics/:id` |
 
-### Styling & UI
+Filename slug is the id (`kael.md` → `kael`). Set `draft: true` to keep a file out of production. Codex entities also take `visibility`: `public`, `spoiler` (hidden on indexes until Scholar mode), or `secret` (never built). `shortBio` is the card text and should stay spoiler-safe.
 
-* **Tailwind CSS 4.x**: Latest version with Vite plugin for better performance
-* **shadcn/ui Components**: Pre-built accessible React components
-* **CSS Custom Properties**: Theme system supporting light/dark modes
-* **Typography**: Optimized for long-form reading with proper spacing and contrast
-
-### Performance Features
-
-* **Static Generation**: Pre-built pages for optimal loading speed
-* **Image Optimization**: Astro's built-in image processing
-* **Code Splitting**: Automatic JavaScript bundling and splitting
-* **CSS Optimization**: Purged and minified stylesheets
-
-## Content Structure
-
-### Adding Novels
-
-Create files in `src/content/novels/`:
-
-```yaml
----
-title: "Your Novel Title"
-description: "Brief description"
-genre: ["fantasy", "adventure"]
-status: "ongoing"
-author: "your-author-slug"
-startDate: 2024-01-01
-lastUpdated: 2024-01-15
-wordCount: 25000
-tags: ["magic", "quest"]
-mature: false
-summary: "Extended summary of your novel"
-draft: false
----
-```
-
-### Adding Chapters
-
-Create files in `src/content/chapters/` using pattern `novel-slug-v1-c1.md`:
+Chapter files use `novel-slug-v1-c1.md`:
 
 ```yaml
 ---
 title: "Chapter Title"
 novel: "novel-slug"
 volume: 1
-volumeTitle: "volume-slug"
+volumeTitle: "The Age of Bronze"
 chapter: 1
 publishDate: 2024-01-01
-wordCount: 5000
-summary: "Brief chapter summary"
 draft: false
 ---
 ```
 
-### Adding Authors
-
-Create files in `src/content/authors/`:
-
-```yaml
----
-name: "Your Name"
-penName: "Your Pen Name"
-pronouns: "they/them"
-avatar: "/path/to/avatar.jpg"
-bio: "Your biography"
-genres: ["fantasy", "sci-fi"]
-website: "https://yoursite.com"
-github: "https://github.com/yourusername"
-email: "your@email.com"
----
-```
-
-### Codex (people, places, factions, kindreds)
-
-Create markdown under `src/content/characters/`, `locations/`, `factions/`, and `species/`. Public cards need a spoiler-safe `shortBio` (max 280 characters). Set `visibility: secret` to keep an entry out of the public site, or `spoiler` to hide it from listings and atlas pins until a reader chooses Reveal all.
-
-Link from chapters with wiki syntax:
+### Wiki links
 
 ```md
 [[Kael]]
 [[character:lyssa|the healer]]
 [[location:thornhaven]]
+[[term:the-bond]]
+[[event:the-first-awakening]]
+[[document:prophecy-of-the-five]]
+[[relic:kaels-spear]]
 ```
 
-Kinds: `character` (`people`), `location` (`places`), `faction`, `species` (`kindreds`). Unqualified `[[slug]]` resolves if the slug is unique.
+Kinds: `character` (people), `location` (places), `faction`, `species` (kindreds), `term` (glossary), `event` (annals), `document` (library), `relic`. Unqualified `[[slug]]` resolves if the slug is unique. Every folio lists backlinks from chapters and other Codex files.
 
-### Maps (Atlas)
+### Maps
 
-Add a plate in `src/content/maps/` and pin places with `coords`:
+Pin a place on a plate with percentages from the top-left:
 
 ```yaml
 coords:
@@ -107,11 +60,7 @@ coords:
   y: 62
 ```
 
-`x` and `y` are percentages from the top-left of the plate. The sample valley at `/codex/atlas` is example content — replace it when you fork.
-
-### Epic callouts and footnotes
-
-In chapter markdown:
+### Callouts and footnotes
 
 ```md
 > [!PROPHECY]
@@ -124,193 +73,43 @@ A scholar note.[^1]
 
 Alert kinds: `NOTE`, `TIP`, `WARNING`, `IMPORTANT`, `PROPHECY`, `CODEX`, `SONG`, `LOG`, `TRANSLATION`, `FORBIDDEN`.
 
-### Reading settings
+## Reading
 
-The header gear stores type size, measure, leading, and atmosphere (`ink`, `parchment`, `bronze`, `void`, `starlight`) in `localStorage`. Opening a chapter also writes a continue-reading pointer so the homepage can resume. On chapter pages, `j` and `k` move next and previous.
+The header gear stores type size, measure, leading, atmosphere, spoiler mode (`first-time` / `scholar`), and immersive chrome in `localStorage`. Opening a chapter writes a continue-reading pointer, including scroll position.
+
+Keys: `j` / `k` next and previous chapter, `m` atlas, `i` immersive, `?` help, `Esc` close overlays.
+
+## CMS
+
+`/admin/` is [Sveltia CMS](https://github.com/sveltia/sveltia-cms). It edits the same markdown files. No extra CSS or module script — the CDN bundle is enough.
+
+1. Edit `public/admin/config.yml`: set `backend.repo` to `your-github-user/your-repo`.
+2. For a hosted GitHub backend, create a GitHub OAuth application (or use Sveltia’s local folder picker in Chromium).
+3. Open `/admin/` in development, or `/astro-sumi/admin/` on GitHub Pages.
+
+Cover images and portraits still use Astro’s `image()` fields in frontmatter. Put those files in the repo and set the path in markdown; the CMS does not rewrite image metadata.
+
+Uploads configured in `config.yml` land in `public/static/uploads/`. If the site uses a `base` path (`/astro-sumi`), prefix public image URLs accordingly.
+
+## Wipe samples
+
+```bash
+bun run fresh          # asks first
+bun run fresh -- --yes
+```
+
+Deletes sample novels, chapters, and Codex markdown. Keeps `src/content/authors/template-author.md` and empty folders with `.gitkeep`.
 
 ## Configuration
 
-### Environment Variables
+Copy `.env.example` to `.env.local`. `SITE_TITLE`, `SITE_URL`, and optional `GISCUS_*` / social URLs are the usual knobs. `src/consts.ts` holds nav and featured counts.
 
-Copy `.env.example` to `.env.local` and configure:
+Production GitHub Pages uses `base: /astro-sumi`. Internal links go through `withBase()`.
 
-```bash
-# Site Information
-SITE_TITLE="Your Novel Site"
-SITE_DESCRIPTION="Your site description"
-SITE_AUTHOR="Your Name"
-SITE_URL="https://your-domain.com"
-
-# Social Links
-GITHUB_URL="https://github.com/yourusername"
-EMAIL_ADDRESS="your@email.com"
-
-# Comments (Giscus) - Optional
-GISCUS_REPO="yourusername/your-repo"
-GISCUS_REPO_ID="your-repo-id"
-GISCUS_CATEGORY="General"
-GISCUS_CATEGORY_ID="your-category-id"
-```
-
-### Site Configuration
-
-Edit `src/consts.ts` for advanced customization:
-
-```typescript
-export const SITE: Site = {
-  title: siteConfig.title,
-  description: siteConfig.description,
-  href: siteConfig.url,
-  author: siteConfig.author,
-  locale: siteConfig.locale,
-  featuredNovelCount: siteConfig.featuredNovelCount,
-  novelsPerPage: siteConfig.novelsPerPage,
-}
-```
-
-## Customization
-
-### Styling
-
-Colors are defined in `src/styles/global.css` using OKLCH format:
-
-```css
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  /* ... */
-}
-```
-
-### Components
-
-* **Navigation**: Modify `src/components/Header.astro`
-* **Footer**: Edit `src/components/Footer.astro`
-* **Layouts**: Customize `src/layouts/Layout.astro`
-
-### Favicons
-
-Replace files in `public/` directory and update references in `src/components/Favicons.astro`.
-
-## Deployment
-
-### Build Process
+## Deploy
 
 ```bash
 bun run build
 ```
 
-Output directory: `dist/`
-
-### Hosting Options
-
-* **Vercel**: Connect GitHub repository
-* **Netlify**: Deploy from Git
-* **GitHub Pages**: Use GitHub Actions
-* **Cloudflare Pages**: Connect repository
-
-### Environment Variables for Production
-
-Set these in your hosting platform:
-
-* `SITE_URL`: Your production domain
-* `GISCUS_*`: Comment system configuration
-* `GITHUB_URL`: Your GitHub profile
-* `EMAIL_ADDRESS`: Contact email
-
-## Troubleshooting
-
-### Common Issues
-
-**Content not displaying:**
-
-```bash
-# Check content files exist
-ls src/content/novels/
-ls src/content/chapters/
-ls src/content/authors/
-
-# Restart development server
-bun run dev
-```
-
-**Environment variables not loading:**
-
-```bash
-# Verify .env.local exists and format is correct
-cat .env.local
-
-# Restart development server after changes
-bun run dev
-```
-
-**Build errors:**
-
-```bash
-# Run type checking
-astro check
-
-# Check for TypeScript errors
-bun run build
-```
-
-**Comments not working:**
-
-* Verify repository has Discussions enabled
-* Check Giscus app is installed
-* Confirm configuration values are correct
-* Ensure repository is public
-
-### Performance Issues
-
-**Slow build times:**
-
-```bash
-# Clear Astro cache
-rm -rf .astro
-
-# Update dependencies
-bun update
-```
-
-**Large bundle size:**
-
-```bash
-# Analyze bundle
-bun run build
-
-# Check for unused dependencies
-bun run security:audit
-```
-
-## Advanced Features
-
-### Testing
-
-Run tests with:
-
-```bash
-bun run test          # Watch mode
-bun run test:run      # Single run
-bun run test:coverage # With coverage
-```
-
-### Security
-
-Audit dependencies:
-
-```bash
-bun run security:audit    # Check vulnerabilities
-bun run security:fix      # Auto-fix issues
-```
-
-### Code Quality
-
-Format and lint:
-
-```bash
-bun run prettier         # Format code
-bun run lint:css         # Lint CSS
-bun run lint:css:fix     # Fix CSS issues
-```
+Output: `dist/`. Works on GitHub Pages, Vercel, Netlify, Cloudflare Pages. Set `SITE_URL` on the host.

@@ -3,11 +3,12 @@ import '@/styles/global.css'
 import '@/styles/performance.css'
 import '@/styles/typography.css'
 
+import WikiHover from '@/components/codex/WikiHover.astro'
 import FontStyles from '@/components/FontStyles.astro'
 import Footer from '@/components/Footer.astro'
 import Head from '@/components/Head.astro'
 import Header from '@/components/Header.astro'
-import WikiHover from '@/components/codex/WikiHover.astro'
+import KeyboardHelp from '@/components/KeyboardHelp.astro'
 import { SITE } from '@/consts'
 import { cn } from '@/lib/utils'
 
@@ -44,6 +45,7 @@ const containerClass = `container-${containerType}`
       <slot />
     </main>
     <WikiHover />
+    <KeyboardHelp />
     <Footer />
   </body>
 </html>

@@ -1,5 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content'
 import { parseWikiLinks, type WikiKind, wikiHref } from '@/lib/wiki/parse'
+import { getChapterPath } from '@/lib/content/chapters'
 import { safeContentLoad } from '../errors'
 import { validateContentIntegrity } from '../validation'
 
@@ -9,6 +10,10 @@ export type WorldEntry =
   | CollectionEntry<'factions'>
   | CollectionEntry<'species'>
   | CollectionEntry<'maps'>
+  | CollectionEntry<'terms'>
+  | CollectionEntry<'events'>
+  | CollectionEntry<'documents'>
+  | CollectionEntry<'relics'>
 
 export type WikiCard = {
   kind: WikiKind | 'map'
@@ -18,6 +23,13 @@ export type WikiCard = {
   shortBio: string
   href: string
   novel?: string
+  visibility?: string
+}
+
+export type CodexBacklink = {
+  title: string
+  href: string
+  kicker: string
 }
 
 function isPublicEntity(entry: {
@@ -119,6 +131,94 @@ export async function getAllMaps(): Promise<CollectionEntry<'maps'>[]> {
   )
 }
 
+export async function getAllTerms(): Promise<CollectionEntry<'terms'>[]> {
+  return safeContentLoad(
+    async () => {
+      const entries = await getCollection('terms')
+      return validateContentIntegrity(
+        entries,
+        (entry) => !!(entry.id && entry.data?.name && entry.data?.shortBio),
+        'terms',
+      )
+        .filter(isPublicEntity)
+        .sort((a, b) => a.data.name.localeCompare(b.data.name))
+    },
+    [],
+    'getAllTerms',
+  )
+}
+
+export async function getAllEvents(): Promise<CollectionEntry<'events'>[]> {
+  return safeContentLoad(
+    async () => {
+      const entries = await getCollection('events')
+      return validateContentIntegrity(
+        entries,
+        (entry) => !!(entry.id && entry.data?.name && entry.data?.shortBio),
+        'events',
+      )
+        .filter(isPublicEntity)
+        .sort(
+          (a, b) =>
+            (a.data.sortKey ?? 0) - (b.data.sortKey ?? 0) ||
+            a.data.name.localeCompare(b.data.name),
+        )
+    },
+    [],
+    'getAllEvents',
+  )
+}
+
+export async function getAllDocuments(): Promise<CollectionEntry<'documents'>[]> {
+  return safeContentLoad(
+    async () => {
+      const entries = await getCollection('documents')
+      return validateContentIntegrity(
+        entries,
+        (entry) => !!(entry.id && entry.data?.name && entry.data?.shortBio),
+        'documents',
+      )
+        .filter(isPublicEntity)
+        .sort((a, b) => a.data.name.localeCompare(b.data.name))
+    },
+    [],
+    'getAllDocuments',
+  )
+}
+
+export async function getAllRelics(): Promise<CollectionEntry<'relics'>[]> {
+  return safeContentLoad(
+    async () => {
+      const entries = await getCollection('relics')
+      return validateContentIntegrity(
+        entries,
+        (entry) => !!(entry.id && entry.data?.name && entry.data?.shortBio),
+        'relics',
+      )
+        .filter(isPublicEntity)
+        .sort((a, b) => a.data.name.localeCompare(b.data.name))
+    },
+    [],
+    'getAllRelics',
+  )
+}
+
+export async function getTermById(id: string) {
+  return (await getAllTerms()).find((entry) => entry.id === id) ?? null
+}
+
+export async function getEventById(id: string) {
+  return (await getAllEvents()).find((entry) => entry.id === id) ?? null
+}
+
+export async function getDocumentById(id: string) {
+  return (await getAllDocuments()).find((entry) => entry.id === id) ?? null
+}
+
+export async function getRelicById(id: string) {
+  return (await getAllRelics()).find((entry) => entry.id === id) ?? null
+}
+
 export async function getMapById(id: string) {
   const maps = await getAllMaps()
   return maps.find((entry) => entry.id === id) ?? null
@@ -194,50 +294,126 @@ export async function getMapsByNovel(novelId: string) {
 }
 
 export async function getWikiCardIndex(): Promise<WikiCard[]> {
-  const [characters, locations, factions, species] = await Promise.all([
-    getAllCharacters(),
-    getAllLocations(),
-    getAllFactions(),
-    getAllSpecies(),
-  ])
+  const [characters, locations, factions, species, terms, events, documents, relics] =
+    await Promise.all([
+      getAllCharacters(),
+      getAllLocations(),
+      getAllFactions(),
+      getAllSpecies(),
+      getAllTerms(),
+      getAllEvents(),
+      getAllDocuments(),
+      getAllRelics(),
+    ])
+
+  const card = (
+    kind: WikiKind,
+    slug: string,
+    name: string,
+    kicker: string | undefined,
+    shortBio: string,
+    novel: string | undefined,
+    visibility: string | undefined,
+  ): WikiCard => ({
+    kind,
+    slug,
+    name,
+    kicker,
+    shortBio,
+    href: wikiHref(kind, slug),
+    novel,
+    visibility: visibility ?? 'public',
+  })
 
   return [
-    ...characters.filter(isSpoilerSafe).map((entry) => ({
-      kind: 'character' as const,
-      slug: entry.id,
-      name: entry.data.name,
-      kicker: entry.data.titles?.[0] ?? entry.data.role,
-      shortBio: entry.data.shortBio,
-      href: wikiHref('character', entry.id),
-      novel: entry.data.novel,
-    })),
-    ...locations.filter(isSpoilerSafe).map((entry) => ({
-      kind: 'location' as const,
-      slug: entry.id,
-      name: entry.data.name,
-      kicker: entry.data.kind,
-      shortBio: entry.data.shortBio,
-      href: wikiHref('location', entry.id),
-      novel: entry.data.novel,
-    })),
-    ...factions.filter(isSpoilerSafe).map((entry) => ({
-      kind: 'faction' as const,
-      slug: entry.id,
-      name: entry.data.name,
-      kicker: entry.data.kind,
-      shortBio: entry.data.shortBio,
-      href: wikiHref('faction', entry.id),
-      novel: entry.data.novel,
-    })),
-    ...species.filter(isSpoilerSafe).map((entry) => ({
-      kind: 'species' as const,
-      slug: entry.id,
-      name: entry.data.name,
-      kicker: 'kindred',
-      shortBio: entry.data.shortBio,
-      href: wikiHref('species', entry.id),
-      novel: entry.data.novel,
-    })),
+    ...characters.map((entry) =>
+      card(
+        'character',
+        entry.id,
+        entry.data.name,
+        entry.data.titles?.[0] ?? entry.data.role,
+        entry.data.shortBio,
+        entry.data.novel,
+        entry.data.visibility,
+      ),
+    ),
+    ...locations.map((entry) =>
+      card(
+        'location',
+        entry.id,
+        entry.data.name,
+        entry.data.kind,
+        entry.data.shortBio,
+        entry.data.novel,
+        entry.data.visibility,
+      ),
+    ),
+    ...factions.map((entry) =>
+      card(
+        'faction',
+        entry.id,
+        entry.data.name,
+        entry.data.kind,
+        entry.data.shortBio,
+        entry.data.novel,
+        entry.data.visibility,
+      ),
+    ),
+    ...species.map((entry) =>
+      card(
+        'species',
+        entry.id,
+        entry.data.name,
+        'kindred',
+        entry.data.shortBio,
+        entry.data.novel,
+        entry.data.visibility,
+      ),
+    ),
+    ...terms.map((entry) =>
+      card(
+        'term',
+        entry.id,
+        entry.data.name,
+        'glossary',
+        entry.data.shortBio,
+        entry.data.novel,
+        entry.data.visibility,
+      ),
+    ),
+    ...events.map((entry) =>
+      card(
+        'event',
+        entry.id,
+        entry.data.name,
+        entry.data.era ?? 'annal',
+        entry.data.shortBio,
+        entry.data.novel,
+        entry.data.visibility,
+      ),
+    ),
+    ...documents.map((entry) =>
+      card(
+        'document',
+        entry.id,
+        entry.data.name,
+        entry.data.kind,
+        entry.data.shortBio,
+        entry.data.novel,
+        entry.data.visibility,
+      ),
+    ),
+    ...relics.map((entry) =>
+      card(
+        'relic',
+        entry.id,
+        entry.data.name,
+        entry.data.kind,
+        entry.data.shortBio,
+        entry.data.novel,
+        entry.data.visibility,
+      ),
+    ),
   ]
 }
 
@@ -301,4 +477,103 @@ export async function appearancesForSlug(slug: string, kind?: WikiKind) {
       if (a.data.volume !== b.data.volume) return a.data.volume - b.data.volume
       return a.data.chapter - b.data.chapter
     })
+}
+
+function mentionsSlug(
+  body: string | undefined,
+  slug: string,
+  kind?: WikiKind,
+): boolean {
+  return mentionsFromMarkdown(body).some((mention) => {
+    if (mention.slug !== slug) return false
+    if (!kind || !mention.kind) return true
+    return mention.kind === kind
+  })
+}
+
+export async function backlinksForSlug(
+  slug: string,
+  kind?: WikiKind,
+): Promise<CodexBacklink[]> {
+  const [chapters, characters, locations, factions, species, terms, events, documents, relics] =
+    await Promise.all([
+      appearancesForSlug(slug, kind),
+      getAllCharacters(),
+      getAllLocations(),
+      getAllFactions(),
+      getAllSpecies(),
+      getAllTerms(),
+      getAllEvents(),
+      getAllDocuments(),
+      getAllRelics(),
+    ])
+
+  const links: CodexBacklink[] = chapters.map((chapter) => ({
+    title: `Chapter ${chapter.data.chapter} · ${chapter.data.title}`,
+    href: getChapterPath(chapter.data.novel, chapter),
+    kicker: chapter.data.novel,
+  }))
+
+  const entries: { id: string; kind: WikiKind; name: string; body?: string }[] = [
+    ...characters.map((entry) => ({
+      id: entry.id,
+      kind: 'character' as const,
+      name: entry.data.name,
+      body: entry.body,
+    })),
+    ...locations.map((entry) => ({
+      id: entry.id,
+      kind: 'location' as const,
+      name: entry.data.name,
+      body: entry.body,
+    })),
+    ...factions.map((entry) => ({
+      id: entry.id,
+      kind: 'faction' as const,
+      name: entry.data.name,
+      body: entry.body,
+    })),
+    ...species.map((entry) => ({
+      id: entry.id,
+      kind: 'species' as const,
+      name: entry.data.name,
+      body: entry.body,
+    })),
+    ...terms.map((entry) => ({
+      id: entry.id,
+      kind: 'term' as const,
+      name: entry.data.name,
+      body: entry.body,
+    })),
+    ...events.map((entry) => ({
+      id: entry.id,
+      kind: 'event' as const,
+      name: entry.data.name,
+      body: entry.body,
+    })),
+    ...documents.map((entry) => ({
+      id: entry.id,
+      kind: 'document' as const,
+      name: entry.data.name,
+      body: entry.body,
+    })),
+    ...relics.map((entry) => ({
+      id: entry.id,
+      kind: 'relic' as const,
+      name: entry.data.name,
+      body: entry.body,
+    })),
+  ]
+
+  for (const entry of entries) {
+    if (entry.id === slug && (!kind || entry.kind === kind)) continue
+    if (!mentionsSlug(entry.body, slug, kind)) continue
+    links.push({
+      title: entry.name,
+      href: wikiHref(entry.kind, entry.id),
+      kicker: entry.kind,
+    })
+  }
+
+  return links
 }

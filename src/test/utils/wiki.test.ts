@@ -36,6 +36,10 @@ describe('wiki parse', () => {
     expect(normalizeKind('people')).toBe('character')
     expect(normalizeKind('places')).toBe('location')
     expect(normalizeKind('kindreds')).toBe('species')
+    expect(normalizeKind('glossary')).toBe('term')
+    expect(normalizeKind('annals')).toBe('event')
+    expect(normalizeKind('library')).toBe('document')
+    expect(normalizeKind('relics')).toBe('relic')
     expect(slugifyWikiToken('Kael the Elder')).toBe('kael-the-elder')
     expect(parseWikiLink('[[person:Kael the Elder|Kael the Elder]]')?.slug).toBe(
       'kael-the-elder',
@@ -47,6 +51,14 @@ describe('wiki parse', () => {
     expect(wikiHref('location', 'thornhaven', '/astro-sumi/')).toBe(
       '/astro-sumi/codex/places/thornhaven',
     )
+    expect(wikiHref('term', 'the-bond')).toBe('/codex/glossary/the-bond')
+    expect(wikiHref('event', 'the-first-awakening')).toBe(
+      '/codex/annals/the-first-awakening',
+    )
+    expect(wikiHref('document', 'prophecy-of-the-five')).toBe(
+      '/codex/library/prophecy-of-the-five',
+    )
+    expect(wikiHref('relic', 'kaels-spear')).toBe('/codex/relics/kaels-spear')
   })
 })
 

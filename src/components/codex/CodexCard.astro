@@ -12,9 +12,13 @@ const { card } = Astro.props
 
 <a
   href={withBase(card.href)}
-  class="group hover:bg-muted/50 block rounded-xl border p-4 transition-colors"
+  class:list={[
+    'group hover:bg-muted/50 block rounded-xl border p-4 transition-transform duration-300 ease-out hover:-translate-y-0.5',
+    card.visibility === 'spoiler' && 'spoiler-entry',
+  ]}
   data-codex-card
   data-codex-search={`${card.name} ${card.kicker ?? ''} ${card.shortBio} ${card.kind}`}
+  data-visibility={card.visibility ?? 'public'}
 >
   <div class="flex gap-3">
     <Monogram

@@ -14,6 +14,7 @@ const cards = characters.map((entry) => ({
   kicker: entry.data.titles?.[0] ?? entry.data.role,
   shortBio: entry.data.shortBio,
   href: wikiHref('character', entry.id),
+  visibility: entry.data.visibility,
 }))
 ---
 

@@ -222,6 +222,86 @@ const maps = defineCollection({
     }),
 })
 
+const terms = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/terms' }),
+  schema: z.object({
+    name: z.string(),
+    aliases: z.array(z.string()).optional(),
+    novel: z.string().optional(),
+    era: z.string().optional(),
+    shortBio: z.string().max(280),
+    tags: z.array(z.string()).optional(),
+    visibility,
+    revealedIn: z.string().optional(),
+    draft: z.boolean().default(false),
+  }),
+})
+
+const events = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/events' }),
+  schema: z.object({
+    name: z.string(),
+    date: z.string().optional(),
+    sortKey: z.number().optional(),
+    era: z.string().optional(),
+    location: z.string().optional(),
+    participants: z.array(z.string()).optional(),
+    novel: z.string().optional(),
+    shortBio: z.string().max(280),
+    tags: z.array(z.string()).optional(),
+    visibility,
+    revealedIn: z.string().optional(),
+    draft: z.boolean().default(false),
+  }),
+})
+
+const documents = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/documents' }),
+  schema: z.object({
+    name: z.string(),
+    kind: z
+      .enum([
+        'song',
+        'prophecy',
+        'log',
+        'letter',
+        'inscription',
+        'law',
+        'translation',
+        'other',
+      ])
+      .default('other'),
+    novel: z.string().optional(),
+    era: z.string().optional(),
+    shortBio: z.string().max(280),
+    tags: z.array(z.string()).optional(),
+    visibility,
+    revealedIn: z.string().optional(),
+    draft: z.boolean().default(false),
+  }),
+})
+
+const relics = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/relics' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      kind: z
+        .enum(['weapon', 'ship', 'jewel', 'book', 'engine', 'relic', 'other'])
+        .default('other'),
+      origin: z.string().optional(),
+      bearers: z.array(z.string()).optional(),
+      novel: z.string().optional(),
+      era: z.string().optional(),
+      shortBio: z.string().max(280),
+      image: image().optional(),
+      tags: z.array(z.string()).optional(),
+      visibility,
+      revealedIn: z.string().optional(),
+      draft: z.boolean().default(false),
+    }),
+})
+
 export const collections = {
   novels,
   chapters,
@@ -231,4 +311,8 @@ export const collections = {
   factions,
   species,
   maps,
+  terms,
+  events,
+  documents,
+  relics,
 }

@@ -31,12 +31,7 @@ jobs:
       
       - name: Install dependencies
         run: bun install --frozen-lockfile
-      
-      # Quality checks handled by pre-commit hooks
-      # Uncomment below to add CI-level checks in the future:
-      # - name: Run checks
-      #   run: bun run lint
-      
+
       - name: Build site
         run: bun run build
       

@@ -1,112 +1,61 @@
 # Astro Sumi
 
-A clean, minimal template for novel and book writing websites.
+A git-native template for serial novels: markdown in the repo, a reading chamber on the web, and a Codex beside the books.
 
-* (WIP, still working on proper css and other utilities, plus hosting and deployment)
-* DO NOT USE YET!
+Fork it, replace the sample stories, and host your own.
 
-## Features
+## What you get
 
-* **Novel Organization**: Hierarchical structure with novels, volumes, and chapters
-* **Reading Interface**: Type size, measure, leading, atmosphere skins, continue-reading, `j`/`k` chapter keys
-* **Codex**: Character folios, location dossiers, factions, kindreds, and `[[wiki]]` links in prose
-* **Atlas**: Region plates with pins from location `coords` (spoiler pins stay hidden until revealed)
-* **Epic markup**: GitHub-style callouts (`> [!PROPHECY]`) and scholar footnotes
-* **Multi-Author Support**: Author profiles with pen names, genres, and social links
-* **Content Management**: Draft mode, publication scheduling, and word count tracking
-* **Responsive Design**: Mobile-optimized reading experience
-* **SEO Optimized**: Built-in metadata management and RSS feed generation
+* Novels → volumes → chapters, drafts, RSS, sitemap
+* Reading settings (type size, measure, leading, atmosphere), continue-reading with scroll restore, immersive mode
+* Codex: people, places, factions, kindreds, glossary, annals, library, relics
+* Atlas plates with spoiler-aware pins
+* `[[wiki]]` links in prose, hover cards, backlinks
+* Epic callouts (`> [!PROPHECY]`) and scholar footnotes
+* Sveltia CMS at `/admin/` (git markdown, no server)
+* `bun run fresh` to wipe sample books and lore
 
-## Quick Start
+## Quick start
 
-1. **Use this template** on GitHub or clone:
+```bash
+git clone https://github.com/your-username/astro-sumi.git my-novel-site
+cd my-novel-site
+bun install
+bun run setup
+bun run dev
+```
 
-   ```bash
-   git clone https://github.com/your-username/astro-sumi.git my-novel-site
-   cd my-novel-site
-   ```
+Or copy `.env.example` to `.env.local` and edit it.
 
-2. **Install dependencies**:
+To start from empty shelves (keeps `src/content/authors/template-author.md`):
 
-   ```bash
-   bun install
-   ```
-
-3. **Choose your setup**:
-
-   ```bash
-   # Interactive setup (recommended)
-   bun run setup
-
-   # Or manual configuration
-   cp .env.example .env.local
-   # Edit .env.local with your values
-   ```
-
-4. **Start development**:
-
-   ```bash
-   bun run dev
-   ```
+```bash
+bun run fresh -- --yes
+```
 
 ## Commands
 
-### Development
-
 | Command | Description |
-|---------|-------------|
-| `bun run dev` | Start development server |
-| `bun run build` | Build for production |
-| `bun run preview` | Preview built project |
-| `bun run setup` | Interactive configuration |
-
-### Code Quality
-
-| Command | Description |
-|---------|-------------|
-| `bun run test` | Run tests |
-| `bun run test:run` | Run tests once |
+| --- | --- |
+| `bun run dev` | Development server |
+| `bun run build` | Production build |
+| `bun run preview` | Preview the build |
+| `bun run setup` | Interactive `.env.local` |
+| `bun run fresh` | Delete sample content |
+| `bun run test:run` | Tests once |
 | `bun run prettier` | Format code |
-| `bun run lint:css` | Lint CSS |
+| `bun run lint` | CSS + markdown lint |
 
-### Security
+## Docs
 
-| Command | Description |
-|---------|-------------|
-| `bun run security:audit` | Check vulnerabilities |
-| `bun run security:fix` | Fix vulnerabilities |
+* [Guide](docs/guide.md) — content model, wiki links, reading, CMS
+* [Setup](docs/setup.md) — environment and first run
+* [Comments](docs/giscus.md) — Giscus on chapter pages
 
-### Package Management
+## Stack
 
-| Command | Description |
-|---------|-------------|
-| `bun install` | Install dependencies |
-| `bun add <package>` | Add dependency |
-| `bun remove <package>` | Remove dependency |
-| `bun update` | Update dependencies |
-
-## Documentation
-
-* **[Epic Mythos Vision](docs/VISION.md)** - Wishlist, content model, and phased plan (Codex + Atlas are template features)
-* **[Setup Guide](docs/setup.md)** - Getting started and configuration
-* **[Complete Guide](docs/guide.md)** - Architecture, customization, and advanced features
-* **[Comments Setup](docs/giscus.md)** - GitHub Discussions integration
-
-## Tech Stack
-
-* **[Astro 5.x](https://astro.build)** - Static site generator
-* **[Bun](https://bun.sh)** - JavaScript runtime and package manager
-* **[Tailwind CSS 4.x](https://tailwindcss.com)** - Utility-first CSS framework
-* **[shadcn/ui](https://ui.shadcn.com)** - Accessible React components
-* **[TypeScript](https://typescriptlang.org)** - Type-safe JavaScript
-* **[Vitest](https://vitest.dev)** - Testing framework
+Astro 5, Bun, Tailwind CSS 4, shadcn/ui, TypeScript, Vitest.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file.
-
-## Attribution
-
-Based on [astro-erudite](https://github.com/jktrn/astro-erudite) by [jktrn](https://github.com/jktrn).
-
-Built with [Astro](https://astro.build) and [shadcn/ui](https://ui.shadcn.com).
+MIT. Based on [astro-erudite](https://github.com/jktrn/astro-erudite) by [jktrn](https://github.com/jktrn).

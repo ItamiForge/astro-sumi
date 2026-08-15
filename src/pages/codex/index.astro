@@ -7,21 +7,27 @@ import PageHead from '@/components/PageHead.astro'
 import Layout from '@/layouts/Layout.astro'
 import {
   getAllCharacters,
+  getAllDocuments,
+  getAllEvents,
   getAllFactions,
   getAllLocations,
   getAllMaps,
+  getAllRelics,
   getAllSpecies,
+  getAllTerms,
 } from '@/lib/content/world'
 import { withBase } from '@/lib/utils/url'
 import { wikiHref } from '@/lib/wiki/parse'
 
 const characters = await getAllCharacters()
-const locations = (await getAllLocations()).filter(
-  (entry) => entry.data.visibility !== 'spoiler',
-)
+const locations = await getAllLocations()
 const factions = await getAllFactions()
 const species = await getAllSpecies()
 const maps = await getAllMaps()
+const terms = await getAllTerms()
+const events = await getAllEvents()
+const documents = await getAllDocuments()
+const relics = await getAllRelics()
 
 const characterCards = characters.map((entry) => ({
   kind: 'character' as const,
@@ -30,6 +36,7 @@ const characterCards = characters.map((entry) => ({
   kicker: entry.data.titles?.[0] ?? entry.data.role,
   shortBio: entry.data.shortBio,
   href: wikiHref('character', entry.id),
+  visibility: entry.data.visibility,
 }))
 
 const locationCards = locations.map((entry) => ({
@@ -39,24 +46,7 @@ const locationCards = locations.map((entry) => ({
   kicker: entry.data.kind,
   shortBio: entry.data.shortBio,
   href: wikiHref('location', entry.id),
-}))
-
-const factionCards = factions.map((entry) => ({
-  kind: 'faction' as const,
-  slug: entry.id,
-  name: entry.data.name,
-  kicker: entry.data.kind,
-  shortBio: entry.data.shortBio,
-  href: wikiHref('faction', entry.id),
-}))
-
-const speciesCards = species.map((entry) => ({
-  kind: 'species' as const,
-  slug: entry.id,
-  name: entry.data.name,
-  kicker: 'kindred',
-  shortBio: entry.data.shortBio,
-  href: wikiHref('species', entry.id),
+  visibility: entry.data.visibility,
 }))
 ---
 
@@ -64,55 +54,41 @@ const speciesCards = species.map((entry) => ({
   <PageHead
     slot="head"
     title="Codex"
-    description="People, places, factions, maps, and kindreds you can fill in when you fork this template."
+    description="People, places, glossary, maps, and relics you fill in when you fork this template."
   />
 
   <Breadcrumbs items={[{ label: 'Codex', icon: 'lucide:book-open' }]} />
 
   <section class="space-y-3">
-    <h1 class="text-3xl font-medium lg:text-4xl">The Codex</h1>
+    <h1 class="font-serif text-3xl font-medium lg:text-4xl">The Codex</h1>
     <p class="text-muted-foreground max-w-2xl text-lg">
-      A gazetteer beside the books. Cards are spoiler-safe. Replace the sample
-      entries in <code class="bg-muted rounded px-1 text-sm">src/content/</code>
-      with your own people and places.
+      Gazetteer beside the books. Replace sample files in
+      <code class="bg-muted rounded px-1 text-sm">src/content/</code>
+      or edit them in the CMS.
     </p>
-    <CodexSearch />
+    <CodexSearch placeholder="Search people, places, terms…" />
   </section>
 
-  {
-    maps.length > 0 && (
-      <a
-        href={withBase('/codex/atlas')}
-        class="hover:bg-muted/40 flex items-center justify-between gap-4 rounded-xl border p-4"
-      >
-        <div class="flex items-center gap-3">
-          <Icon name="map" className="size-5" />
-          <div>
-            <p class="font-medium">Atlas</p>
-            <p class="text-muted-foreground text-sm">
-              Sample region plates with pins. Add maps in src/content/maps/.
-            </p>
-          </div>
-        </div>
-        <span class="text-muted-foreground text-sm">Open</span>
-      </a>
-    )
-  }
-
-  <nav class="flex flex-wrap gap-3 text-sm">
-    <a href="#people" class="hover:text-primary text-foreground/70">People</a>
-    <a href="#places" class="hover:text-primary text-foreground/70">Places</a>
-    <a href="#factions" class="hover:text-primary text-foreground/70"
-      >Factions</a
-    >
-    <a href="#kindreds" class="hover:text-primary text-foreground/70"
-      >Kindreds</a
-    >
+  <nav class="editorial-cats flex flex-wrap gap-x-4 gap-y-2 text-sm">
+    <a href={withBase('/codex/atlas')}>Atlas</a>
+    <a href="#people">People</a>
+    <a href="#places">Places</a>
+    <a href={withBase('/codex/glossary')}>Glossary</a>
+    <a href={withBase('/codex/annals')}>Annals</a>
+    <a href={withBase('/codex/library')}>Library</a>
+    <a href={withBase('/codex/relics')}>Relics</a>
+    {
+      maps.length > 0 && (
+        <a href={withBase('/codex/atlas')} class="text-muted-foreground">
+          {maps.length} plate{maps.length === 1 ? '' : 's'}
+        </a>
+      )
+    }
   </nav>
 
   <section id="people" class="space-y-4" data-codex-section>
     <div class="flex items-center justify-between">
-      <h2 class="flex items-center gap-2 text-2xl font-medium">
+      <h2 class="flex items-center gap-2 font-serif text-2xl font-medium">
         <Icon name="users" className="size-5" />
         People
       </h2>
@@ -130,7 +106,7 @@ const speciesCards = species.map((entry) => ({
 
   <section id="places" class="space-y-4" data-codex-section>
     <div class="flex items-center justify-between">
-      <h2 class="flex items-center gap-2 text-2xl font-medium">
+      <h2 class="flex items-center gap-2 font-serif text-2xl font-medium">
         <Icon name="map-pin" className="size-5" />
         Places
       </h2>
@@ -146,9 +122,48 @@ const speciesCards = species.map((entry) => ({
     </div>
   </section>
 
+  <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-codex-section>
+    <a
+      href={withBase('/codex/glossary')}
+      class="hover:bg-muted/40 rounded-xl border p-4"
+    >
+      <p class="font-medium">Glossary · {terms.length}</p>
+      <p class="text-muted-foreground mt-1 text-sm">
+        Terms that hover in the prose.
+      </p>
+    </a>
+    <a
+      href={withBase('/codex/annals')}
+      class="hover:bg-muted/40 rounded-xl border p-4"
+    >
+      <p class="font-medium">Annals · {events.length}</p>
+      <p class="text-muted-foreground mt-1 text-sm">
+        A timeline of named events.
+      </p>
+    </a>
+    <a
+      href={withBase('/codex/library')}
+      class="hover:bg-muted/40 rounded-xl border p-4"
+    >
+      <p class="font-medium">Library · {documents.length}</p>
+      <p class="text-muted-foreground mt-1 text-sm">
+        Songs, laws, and prophecies.
+      </p>
+    </a>
+    <a
+      href={withBase('/codex/relics')}
+      class="hover:bg-muted/40 rounded-xl border p-4"
+    >
+      <p class="font-medium">Relics · {relics.length}</p>
+      <p class="text-muted-foreground mt-1 text-sm">
+        Objects with a bearer history.
+      </p>
+    </a>
+  </section>
+
   <section id="factions" class="space-y-4" data-codex-section>
     <div class="flex items-center justify-between">
-      <h2 class="flex items-center gap-2 text-2xl font-medium">
+      <h2 class="flex items-center gap-2 font-serif text-2xl font-medium">
         <Icon name="shield" className="size-5" />
         Factions
       </h2>
@@ -160,13 +175,27 @@ const speciesCards = species.map((entry) => ({
       </a>
     </div>
     <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-      {factionCards.map((card) => <CodexCard card={card} />)}
+      {
+        factions.map((entry) => (
+          <CodexCard
+            card={{
+              kind: 'faction',
+              slug: entry.id,
+              name: entry.data.name,
+              kicker: entry.data.kind,
+              shortBio: entry.data.shortBio,
+              href: wikiHref('faction', entry.id),
+              visibility: entry.data.visibility,
+            }}
+          />
+        ))
+      }
     </div>
   </section>
 
   <section id="kindreds" class="space-y-4" data-codex-section>
     <div class="flex items-center justify-between">
-      <h2 class="flex items-center gap-2 text-2xl font-medium">
+      <h2 class="flex items-center gap-2 font-serif text-2xl font-medium">
         <Icon name="sparkles" className="size-5" />
         Kindreds
       </h2>
@@ -178,7 +207,21 @@ const speciesCards = species.map((entry) => ({
       </a>
     </div>
     <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-      {speciesCards.map((card) => <CodexCard card={card} />)}
+      {
+        species.map((entry) => (
+          <CodexCard
+            card={{
+              kind: 'species',
+              slug: entry.id,
+              name: entry.data.name,
+              kicker: 'kindred',
+              shortBio: entry.data.shortBio,
+              href: wikiHref('species', entry.id),
+              visibility: entry.data.visibility,
+            }}
+          />
+        ))
+      }
     </div>
   </section>
 </Layout>

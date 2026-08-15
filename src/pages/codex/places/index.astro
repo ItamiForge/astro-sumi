@@ -6,9 +6,7 @@ import Layout from '@/layouts/Layout.astro'
 import { getAllLocations } from '@/lib/content/world'
 import { wikiHref } from '@/lib/wiki/parse'
 
-const locations = (await getAllLocations()).filter(
-  (entry) => entry.data.visibility !== 'spoiler',
-)
+const locations = await getAllLocations()
 const cards = locations.map((entry) => ({
   kind: 'location' as const,
   slug: entry.id,
@@ -16,6 +14,7 @@ const cards = locations.map((entry) => ({
   kicker: entry.data.kind,
   shortBio: entry.data.shortBio,
   href: wikiHref('location', entry.id),
+  visibility: entry.data.visibility,
 }))
 ---
 

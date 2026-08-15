@@ -46,7 +46,7 @@ const pins = await getPinsForMap(map.id)
 </Layout>
 
 <script>
-  import { READING_KEYS } from '@/lib/reading'
+  import { applyReaderMode } from '@/lib/reading'
 
   document.addEventListener('astro:page-load', () => {
     const toggle = document.getElementById(
@@ -64,15 +64,13 @@ const pins = await getPinsForMap(map.id)
         })
     }
 
-    const stored = localStorage.getItem(READING_KEYS.atlasReveal) === 'true'
+    const stored =
+      document.documentElement.getAttribute('data-reader') === 'scholar'
     toggle.checked = stored
     apply(stored)
 
     toggle.addEventListener('change', () => {
-      localStorage.setItem(
-        READING_KEYS.atlasReveal,
-        toggle.checked ? 'true' : 'false',
-      )
+      applyReaderMode(toggle.checked ? 'scholar' : 'first-time')
       apply(toggle.checked)
     })
   })

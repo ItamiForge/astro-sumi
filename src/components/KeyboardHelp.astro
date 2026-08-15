@@ -1,0 +1,121 @@
+---
+import { Icon } from '@/components/Icon'
+---
+
+<div
+  id="keyboard-help"
+  class="bg-background/80 fixed inset-0 z-[60] hidden items-center justify-center p-4 backdrop-blur-sm"
+  role="dialog"
+  aria-labelledby="keyboard-help-title"
+>
+  <div class="bg-background w-full max-w-md rounded-xl border p-5 shadow-lg">
+    <div class="mb-4 flex items-center justify-between">
+      <h2 id="keyboard-help-title" class="font-serif font-medium">Keys</h2>
+      <button
+        id="keyboard-help-close"
+        type="button"
+        class="hover:bg-muted rounded-md p-2"
+        aria-label="Close"
+      >
+        <Icon name="x" className="size-4" />
+      </button>
+    </div>
+    <dl
+      class="text-muted-foreground grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm"
+    >
+      <dt class="text-foreground font-mono">j</dt>
+      <dd>Next chapter</dd>
+      <dt class="text-foreground font-mono">k</dt>
+      <dd>Previous chapter</dd>
+      <dt class="text-foreground font-mono">m</dt>
+      <dd>Atlas</dd>
+      <dt class="text-foreground font-mono">i</dt>
+      <dd>Immersive reading</dd>
+      <dt class="text-foreground font-mono">?</dt>
+      <dd>This help</dd>
+      <dt class="text-foreground font-mono">Esc</dt>
+      <dd>Close overlays</dd>
+    </dl>
+  </div>
+</div>
+
+<button
+  id="immersive-exit"
+  type="button"
+  class="bg-background/90 pointer-events-auto fixed top-3 right-3 z-[70] rounded-md border px-3 py-1.5 text-sm shadow-sm"
+>
+  Exit immersive
+</button>
+
+<script>
+  import { READING_KEYS, applyImmersive } from '@/lib/reading'
+  import { withBase } from '@/lib/utils/url'
+
+  function typingTarget(target: EventTarget | null) {
+    return (
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      (target instanceof HTMLElement && target.isContentEditable)
+    )
+  }
+
+  function initChamberKeys() {
+    const help = document.getElementById('keyboard-help')
+    const close = document.getElementById('keyboard-help-close')
+    const exit = document.getElementById('immersive-exit')
+    if (!help || !close || !exit) return
+
+    const showHelp = () => {
+      help.classList.remove('hidden')
+      help.classList.add('flex')
+    }
+    const hideHelp = () => {
+      help.classList.add('hidden')
+      help.classList.remove('flex')
+    }
+
+    close.addEventListener('click', hideHelp)
+    help.addEventListener('click', (event) => {
+      if (event.target === help) hideHelp()
+    })
+    exit.addEventListener('click', () => applyImmersive(false))
+
+    const onKey = (event: KeyboardEvent) => {
+      if (
+        typingTarget(event.target) ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey
+      ) {
+        return
+      }
+      if (event.key === '?' || (event.key === '/' && event.shiftKey)) {
+        event.preventDefault()
+        showHelp()
+      }
+      if (event.key === 'Escape') hideHelp()
+      if (event.key === 'm') {
+        event.preventDefault()
+        window.location.assign(withBase('/codex/atlas'))
+      }
+      if (event.key === 'i') {
+        event.preventDefault()
+        const on = document.documentElement.hasAttribute('data-immersive')
+        applyImmersive(!on)
+      }
+    }
+
+    document.addEventListener('keydown', onKey)
+    document.addEventListener(
+      'astro:before-swap',
+      () => document.removeEventListener('keydown', onKey),
+      { once: true },
+    )
+  }
+
+  initChamberKeys()
+  document.addEventListener('astro:page-load', initChamberKeys)
+
+  const immersive = localStorage.getItem(READING_KEYS.immersive) === 'true'
+  applyImmersive(immersive)
+</script>

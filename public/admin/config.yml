@@ -1,0 +1,219 @@
+backend:
+  name: github
+  repo: your-username/astro-sumi
+  branch: main
+site_url: https://your-username.github.io/astro-sumi
+media_folder: public/static/uploads
+public_folder: /static/uploads
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: '-'
+
+collections:
+  - name: novels
+    label: Novels
+    folder: src/content/novels
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: title
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Description, name: description, widget: text }
+      - { label: Author slug, name: author, widget: string }
+      - { label: Status, name: status, widget: select, options: [draft, ongoing, completed, hiatus], default: draft }
+      - { label: Start date, name: startDate, widget: datetime, date_format: YYYY-MM-DD, time_format: false }
+      - { label: Last updated, name: lastUpdated, widget: datetime, date_format: YYYY-MM-DD, time_format: false, required: false }
+      - { label: Genres, name: genre, widget: list, required: false }
+      - { label: Tags, name: tags, widget: list, required: false }
+      - { label: Word count, name: wordCount, widget: number, required: false }
+      - { label: Mature, name: mature, widget: boolean, default: false }
+      - { label: Summary, name: summary, widget: text, required: false }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: chapters
+    label: Chapters
+    folder: src/content/chapters
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: title
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Novel slug, name: novel, widget: string }
+      - { label: Volume, name: volume, widget: number }
+      - { label: Volume title, name: volumeTitle, widget: string, required: false }
+      - { label: Chapter, name: chapter, widget: number }
+      - { label: Publish date, name: publishDate, widget: datetime, date_format: YYYY-MM-DD, time_format: false }
+      - { label: Summary, name: summary, widget: text, required: false }
+      - { label: Word count, name: wordCount, widget: number, required: false }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Order, name: order, widget: number, default: 0 }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: authors
+    label: Authors
+    folder: src/content/authors
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: name
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Pen name, name: penName, widget: string, required: false }
+      - { label: Pronouns, name: pronouns, widget: string, required: false }
+      - { label: Avatar path, name: avatar, widget: string, hint: Public path such as /static/author-placeholder.svg }
+      - { label: Bio, name: bio, widget: text, required: false }
+      - { label: Genres, name: genres, widget: list, required: false }
+      - { label: Website, name: website, widget: string, required: false }
+      - { label: GitHub, name: github, widget: string, required: false }
+      - { label: Email, name: email, widget: string, required: false }
+      - { label: Body, name: body, widget: markdown, required: false }
+
+  - name: characters
+    label: People
+    folder: src/content/characters
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: name
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Short bio, name: shortBio, widget: text, hint: Spoiler-safe, max 280 characters }
+      - { label: Role, name: role, widget: select, options: [protagonist, deuteragonist, supporting, antagonist, mentioned, mythic], default: supporting }
+      - { label: Status, name: status, widget: select, options: [alive, dead, unknown, mythic, reincarnating], default: unknown }
+      - { label: Species slug, name: species, widget: string, required: false }
+      - { label: Home slug, name: home, widget: string, required: false }
+      - { label: Novel slug, name: novel, widget: string, required: false }
+      - { label: Era, name: era, widget: string, required: false }
+      - { label: Visibility, name: visibility, widget: select, options: [public, spoiler, secret], default: public }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: locations
+    label: Places
+    folder: src/content/locations
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: name
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Short bio, name: shortBio, widget: text }
+      - { label: Kind, name: kind, widget: select, options: [galaxy, sector, system, world, region, city, site, ship, station, other], default: other }
+      - { label: Parent slug, name: parent, widget: string, required: false }
+      - { label: Novel slug, name: novel, widget: string, required: false }
+      - { label: Visibility, name: visibility, widget: select, options: [public, spoiler, secret], default: public }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: factions
+    label: Factions
+    folder: src/content/factions
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: name
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Short bio, name: shortBio, widget: text }
+      - { label: Kind, name: kind, widget: select, options: [village, house, order, empire, cult, crew, fleet, guild, other], default: other }
+      - { label: Headquarters slug, name: headquarters, widget: string, required: false }
+      - { label: Visibility, name: visibility, widget: select, options: [public, spoiler, secret], default: public }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: species
+    label: Kindreds
+    folder: src/content/species
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: name
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Short bio, name: shortBio, widget: text }
+      - { label: Homeworld slug, name: homeworld, widget: string, required: false }
+      - { label: Visibility, name: visibility, widget: select, options: [public, spoiler, secret], default: public }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: maps
+    label: Maps
+    folder: src/content/maps
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: name
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Short bio, name: shortBio, widget: text }
+      - { label: Kind, name: kind, widget: select, options: [star-chart, system, world, region, city, cutaway], default: region }
+      - { label: Novel slug, name: novel, widget: string, required: false }
+      - { label: Visibility, name: visibility, widget: select, options: [public, spoiler, secret], default: public }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: terms
+    label: Glossary
+    folder: src/content/terms
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: name
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Short bio, name: shortBio, widget: text }
+      - { label: Visibility, name: visibility, widget: select, options: [public, spoiler, secret], default: public }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: events
+    label: Annals
+    folder: src/content/events
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: name
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Short bio, name: shortBio, widget: text }
+      - { label: Date, name: date, widget: string, required: false }
+      - { label: Sort key, name: sortKey, widget: number, required: false }
+      - { label: Location slug, name: location, widget: string, required: false }
+      - { label: Visibility, name: visibility, widget: select, options: [public, spoiler, secret], default: public }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: documents
+    label: Library
+    folder: src/content/documents
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: name
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Short bio, name: shortBio, widget: text }
+      - { label: Kind, name: kind, widget: select, options: [song, prophecy, log, letter, inscription, law, translation, other], default: other }
+      - { label: Visibility, name: visibility, widget: select, options: [public, spoiler, secret], default: public }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: relics
+    label: Relics
+    folder: src/content/relics
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: name
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Short bio, name: shortBio, widget: text }
+      - { label: Kind, name: kind, widget: select, options: [weapon, ship, jewel, book, engine, relic, other], default: other }
+      - { label: Origin slug, name: origin, widget: string, required: false }
+      - { label: Visibility, name: visibility, widget: select, options: [public, spoiler, secret], default: public }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Body, name: body, widget: markdown }

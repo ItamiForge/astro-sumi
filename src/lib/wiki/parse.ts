@@ -3,6 +3,10 @@ export const WIKI_KINDS = [
   'location',
   'faction',
   'species',
+  'term',
+  'event',
+  'document',
+  'relic',
 ] as const
 
 export type WikiKind = (typeof WIKI_KINDS)[number]
@@ -19,6 +23,10 @@ export const KIND_ROUTE: Record<WikiKind, string> = {
   location: 'places',
   faction: 'factions',
   species: 'kindreds',
+  term: 'glossary',
+  event: 'annals',
+  document: 'library',
+  relic: 'relics',
 }
 
 const KIND_ALIASES: Record<string, WikiKind> = {
@@ -37,6 +45,18 @@ const KIND_ALIASES: Record<string, WikiKind> = {
   species: 'species',
   kindred: 'species',
   kindreds: 'species',
+  term: 'term',
+  terms: 'term',
+  glossary: 'term',
+  event: 'event',
+  events: 'event',
+  annal: 'event',
+  annals: 'event',
+  document: 'document',
+  documents: 'document',
+  library: 'document',
+  relic: 'relic',
+  relics: 'relic',
 }
 
 /** [[kind:slug#anchor|label]] with kind and label optional */

@@ -39,4 +39,4 @@ He is twenty summers. He is also, in the quiet way of this cycle, the Warrior: t
 
 He lives in a hut at the edge of the village, walks the oak line at dawn, and finds his spear too light. The bronze-smith who shares his name — [[character:kael-the-elder|Kael the Elder]] — hammers plow blades, not war.
 
-When the northern forest starts swallowing hunters, Kael is the one who listens.
+When the northern forest starts swallowing hunters, Kael is the one who listens. His [[relic:kaels-spear|spear]] feels too light. The [[term:the-bond|Bond]] has already chosen him.

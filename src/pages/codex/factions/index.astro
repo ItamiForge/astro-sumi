@@ -14,6 +14,7 @@ const cards = factions.map((entry) => ({
   kicker: entry.data.kind,
   shortBio: entry.data.shortBio,
   href: wikiHref('faction', entry.id),
+  visibility: entry.data.visibility,
 }))
 ---
 

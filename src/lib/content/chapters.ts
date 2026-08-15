@@ -1,4 +1,7 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content'
+import { calculateWordCountFromHtml, readingTime } from '../utils'
+import { safeContentLoad, ContentError } from '../errors'
+import { validateContentIntegrity } from '../validation'
 
 export function getChapterPath(
   novelId: string,
@@ -8,9 +11,6 @@ export function getChapterPath(
   const chapterSlug = `chapter-${chapter.data.chapter}-${chapter.data.title.toLowerCase().replace(/\s+/g, '-')}`
   return `/novels/${novelId}/${volumeSlug}/${chapterSlug}`
 }
-import { calculateWordCountFromHtml, readingTime } from '../utils'
-import { safeContentLoad, ContentError } from '../errors'
-import { validateContentIntegrity } from '../validation'
 
 export async function getAllChapters(): Promise<CollectionEntry<'chapters'>[]> {
   return safeContentLoad(

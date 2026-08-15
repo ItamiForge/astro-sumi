@@ -1,0 +1,116 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Backlinks from '@/components/codex/Backlinks.astro'
+import Monogram from '@/components/codex/Monogram.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import {
+  backlinksForSlug,
+  getAllEvents,
+  getCharacterById,
+  getLocationById,
+} from '@/lib/content/world'
+import { withBase } from '@/lib/utils/url'
+import { wikiHref } from '@/lib/wiki/parse'
+import { render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const events = await getAllEvents()
+  return events.map((event) => ({
+    params: { id: event.id },
+    props: { event },
+  }))
+}
+
+const { event } = Astro.props
+const { Content } = await render(event)
+const links = await backlinksForSlug(event.id, 'event')
+const location = event.data.location
+  ? await getLocationById(event.data.location)
+  : null
+const participants = (
+  await Promise.all(
+    (event.data.participants ?? []).map((id) => getCharacterById(id)),
+  )
+).filter(Boolean)
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title={event.data.name}
+    description={event.data.shortBio}
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { href: '/codex/annals', label: 'Annals', icon: 'lucide:calendar' },
+      { label: event.data.name, icon: 'lucide:calendar' },
+    ]}
+  />
+
+  <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
+    <aside class="space-y-4">
+      <Monogram
+        name={event.data.name}
+        slug={event.id}
+        class="h-40 w-full text-5xl"
+      />
+      <div class="bg-muted/30 space-y-3 rounded-lg p-4 text-sm">
+        {event.data.date && <p>{event.data.date}</p>}
+        {
+          event.data.era && (
+            <p class="text-muted-foreground">{event.data.era}</p>
+          )
+        }
+        {
+          location && (
+            <p>
+              <span class="text-muted-foreground">Place · </span>
+              <a
+                class="hover:text-primary"
+                href={withBase(wikiHref('location', location.id))}
+              >
+                {location.data.name}
+              </a>
+            </p>
+          )
+        }
+      </div>
+    </aside>
+    <div class="space-y-8">
+      <div>
+        <h1 class="font-serif text-3xl font-medium lg:text-4xl">
+          {event.data.name}
+        </h1>
+        <p class="text-muted-foreground mt-3 text-lg">{event.data.shortBio}</p>
+      </div>
+      <article class="reading-content">
+        <Content />
+      </article>
+      {
+        participants.length > 0 && (
+          <section class="space-y-3">
+            <h2 class="text-xl font-medium">Present</h2>
+            <ul class="space-y-2 text-sm">
+              {participants.map(
+                (person) =>
+                  person && (
+                    <li>
+                      <a
+                        class="hover:text-primary font-medium"
+                        href={withBase(wikiHref('character', person.id))}
+                      >
+                        {person.data.name}
+                      </a>
+                    </li>
+                  ),
+              )}
+            </ul>
+          </section>
+        )
+      }
+      <Backlinks links={links} />
+    </div>
+  </div>
+</Layout>

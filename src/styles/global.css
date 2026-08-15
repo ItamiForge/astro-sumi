@@ -4,6 +4,7 @@
 
 @theme inline {
   --font-sans: var(--font-sans);
+  --font-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
   --font-mono: var(--font-mono);
 
   --color-background: var(--background);
@@ -732,4 +733,125 @@ html[data-atmosphere='starlight'][data-theme='dark'] {
   font-size: 0.75em;
   font-weight: 600;
   text-decoration: none;
+}
+
+html:not([data-reader='scholar']) .spoiler-entry {
+  display: none !important;
+}
+
+html[data-immersive] header,
+html[data-immersive] footer {
+  display: none;
+}
+
+#immersive-exit {
+  display: none;
+}
+
+html[data-immersive] #immersive-exit {
+  display: block;
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.editorial-nav a {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: color-mix(in oklch, var(--foreground) 55%, transparent);
+  text-decoration: none;
+  position: relative;
+  padding-bottom: 0.2rem;
+}
+
+.editorial-cats a {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: color-mix(in oklch, var(--foreground) 60%, transparent);
+}
+
+.editorial-nav a:hover,
+.editorial-nav a[aria-current='page'],
+.editorial-cats a:hover {
+  color: var(--foreground);
+}
+
+.editorial-nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+
+.editorial-nav a:hover::after,
+.editorial-nav a[aria-current='page']::after {
+  transform: scaleX(1);
+}
+
+.masthead {
+  border-bottom: 1px solid var(--border);
+}
+
+.issue-rule {
+  border-color: var(--border);
+}
+
+.hero-frame {
+  overflow: hidden;
+}
+
+.hero-frame img,
+.hero-frame .hero-fallback {
+  transition: transform 0.6s ease;
+}
+
+.hero-frame:hover img,
+.hero-frame:hover .hero-fallback {
+  transform: scale(1.03);
+}
+
+.fade-up {
+  animation: fade-up 0.7s ease both;
+}
+
+.fade-up-delay {
+  animation: fade-up 0.7s ease 0.12s both;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .fade-up,
+  .fade-up-delay,
+  .hero-frame img,
+  .hero-frame .hero-fallback,
+  .editorial-nav a::after,
+  [data-codex-card] {
+    animation: none;
+    transition: none;
+    transform: none;
+  }
 }

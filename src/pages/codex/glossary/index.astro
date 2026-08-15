@@ -1,0 +1,47 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import CodexCard from '@/components/codex/CodexCard.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getAllTerms } from '@/lib/content/world'
+import { wikiHref } from '@/lib/wiki/parse'
+
+const terms = await getAllTerms()
+const cards = terms.map((entry) => ({
+  kind: 'term' as const,
+  slug: entry.id,
+  name: entry.data.name,
+  kicker: 'glossary',
+  shortBio: entry.data.shortBio,
+  href: wikiHref('term', entry.id),
+  visibility: entry.data.visibility,
+}))
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title="Glossary"
+    description="Named terms that hover in the prose."
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { label: 'Glossary', icon: 'lucide:bookmark' },
+    ]}
+  />
+  <h1 class="font-serif text-3xl font-medium">Glossary</h1>
+  {
+    cards.length === 0 ? (
+      <p class="text-muted-foreground">
+        No terms yet. Add files under src/content/terms/.
+      </p>
+    ) : (
+      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {cards.map((card) => (
+          <CodexCard card={card} />
+        ))}
+      </div>
+    )
+  }
+</Layout>

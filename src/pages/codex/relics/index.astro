@@ -1,0 +1,47 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import CodexCard from '@/components/codex/CodexCard.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getAllRelics } from '@/lib/content/world'
+import { wikiHref } from '@/lib/wiki/parse'
+
+const relics = await getAllRelics()
+const cards = relics.map((entry) => ({
+  kind: 'relic' as const,
+  slug: entry.id,
+  name: entry.data.name,
+  kicker: entry.data.kind,
+  shortBio: entry.data.shortBio,
+  href: wikiHref('relic', entry.id),
+  visibility: entry.data.visibility,
+}))
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title="Relics"
+    description="Weapons, ships, jewels, and other objects with a history."
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { label: 'Relics', icon: 'lucide:swords' },
+    ]}
+  />
+  <h1 class="font-serif text-3xl font-medium">Relics</h1>
+  {
+    cards.length === 0 ? (
+      <p class="text-muted-foreground">
+        No relics yet. Add files under src/content/relics/.
+      </p>
+    ) : (
+      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {cards.map((card) => (
+          <CodexCard card={card} />
+        ))}
+      </div>
+    )
+  }
+</Layout>

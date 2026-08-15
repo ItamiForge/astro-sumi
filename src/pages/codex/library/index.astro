@@ -1,0 +1,47 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import CodexCard from '@/components/codex/CodexCard.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getAllDocuments } from '@/lib/content/world'
+import { wikiHref } from '@/lib/wiki/parse'
+
+const documents = await getAllDocuments()
+const cards = documents.map((entry) => ({
+  kind: 'document' as const,
+  slug: entry.id,
+  name: entry.data.name,
+  kicker: entry.data.kind,
+  shortBio: entry.data.shortBio,
+  href: wikiHref('document', entry.id),
+  visibility: entry.data.visibility,
+}))
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title="Library"
+    description="Songs, laws, prophecies, and other in-world texts."
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { label: 'Library', icon: 'lucide:scroll' },
+    ]}
+  />
+  <h1 class="font-serif text-3xl font-medium">Library</h1>
+  {
+    cards.length === 0 ? (
+      <p class="text-muted-foreground">
+        No documents yet. Add files under src/content/documents/.
+      </p>
+    ) : (
+      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {cards.map((card) => (
+          <CodexCard card={card} />
+        ))}
+      </div>
+    )
+  }
+</Layout>

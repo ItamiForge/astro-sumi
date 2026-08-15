@@ -52,7 +52,7 @@ Something heavier. Something meant for war, not hunting.
 > [!PROPHECY]
 > Five names will wake in a valley that thinks itself small. When the northern dark learns to walk, they will remember they have done this before.
 
-This is sample chapter markup for the template: a prophecy callout you can copy into your own books.[^1]
+This is sample chapter markup for the template: a prophecy callout you can copy into your own books.[^1] The in-world copy lives in the Codex as [[document:prophecy-of-the-five|the Prophecy of the Five]].
 
 [^1]: Footnotes open in the scholar panel. Write them as `[^1]` in markdown.
 

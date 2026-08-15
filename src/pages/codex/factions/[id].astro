@@ -1,12 +1,11 @@
 ---
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Backlinks from '@/components/codex/Backlinks.astro'
 import Monogram from '@/components/codex/Monogram.astro'
-import { Icon } from '@/components/Icon'
 import PageHead from '@/components/PageHead.astro'
 import Layout from '@/layouts/Layout.astro'
-import { getChapterPath } from '@/lib/content/chapters'
 import {
-  appearancesForSlug,
+  backlinksForSlug,
   getAllCharacters,
   getAllFactions,
   getLocationById,
@@ -31,7 +30,7 @@ const headquarters = faction.data.headquarters
 const members = (await getAllCharacters()).filter((character) =>
   character.data.allegiance?.includes(faction.id),
 )
-const appearances = await appearancesForSlug(faction.id, 'faction')
+const links = await backlinksForSlug(faction.id, 'faction')
 ---
 
 <Layout containerType="wide">
@@ -117,28 +116,7 @@ const appearances = await appearancesForSlug(faction.id, 'faction')
         )
       }
 
-      {
-        appearances.length > 0 && (
-          <section class="space-y-3">
-            <h2 class="flex items-center gap-2 text-xl font-medium">
-              <Icon name="book-open" className="size-4" />
-              Mentions
-            </h2>
-            <ul class="space-y-2 text-sm">
-              {appearances.map((chapter) => (
-                <li>
-                  <a
-                    class="hover:text-primary"
-                    href={withBase(getChapterPath(chapter.data.novel, chapter))}
-                  >
-                    Chapter {chapter.data.chapter} · {chapter.data.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )
-      }
+      <Backlinks links={links} />
     </div>
   </div>
 </Layout>

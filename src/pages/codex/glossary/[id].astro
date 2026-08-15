@@ -1,0 +1,62 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Backlinks from '@/components/codex/Backlinks.astro'
+import Monogram from '@/components/codex/Monogram.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { backlinksForSlug, getAllTerms } from '@/lib/content/world'
+import { render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const terms = await getAllTerms()
+  return terms.map((term) => ({
+    params: { id: term.id },
+    props: { term },
+  }))
+}
+
+const { term } = Astro.props
+const { Content } = await render(term)
+const links = await backlinksForSlug(term.id, 'term')
+---
+
+<Layout containerType="wide">
+  <PageHead
+    slot="head"
+    title={term.data.name}
+    description={term.data.shortBio}
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { href: '/codex/glossary', label: 'Glossary', icon: 'lucide:bookmark' },
+      { label: term.data.name, icon: 'lucide:bookmark' },
+    ]}
+  />
+
+  <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
+    <aside class="space-y-4">
+      <Monogram
+        name={term.data.name}
+        slug={term.id}
+        class="h-40 w-full text-5xl"
+      />
+      <div class="bg-muted/30 space-y-3 rounded-lg p-4 text-sm">
+        <p>Glossary</p>
+        {term.data.era && <p class="text-muted-foreground">{term.data.era}</p>}
+      </div>
+    </aside>
+    <div class="space-y-8">
+      <div>
+        <h1 class="font-serif text-3xl font-medium lg:text-4xl">
+          {term.data.name}
+        </h1>
+        <p class="text-muted-foreground mt-3 text-lg">{term.data.shortBio}</p>
+      </div>
+      <article class="reading-content">
+        <Content />
+      </article>
+      <Backlinks links={links} />
+    </div>
+  </div>
+</Layout>
