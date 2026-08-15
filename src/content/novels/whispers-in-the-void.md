@@ -39,6 +39,7 @@ This novella explores several key science fiction concepts:
 ## Content Warnings
 
 This story contains:
+
 * Psychological horror elements
 * Descriptions of mental deterioration
 * Existential themes that some readers may find disturbing

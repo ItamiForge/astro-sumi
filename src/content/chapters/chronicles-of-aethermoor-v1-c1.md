@@ -119,6 +119,7 @@ She just hoped it wasn't for the worse.
 *End of Chapter 1*
 
 **Template Note**: This chapter demonstrates several key features of the template's chapter structure:
+
 * **Page breaks**: Clear divisions that allow for easy navigation and bookmarking
 * **Anchor links**: Each page section has a unique ID for direct linking
 * **Consistent pacing**: Each page represents roughly 400-500 words of content

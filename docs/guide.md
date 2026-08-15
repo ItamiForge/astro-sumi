@@ -3,18 +3,21 @@
 ## Architecture Overview
 
 ### Content Management
+
 * **Content Collections**: Astro's type-safe content system for novels, chapters, and authors
 * **Hierarchical Structure**: Novels → Volumes → Chapters organization
 * **Draft System**: Content can be marked as draft and excluded from production builds
 * **Validation**: Runtime content validation with error handling and fallbacks
 
 ### Styling & UI
+
 * **Tailwind CSS 4.x**: Latest version with Vite plugin for better performance
 * **shadcn/ui Components**: Pre-built accessible React components
 * **CSS Custom Properties**: Theme system supporting light/dark modes
 * **Typography**: Optimized for long-form reading with proper spacing and contrast
 
 ### Performance Features
+
 * **Static Generation**: Pre-built pages for optimal loading speed
 * **Image Optimization**: Astro's built-in image processing
 * **Code Splitting**: Automatic JavaScript bundling and splitting

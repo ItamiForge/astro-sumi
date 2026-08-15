@@ -13,6 +13,7 @@ A clean, minimal template for novel and book writing websites.
 * **Content Management**: Draft mode, publication scheduling, and word count tracking
 * **Responsive Design**: Mobile-optimized reading experience
 * **SEO Optimized**: Built-in metadata management and RSS feed generation
+* **Codex (in progress)**: Character folios, location dossiers, factions, and wiki-links in prose — see [the vision](docs/VISION.md)
 
 ## Quick Start
 
@@ -84,6 +85,7 @@ A clean, minimal template for novel and book writing websites.
 
 ## Documentation
 
+* **[Epic Mythos Vision](docs/VISION.md)** - Wishlist, content model, and phased plan for the Codex
 * **[Setup Guide](docs/setup.md)** - Getting started and configuration
 * **[Complete Guide](docs/guide.md)** - Architecture, customization, and advanced features
 * **[Comments Setup](docs/giscus.md)** - GitHub Discussions integration

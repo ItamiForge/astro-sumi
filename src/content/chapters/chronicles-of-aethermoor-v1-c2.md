@@ -98,6 +98,7 @@ As Kael left, promising to meet her the next evening, Lyra finally felt sleep be
 *End of Chapter 2*
 
 **Template Note**: This chapter demonstrates:
+
 * **Character development**: Introduction of Kael as both ally and fellow outsider
 * **World-building expansion**: Details about Forgeheart and artificer culture
 * **Plot advancement**: Setting up the next phase of Lyra's journey

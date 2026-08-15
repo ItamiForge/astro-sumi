@@ -98,6 +98,7 @@ Elena looked at the ever-shifting patterns on her screens. "I don't know if we c
 *End of Chapter 1*
 
 **Template Note**: This chapter demonstrates the template's versatility across genres:
+
 * **Hard science fiction**: Technical details grounded in real physics and linguistics
 * **Different pacing**: Shorter, more intense scenes appropriate for thriller elements
 * **Mature themes**: Complex concepts that challenge human understanding

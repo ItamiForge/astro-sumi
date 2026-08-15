@@ -19,12 +19,14 @@ fonts/
 ## Font Details
 
 ### Geist (Default)
+
 * **Type**: Variable font (woff2)
 * **Usage**: Main UI font
 * **Weights**: 100-900
 * **Always loaded**: Used for code blocks (Geist Mono)
 
 ### Noto Sans
+
 * **Type**: Variable font (woff2), subset for novel writing
 * **Usage**: Optional reading font
 * **Weights**: 100-900
@@ -32,6 +34,7 @@ fonts/
 * **Includes**: Accented characters, em-dashes, quotes, ellipses, currency symbols
 
 ### Messy Handwritten
+
 * **Type**: Static font (ttf)
 * **Usage**: Optional decorative font
 * **Weight**: Regular only
@@ -39,6 +42,7 @@ fonts/
 ## Optimization
 
 All fonts are optimized for web delivery:
+
 * Variable fonts use woff2 format (best compression)
 * Noto Sans is subset to include only characters needed for novel writing
 * Total font size: ~588KB (down from 50MB original)

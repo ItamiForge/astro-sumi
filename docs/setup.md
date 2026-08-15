@@ -21,6 +21,7 @@
    ```
 
 The setup script will guide you through:
+
 * Site configuration (title, author, description)
 * Social links (GitHub, email, etc.)
 * Comment system setup (optional)
