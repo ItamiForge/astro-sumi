@@ -202,6 +202,26 @@ const species = defineCollection({
     }),
 })
 
+const maps = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/maps' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      kind: z
+        .enum(['star-chart', 'system', 'world', 'region', 'city', 'cutaway'])
+        .default('region'),
+      novel: z.string().optional(),
+      era: z.string().optional(),
+      shortBio: z.string().max(280),
+      plate: image().optional(),
+      parentMap: z.string().optional(),
+      tags: z.array(z.string()).optional(),
+      visibility,
+      revealedIn: z.string().optional(),
+      draft: z.boolean().default(false),
+    }),
+})
+
 export const collections = {
   novels,
   chapters,
@@ -210,4 +230,5 @@ export const collections = {
   locations,
   factions,
   species,
+  maps,
 }

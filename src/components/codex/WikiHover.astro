@@ -30,7 +30,51 @@ const payload = JSON.stringify(cards).replace(/</g, '\\u003c')
         class="text-muted-foreground mt-1 line-clamp-4 text-sm"
       >
       </p>
+      <a
+        id="wiki-hover-open"
+        href="#"
+        class="text-primary mt-2 inline-block text-sm underline-offset-2 hover:underline"
+        >Open folio</a
+      >
     </div>
+  </div>
+</div>
+
+<div
+  id="wiki-sheet"
+  class="bg-background/80 fixed inset-0 z-50 hidden items-end backdrop-blur-sm sm:hidden"
+>
+  <div class="bg-background w-full rounded-t-2xl border-t p-5 shadow-lg">
+    <div class="mb-3 flex items-start gap-3">
+      <div
+        id="wiki-sheet-monogram"
+        class="flex size-12 shrink-0 items-center justify-center rounded-md text-lg font-medium"
+      >
+      </div>
+      <div class="min-w-0 grow">
+        <p
+          id="wiki-sheet-kicker"
+          class="text-muted-foreground text-xs tracking-wide uppercase"
+        >
+        </p>
+        <p id="wiki-sheet-name" class="font-medium"></p>
+      </div>
+      <button
+        id="wiki-sheet-close"
+        type="button"
+        class="hover:bg-muted rounded-md p-2"
+        aria-label="Close"
+      >
+        ×
+      </button>
+    </div>
+    <p id="wiki-sheet-bio" class="text-muted-foreground mb-4 text-sm"></p>
+    <a
+      id="wiki-sheet-open"
+      href="#"
+      class="bg-primary text-primary-foreground inline-flex w-full items-center justify-center rounded-md px-3 py-2 text-sm"
+      >Open folio</a
+    >
   </div>
 </div>
 
@@ -46,10 +90,19 @@ const payload = JSON.stringify(cards).replace(/</g, '\\u003c')
     href: string
   }
 
+  const base = import.meta.env.BASE_URL || '/'
+
+  function withBase(path: string) {
+    if (path.startsWith('http')) return path
+    const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base
+    return `${cleanBase}${path.startsWith('/') ? path : `/${path}`}`
+  }
+
   document.addEventListener('astro:page-load', () => {
     const source = document.getElementById('wiki-index')
     const hover = document.getElementById('wiki-hover')
-    if (!source || !hover) return
+    const sheet = document.getElementById('wiki-sheet')
+    if (!source || !hover || !sheet) return
 
     let cards: WikiCard[] = []
     try {
@@ -58,37 +111,53 @@ const payload = JSON.stringify(cards).replace(/</g, '\\u003c')
       return
     }
 
-    const kicker = document.getElementById('wiki-hover-kicker')
-    const name = document.getElementById('wiki-hover-name')
-    const bio = document.getElementById('wiki-hover-bio')
-    const monogram = document.getElementById('wiki-hover-monogram')
-
     const findCard = (kind: string, slug: string) =>
       cards.find(
         (card) => card.slug === slug && (!kind || card.kind === kind),
       ) ?? cards.find((card) => card.slug === slug)
 
-    let hideTimer: number | undefined
-
-    const hide = () => {
-      hover.classList.add('hidden')
-    }
-
-    const show = (link: HTMLElement) => {
-      const kind = link.getAttribute('data-wiki-kind') || ''
-      const slug = link.getAttribute('data-wiki-slug') || ''
-      const card = findCard(kind, slug)
-      if (!card || !kicker || !name || !bio || !monogram) return
-
-      kicker.textContent = card.kicker || kind
+    const fill = (
+      card: WikiCard,
+      ids: {
+        kicker: string
+        name: string
+        bio: string
+        monogram: string
+        open: string
+      },
+    ) => {
+      const kicker = document.getElementById(ids.kicker)
+      const name = document.getElementById(ids.name)
+      const bio = document.getElementById(ids.bio)
+      const monogram = document.getElementById(ids.monogram)
+      const open = document.getElementById(ids.open) as HTMLAnchorElement | null
+      if (!kicker || !name || !bio || !monogram || !open) return
+      kicker.textContent = card.kicker || card.kind
       name.textContent = card.name
       bio.textContent = card.shortBio
       monogram.textContent = card.name.charAt(0).toUpperCase()
       const accent = accentFromSlug(card.slug)
       monogram.style.background = accent.background
       monogram.style.color = accent.foreground
+      open.href = withBase(card.href)
+    }
 
+    const isMobile = () => window.matchMedia('(max-width: 767px)').matches
+    let hideTimer: number | undefined
+    let activeLink: HTMLElement | null = null
+
+    const hideHover = () => hover.classList.add('hidden')
+
+    const showHover = (link: HTMLElement, card: WikiCard) => {
+      fill(card, {
+        kicker: 'wiki-hover-kicker',
+        name: 'wiki-hover-name',
+        bio: 'wiki-hover-bio',
+        monogram: 'wiki-hover-monogram',
+        open: 'wiki-hover-open',
+      })
       hover.classList.remove('hidden')
+      hover.classList.add('pointer-events-auto')
       const rect = link.getBoundingClientRect()
       const top = rect.bottom + 8
       const left = Math.min(rect.left, window.innerWidth - 300)
@@ -96,20 +165,70 @@ const payload = JSON.stringify(cards).replace(/</g, '\\u003c')
       hover.style.left = `${Math.max(12, left)}px`
     }
 
+    const showSheet = (card: WikiCard) => {
+      fill(card, {
+        kicker: 'wiki-sheet-kicker',
+        name: 'wiki-sheet-name',
+        bio: 'wiki-sheet-bio',
+        monogram: 'wiki-sheet-monogram',
+        open: 'wiki-sheet-open',
+      })
+      sheet.classList.remove('hidden')
+      sheet.classList.add('flex')
+    }
+
+    document
+      .getElementById('wiki-sheet-close')
+      ?.addEventListener('click', () => {
+        sheet.classList.add('hidden')
+        sheet.classList.remove('flex')
+      })
+    sheet.addEventListener('click', (event) => {
+      if (event.target === sheet) {
+        sheet.classList.add('hidden')
+        sheet.classList.remove('flex')
+      }
+    })
+
+    hover.addEventListener('mouseenter', () => window.clearTimeout(hideTimer))
+    hover.addEventListener('mouseleave', () => {
+      hideTimer = window.setTimeout(hideHover, 120)
+    })
+
     document.querySelectorAll<HTMLElement>('.wiki-link').forEach((link) => {
+      const reveal = () => {
+        const card = findCard(
+          link.getAttribute('data-wiki-kind') || '',
+          link.getAttribute('data-wiki-slug') || '',
+        )
+        if (!card) return
+        activeLink = link
+        if (isMobile()) showSheet(card)
+        else showHover(link, card)
+      }
+
       link.addEventListener('mouseenter', () => {
+        if (isMobile()) return
         window.clearTimeout(hideTimer)
-        show(link)
+        reveal()
       })
       link.addEventListener('focus', () => {
         window.clearTimeout(hideTimer)
-        show(link)
+        reveal()
+      })
+      link.addEventListener('click', (event) => {
+        if (!isMobile()) return
+        event.preventDefault()
+        reveal()
       })
       link.addEventListener('mouseleave', () => {
-        hideTimer = window.setTimeout(hide, 120)
+        if (isMobile()) return
+        hideTimer = window.setTimeout(hideHover, 160)
       })
       link.addEventListener('blur', () => {
-        hideTimer = window.setTimeout(hide, 120)
+        if (activeLink === link) {
+          hideTimer = window.setTimeout(hideHover, 160)
+        }
       })
     })
   })

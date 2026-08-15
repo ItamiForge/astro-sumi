@@ -5,6 +5,10 @@ parent: "northern-forest"
 novel: "echoes-of-eternity"
 era: "Age of Bronze"
 shortBio: "A high gap beyond the northern forest. The Five meet the corrupted beasts here, and behind the beasts something older gathers."
+coords:
+  map: "thornhaven-valley"
+  x: 58
+  y: 14
 tags: ["battlefield", "the-five"]
 visibility: "public"
 draft: false

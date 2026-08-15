@@ -1,0 +1,86 @@
+---
+import { withBase } from '@/lib/utils/url'
+import { wikiHref } from '@/lib/wiki/parse'
+import type { CollectionEntry } from 'astro:content'
+
+export type AtlasPin = {
+  id: string
+  name: string
+  kind: string
+  x: number
+  y: number
+  visibility: string
+  href: string
+}
+
+interface Props {
+  map: CollectionEntry<'maps'>
+  pins: AtlasPin[]
+}
+
+const { map, pins } = Astro.props
+---
+
+<div class="atlas-plate relative overflow-hidden rounded-xl border">
+  <svg
+    viewBox="0 0 1000 700"
+    class="atlas-svg text-foreground h-auto w-full"
+    role="img"
+    aria-label={map.data.name}
+  >
+    <defs>
+      <linearGradient id="atlas-land" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="var(--muted)"></stop>
+        <stop offset="100%" stop-color="var(--background)"></stop>
+      </linearGradient>
+    </defs>
+    <rect width="1000" height="700" fill="url(#atlas-land)"></rect>
+    <path
+      d="M80 80 C 220 40, 380 90, 520 70 C 680 48, 820 90, 940 60 L 960 640 C 760 680, 520 620, 280 660 C 160 680, 40 620, 40 480 Z"
+      fill="currentColor"
+      class="text-muted/60"></path>
+    <path
+      d="M120 220 C 280 180, 420 260, 580 210 C 720 170, 840 240, 920 200"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="8"
+      class="text-primary/30"></path>
+    <path
+      d="M180 480 C 300 420, 440 500, 620 430 C 760 380, 880 450, 960 410"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="6"
+      class="text-primary/20"></path>
+    <path
+      d="M260 80 C 300 180, 340 240, 300 340 C 270 420, 320 500, 280 620"
+      fill="currentColor"
+      class="text-foreground/8"></path>
+    <text
+      x="500"
+      y="36"
+      text-anchor="middle"
+      class="fill-muted-foreground text-[18px] tracking-widest uppercase"
+    >
+      {map.data.name}
+    </text>
+  </svg>
+
+  {
+    pins.map((pin) => (
+      <a
+        href={withBase(pin.href || wikiHref('location', pin.id))}
+        class:list={[
+          'atlas-pin absolute -translate-x-1/2 -translate-y-full rounded-full border px-2 py-1 text-xs shadow-sm',
+          pin.visibility === 'spoiler' && 'hidden',
+        ]}
+        style={`left: ${pin.x}%; top: ${pin.y}%;`}
+        data-atlas-pin
+        data-visibility={pin.visibility}
+        title={pin.name}
+      >
+        <span class="atlas-pin-dot" />
+        {pin.name}
+      </a>
+    ))
+  }
+</div>

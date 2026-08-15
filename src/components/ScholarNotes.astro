@@ -1,0 +1,56 @@
+---
+import { Icon } from '@/components/Icon'
+---
+
+<aside
+  id="scholar-panel"
+  class="bg-background fixed inset-y-0 right-0 z-50 hidden w-full max-w-md overflow-y-auto border-l p-6 shadow-lg"
+  role="dialog"
+  aria-labelledby="scholar-panel-title"
+>
+  <div class="mb-4 flex items-center justify-between">
+    <h2 id="scholar-panel-title" class="flex items-center gap-2 font-medium">
+      <Icon name="scroll" className="size-4" />
+      Scholar's note
+    </h2>
+    <button
+      id="scholar-panel-close"
+      type="button"
+      class="hover:bg-muted rounded-md p-2"
+      aria-label="Close note"
+    >
+      <Icon name="x" className="size-4" />
+    </button>
+  </div>
+  <div id="scholar-panel-body" class="reading-content text-sm"></div>
+</aside>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const panel = document.getElementById('scholar-panel')
+    const body = document.getElementById('scholar-panel-body')
+    const close = document.getElementById('scholar-panel-close')
+    if (!panel || !body || !close) return
+
+    const hide = () => panel.classList.add('hidden')
+    close.addEventListener('click', hide)
+
+    document
+      .querySelectorAll('.reading-content a[data-footnote-ref]')
+      .forEach((link) => {
+        link.addEventListener('click', (event) => {
+          const href = link.getAttribute('href')
+          if (!href) return
+          const note = document.querySelector(href)
+          if (!note) return
+          event.preventDefault()
+          body.innerHTML = note.innerHTML
+          const back = body.querySelector(
+            'a.data-footnote-backref, a[data-footnote-backref]',
+          )
+          back?.remove()
+          panel.classList.remove('hidden')
+        })
+      })
+  })
+</script>

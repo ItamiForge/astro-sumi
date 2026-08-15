@@ -6,6 +6,10 @@ novel: "echoes-of-eternity"
 era: "Age of Bronze"
 climate: "Cool oak-wood, light-shy"
 shortBio: "The oaks north of Thornhaven. Hunters go in. Lately, not all of them come back, and the one who did spoke of shadows that swallow light."
+coords:
+  map: "thornhaven-valley"
+  x: 52
+  y: 32
 tags: ["forest", "danger"]
 visibility: "public"
 draft: false

@@ -7,6 +7,10 @@ era: "Age of Bronze"
 climate: "River-valley, mild"
 government: "Circle of elders"
 shortBio: "A bronze-age village of smiths, hunters, and healers. Goats, grain, and the ring of a hammer at dawn. The Five wake here."
+coords:
+  map: "thornhaven-valley"
+  x: 44
+  y: 62
 tags: ["village", "home", "the-five"]
 visibility: "public"
 draft: false

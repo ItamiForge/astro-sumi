@@ -8,9 +8,10 @@ export type WorldEntry =
   | CollectionEntry<'locations'>
   | CollectionEntry<'factions'>
   | CollectionEntry<'species'>
+  | CollectionEntry<'maps'>
 
 export type WikiCard = {
-  kind: WikiKind
+  kind: WikiKind | 'map'
   slug: string
   name: string
   kicker?: string
@@ -23,6 +24,10 @@ function isPublicEntity(entry: {
   data: { draft?: boolean; visibility?: string }
 }): boolean {
   return !entry.data.draft && entry.data.visibility !== 'secret'
+}
+
+function isSpoilerSafe(entry: { data: { visibility?: string } }): boolean {
+  return entry.data.visibility !== 'spoiler'
 }
 
 export async function getAllCharacters(): Promise<
@@ -97,6 +102,44 @@ export async function getAllSpecies(): Promise<CollectionEntry<'species'>[]> {
   )
 }
 
+export async function getAllMaps(): Promise<CollectionEntry<'maps'>[]> {
+  return safeContentLoad(
+    async () => {
+      const entries = await getCollection('maps')
+      return validateContentIntegrity(
+        entries,
+        (entry) => !!(entry.id && entry.data?.name && entry.data?.shortBio),
+        'maps',
+      )
+        .filter(isPublicEntity)
+        .sort((a, b) => a.data.name.localeCompare(b.data.name))
+    },
+    [],
+    'getAllMaps',
+  )
+}
+
+export async function getMapById(id: string) {
+  const maps = await getAllMaps()
+  return maps.find((entry) => entry.id === id) ?? null
+}
+
+export async function getPinsForMap(mapId: string) {
+  const locations = await getCollection('locations')
+  return locations
+    .filter((location) => !location.data.draft && location.data.visibility !== 'secret')
+    .filter((location) => location.data.coords?.map === mapId)
+    .map((location) => ({
+      id: location.id,
+      name: location.data.name,
+      kind: location.data.kind,
+      x: location.data.coords?.x ?? 50,
+      y: location.data.coords?.y ?? 50,
+      visibility: location.data.visibility ?? 'public',
+      href: wikiHref('location', location.id),
+    }))
+}
+
 export async function getCharacterById(id: string) {
   const entries = await getAllCharacters()
   return entries.find((entry) => entry.id === id) ?? null
@@ -119,22 +162,35 @@ export async function getSpeciesById(id: string) {
 
 export async function getChildLocations(parentId: string) {
   const locations = await getAllLocations()
-  return locations.filter((location) => location.data.parent === parentId)
+  return locations
+    .filter(isSpoilerSafe)
+    .filter((location) => location.data.parent === parentId)
 }
 
 export async function getCharactersByNovel(novelId: string) {
   const characters = await getAllCharacters()
-  return characters.filter((entry) => entry.data.novel === novelId)
+  return characters
+    .filter(isSpoilerSafe)
+    .filter((entry) => entry.data.novel === novelId)
 }
 
 export async function getLocationsByNovel(novelId: string) {
   const locations = await getAllLocations()
-  return locations.filter((entry) => entry.data.novel === novelId)
+  return locations
+    .filter(isSpoilerSafe)
+    .filter((entry) => entry.data.novel === novelId)
 }
 
 export async function getFactionsByNovel(novelId: string) {
   const factions = await getAllFactions()
-  return factions.filter((entry) => entry.data.novel === novelId)
+  return factions
+    .filter(isSpoilerSafe)
+    .filter((entry) => entry.data.novel === novelId)
+}
+
+export async function getMapsByNovel(novelId: string) {
+  const maps = await getAllMaps()
+  return maps.filter((entry) => entry.data.novel === novelId)
 }
 
 export async function getWikiCardIndex(): Promise<WikiCard[]> {
@@ -146,7 +202,7 @@ export async function getWikiCardIndex(): Promise<WikiCard[]> {
   ])
 
   return [
-    ...characters.map((entry) => ({
+    ...characters.filter(isSpoilerSafe).map((entry) => ({
       kind: 'character' as const,
       slug: entry.id,
       name: entry.data.name,
@@ -155,7 +211,7 @@ export async function getWikiCardIndex(): Promise<WikiCard[]> {
       href: wikiHref('character', entry.id),
       novel: entry.data.novel,
     })),
-    ...locations.map((entry) => ({
+    ...locations.filter(isSpoilerSafe).map((entry) => ({
       kind: 'location' as const,
       slug: entry.id,
       name: entry.data.name,
@@ -164,7 +220,7 @@ export async function getWikiCardIndex(): Promise<WikiCard[]> {
       href: wikiHref('location', entry.id),
       novel: entry.data.novel,
     })),
-    ...factions.map((entry) => ({
+    ...factions.filter(isSpoilerSafe).map((entry) => ({
       kind: 'faction' as const,
       slug: entry.id,
       name: entry.data.name,
@@ -173,7 +229,7 @@ export async function getWikiCardIndex(): Promise<WikiCard[]> {
       href: wikiHref('faction', entry.id),
       novel: entry.data.novel,
     })),
-    ...species.map((entry) => ({
+    ...species.filter(isSpoilerSafe).map((entry) => ({
       kind: 'species' as const,
       slug: entry.id,
       name: entry.data.name,

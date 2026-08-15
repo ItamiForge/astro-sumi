@@ -89,6 +89,19 @@ const appearances = await appearancesForSlug(location.id, 'location')
             </p>
           )
         }
+        {
+          location.data.coords && (
+            <p>
+              <span class="text-muted-foreground">On the map · </span>
+              <a
+                class="hover:text-primary"
+                href={withBase(`/codex/atlas/${location.data.coords.map}`)}
+              >
+                Open atlas
+              </a>
+            </p>
+          )
+        }
       </div>
     </aside>
 

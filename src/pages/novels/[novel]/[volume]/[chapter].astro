@@ -4,6 +4,7 @@ import ChapterPresence from '@/components/codex/ChapterPresence.astro'
 import Giscus from '@/components/Comments/Giscus.astro'
 import { Icon } from '@/components/Icon'
 import PageHead from '@/components/PageHead.astro'
+import ScholarNotes from '@/components/ScholarNotes.astro'
 import { Button } from '@/components/ui/button'
 import Layout from '@/layouts/Layout.astro'
 import { cardsForMentions } from '@/lib/content/world'
@@ -78,6 +79,12 @@ const currentChapterNumber = currentIndex + 1
 const progressPercentage = Math.round(
   (currentChapterNumber / totalChapters) * 100,
 )
+
+const chapterHref = withBase(getChapterUrl(novel, chapter))
+const previousHref = previousChapter
+  ? withBase(getChapterUrl(novel, previousChapter))
+  : ''
+const nextHref = nextChapter ? withBase(getChapterUrl(novel, nextChapter)) : ''
 ---
 
 <Layout>
@@ -88,7 +95,15 @@ const progressPercentage = Math.round(
       `Chapter ${chapter.data.chapter} of ${novel.data.title}`}
   />
 
-  <div class="container-reading">
+  <div
+    class="container-reading"
+    data-continue-novel={novel.id}
+    data-continue-title={novel.data.title}
+    data-continue-chapter={`Chapter ${chapter.data.chapter}: ${chapter.data.title}`}
+    data-continue-href={chapterHref}
+    data-prev-chapter={previousHref}
+    data-next-chapter={nextHref}
+  >
     <Breadcrumbs
       items={[
         { href: '/novels', label: 'Novels', icon: 'lucide:book-open' },
@@ -207,6 +222,8 @@ const progressPercentage = Math.round(
     <article class="reading-content mb-12">
       <Content />
     </article>
+
+    <ScholarNotes />
 
     <ChapterPresence cards={mentionCards} />
 
@@ -396,7 +413,55 @@ const progressPercentage = Math.round(
   }
 
   <script>
+    import { READING_KEYS, type ContinueState } from '@/lib/reading'
+
     document.addEventListener('astro:page-load', () => {
+      const chamber = document.querySelector(
+        '.container-reading',
+      ) as HTMLElement | null
+      if (chamber) {
+        const href = chamber.getAttribute('data-continue-href')
+        const novelId = chamber.getAttribute('data-continue-novel')
+        const novelTitle = chamber.getAttribute('data-continue-title')
+        const chapterTitle = chamber.getAttribute('data-continue-chapter')
+        if (href && novelId && novelTitle && chapterTitle) {
+          const state: ContinueState = {
+            novelId,
+            novelTitle,
+            chapterTitle,
+            href,
+            updatedAt: Date.now(),
+          }
+          try {
+            localStorage.setItem(READING_KEYS.continue, JSON.stringify(state))
+          } catch {
+            /* private mode */
+          }
+        }
+
+        const prevHref = chamber.getAttribute('data-prev-chapter')
+        const nextHref = chamber.getAttribute('data-next-chapter')
+        const onKey = (event: KeyboardEvent) => {
+          const target = event.target
+          if (
+            target instanceof HTMLInputElement ||
+            target instanceof HTMLTextAreaElement ||
+            (target instanceof HTMLElement && target.isContentEditable)
+          ) {
+            return
+          }
+          if (event.metaKey || event.ctrlKey || event.altKey) return
+          if (event.key === 'k' && prevHref) window.location.assign(prevHref)
+          if (event.key === 'j' && nextHref) window.location.assign(nextHref)
+        }
+        document.addEventListener('keydown', onKey)
+        document.addEventListener(
+          'astro:before-swap',
+          () => document.removeEventListener('keydown', onKey),
+          { once: true },
+        )
+      }
+
       const scrollToTopButton = document.getElementById('scroll-to-top')
       const togglePageNav = document.getElementById('toggle-page-nav')
       const mobilePageNav = document.getElementById('mobile-page-nav')
@@ -485,24 +550,29 @@ const progressPercentage = Math.round(
       }
 
       // Smooth scrolling for anchor links
-      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-        anchor.addEventListener('click', function (this: HTMLAnchorElement, e) {
-          e.preventDefault()
-          const href = this.getAttribute('href')
-          const target = href ? document.querySelector(href) : null
-          if (target) {
-            const headerOffset = 80 // Account for fixed header
-            const elementPosition = target.getBoundingClientRect().top
-            const offsetPosition =
-              elementPosition + window.pageYOffset - headerOffset
+      document
+        .querySelectorAll('a[href^="#"]:not([data-footnote-ref])')
+        .forEach((anchor) => {
+          anchor.addEventListener(
+            'click',
+            function (this: HTMLAnchorElement, e) {
+              e.preventDefault()
+              const href = this.getAttribute('href')
+              const target = href ? document.querySelector(href) : null
+              if (target) {
+                const headerOffset = 80 // Account for fixed header
+                const elementPosition = target.getBoundingClientRect().top
+                const offsetPosition =
+                  elementPosition + window.pageYOffset - headerOffset
 
-            window.scrollTo({
-              top: offsetPosition,
-              behavior: 'smooth',
-            })
-          }
+                window.scrollTo({
+                  top: offsetPosition,
+                  behavior: 'smooth',
+                })
+              }
+            },
+          )
         })
-      })
     })
   </script>
 

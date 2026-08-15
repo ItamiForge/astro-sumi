@@ -1,0 +1,79 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import AtlasPlate from '@/components/codex/AtlasPlate.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getAllMaps, getPinsForMap } from '@/lib/content/world'
+import { render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const maps = await getAllMaps()
+  return maps.map((map) => ({
+    params: { id: map.id },
+    props: { map },
+  }))
+}
+
+const { map } = Astro.props
+const { Content } = await render(map)
+const pins = await getPinsForMap(map.id)
+---
+
+<Layout containerType="wide">
+  <PageHead slot="head" title={map.data.name} description={map.data.shortBio} />
+  <Breadcrumbs
+    items={[
+      { href: '/codex', label: 'Codex', icon: 'lucide:book-open' },
+      { href: '/codex/atlas', label: 'Atlas', icon: 'lucide:map' },
+      { label: map.data.name, icon: 'lucide:map-pin' },
+    ]}
+  />
+
+  <div class="space-y-3">
+    <h1 class="text-3xl font-medium">{map.data.name}</h1>
+    <p class="text-muted-foreground max-w-2xl">{map.data.shortBio}</p>
+    <label class="flex items-center gap-2 text-sm">
+      <input id="atlas-reveal" type="checkbox" class="size-4" />
+      Reveal spoiler pins
+    </label>
+  </div>
+
+  <AtlasPlate map={map} pins={pins} />
+
+  <article class="reading-content max-w-3xl">
+    <Content />
+  </article>
+</Layout>
+
+<script>
+  import { READING_KEYS } from '@/lib/reading'
+
+  document.addEventListener('astro:page-load', () => {
+    const toggle = document.getElementById(
+      'atlas-reveal',
+    ) as HTMLInputElement | null
+    if (!toggle) return
+
+    const apply = (reveal: boolean) => {
+      document
+        .querySelectorAll<HTMLElement>('[data-atlas-pin]')
+        .forEach((pin) => {
+          const hidden =
+            pin.getAttribute('data-visibility') === 'spoiler' && !reveal
+          pin.classList.toggle('hidden', hidden)
+        })
+    }
+
+    const stored = localStorage.getItem(READING_KEYS.atlasReveal) === 'true'
+    toggle.checked = stored
+    apply(stored)
+
+    toggle.addEventListener('change', () => {
+      localStorage.setItem(
+        READING_KEYS.atlasReveal,
+        toggle.checked ? 'true' : 'false',
+      )
+      apply(toggle.checked)
+    })
+  })
+</script>

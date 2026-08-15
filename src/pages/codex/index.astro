@@ -1,6 +1,7 @@
 ---
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
 import CodexCard from '@/components/codex/CodexCard.astro'
+import CodexSearch from '@/components/codex/CodexSearch.astro'
 import { Icon } from '@/components/Icon'
 import PageHead from '@/components/PageHead.astro'
 import Layout from '@/layouts/Layout.astro'
@@ -8,15 +9,19 @@ import {
   getAllCharacters,
   getAllFactions,
   getAllLocations,
+  getAllMaps,
   getAllSpecies,
 } from '@/lib/content/world'
 import { withBase } from '@/lib/utils/url'
 import { wikiHref } from '@/lib/wiki/parse'
 
 const characters = await getAllCharacters()
-const locations = await getAllLocations()
+const locations = (await getAllLocations()).filter(
+  (entry) => entry.data.visibility !== 'spoiler',
+)
 const factions = await getAllFactions()
 const species = await getAllSpecies()
+const maps = await getAllMaps()
 
 const characterCards = characters.map((entry) => ({
   kind: 'character' as const,
@@ -59,7 +64,7 @@ const speciesCards = species.map((entry) => ({
   <PageHead
     slot="head"
     title="Codex"
-    description="People, places, factions, and kindreds of the mythos."
+    description="People, places, factions, maps, and kindreds you can fill in when you fork this template."
   />
 
   <Breadcrumbs items={[{ label: 'Codex', icon: 'lucide:book-open' }]} />
@@ -67,10 +72,32 @@ const speciesCards = species.map((entry) => ({
   <section class="space-y-3">
     <h1 class="text-3xl font-medium lg:text-4xl">The Codex</h1>
     <p class="text-muted-foreground max-w-2xl text-lg">
-      A gazetteer of the world beside the books. Cards are spoiler-safe. The
-      story remains in the chapters.
+      A gazetteer beside the books. Cards are spoiler-safe. Replace the sample
+      entries in <code class="bg-muted rounded px-1 text-sm">src/content/</code>
+      with your own people and places.
     </p>
+    <CodexSearch />
   </section>
+
+  {
+    maps.length > 0 && (
+      <a
+        href={withBase('/codex/atlas')}
+        class="hover:bg-muted/40 flex items-center justify-between gap-4 rounded-xl border p-4"
+      >
+        <div class="flex items-center gap-3">
+          <Icon name="map" className="size-5" />
+          <div>
+            <p class="font-medium">Atlas</p>
+            <p class="text-muted-foreground text-sm">
+              Sample region plates with pins. Add maps in src/content/maps/.
+            </p>
+          </div>
+        </div>
+        <span class="text-muted-foreground text-sm">Open</span>
+      </a>
+    )
+  }
 
   <nav class="flex flex-wrap gap-3 text-sm">
     <a href="#people" class="hover:text-primary text-foreground/70">People</a>
@@ -83,7 +110,7 @@ const speciesCards = species.map((entry) => ({
     >
   </nav>
 
-  <section id="people" class="space-y-4">
+  <section id="people" class="space-y-4" data-codex-section>
     <div class="flex items-center justify-between">
       <h2 class="flex items-center gap-2 text-2xl font-medium">
         <Icon name="users" className="size-5" />
@@ -101,7 +128,7 @@ const speciesCards = species.map((entry) => ({
     </div>
   </section>
 
-  <section id="places" class="space-y-4">
+  <section id="places" class="space-y-4" data-codex-section>
     <div class="flex items-center justify-between">
       <h2 class="flex items-center gap-2 text-2xl font-medium">
         <Icon name="map-pin" className="size-5" />
@@ -119,7 +146,7 @@ const speciesCards = species.map((entry) => ({
     </div>
   </section>
 
-  <section id="factions" class="space-y-4">
+  <section id="factions" class="space-y-4" data-codex-section>
     <div class="flex items-center justify-between">
       <h2 class="flex items-center gap-2 text-2xl font-medium">
         <Icon name="shield" className="size-5" />
@@ -137,7 +164,7 @@ const speciesCards = species.map((entry) => ({
     </div>
   </section>
 
-  <section id="kindreds" class="space-y-4">
+  <section id="kindreds" class="space-y-4" data-codex-section>
     <div class="flex items-center justify-between">
       <h2 class="flex items-center gap-2 text-2xl font-medium">
         <Icon name="sparkles" className="size-5" />

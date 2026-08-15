@@ -9,6 +9,7 @@ import {
   getCharactersByNovel,
   getFactionsByNovel,
   getLocationsByNovel,
+  getMapsByNovel,
 } from '@/lib/content/world'
 import { formatDate } from '@/lib/utils'
 import { withBase } from '@/lib/utils/url'
@@ -66,6 +67,7 @@ const totalWords = novelChapters.reduce(
 const worldCharacters = await getCharactersByNovel(novel.id)
 const worldLocations = await getLocationsByNovel(novel.id)
 const worldFactions = await getFactionsByNovel(novel.id)
+const novelMaps = await getMapsByNovel(novel.id)
 const worldCards = [
   ...worldCharacters.slice(0, 4).map((entry) => ({
     kind: 'character' as const,
@@ -326,12 +328,22 @@ const worldCards = [
           <div class="space-y-4">
             <div class="flex items-center justify-between">
               <h2 class="text-xl font-semibold">The World</h2>
-              <a
-                href={withBase('/codex')}
-                class="text-muted-foreground hover:text-primary text-sm"
-              >
-                Open the Codex
-              </a>
+              <div class="flex gap-3 text-sm">
+                {novelMaps.length > 0 && (
+                  <a
+                    href={withBase(`/codex/atlas/${novelMaps[0]?.id}`)}
+                    class="text-muted-foreground hover:text-primary"
+                  >
+                    Atlas
+                  </a>
+                )}
+                <a
+                  href={withBase('/codex')}
+                  class="text-muted-foreground hover:text-primary"
+                >
+                  Open the Codex
+                </a>
+              </div>
             </div>
             <div class="grid gap-3 sm:grid-cols-2">
               {worldCards.map((card) => (

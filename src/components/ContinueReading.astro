@@ -1,0 +1,58 @@
+---
+import { Icon } from '@/components/Icon'
+import Link from '@/components/Link.astro'
+---
+
+<aside
+  id="continue-reading"
+  class="bg-muted/30 hidden items-center justify-between gap-4 rounded-lg border p-4"
+>
+  <div class="min-w-0">
+    <p class="text-muted-foreground text-xs tracking-wide uppercase">
+      Continue reading
+    </p>
+    <p id="continue-reading-title" class="truncate font-medium"></p>
+    <p
+      id="continue-reading-chapter"
+      class="text-muted-foreground truncate text-sm"
+    >
+    </p>
+  </div>
+  <Link
+    id="continue-reading-link"
+    href="/"
+    class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm"
+  >
+    Resume
+    <Icon name="chevron-right" className="size-4" />
+  </Link>
+</aside>
+
+<script>
+  import { READING_KEYS, type ContinueState } from '@/lib/reading'
+
+  function initContinueReading() {
+    const banner = document.getElementById('continue-reading')
+    const title = document.getElementById('continue-reading-title')
+    const chapter = document.getElementById('continue-reading-chapter')
+    const link = document.getElementById('continue-reading-link')
+    if (!banner || !title || !chapter || !link) return
+
+    try {
+      const raw = localStorage.getItem(READING_KEYS.continue)
+      if (!raw) return
+      const state = JSON.parse(raw) as ContinueState
+      if (!state.href || !state.novelTitle) return
+      title.textContent = state.novelTitle
+      chapter.textContent = state.chapterTitle
+      link.setAttribute('href', state.href)
+      banner.classList.remove('hidden')
+      banner.classList.add('flex')
+    } catch {
+      banner.classList.add('hidden')
+    }
+  }
+
+  initContinueReading()
+  document.addEventListener('astro:page-load', initContinueReading)
+</script>

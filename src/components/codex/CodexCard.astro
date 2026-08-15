@@ -13,6 +13,8 @@ const { card } = Astro.props
 <a
   href={withBase(card.href)}
   class="group hover:bg-muted/50 block rounded-xl border p-4 transition-colors"
+  data-codex-card
+  data-codex-search={`${card.name} ${card.kicker ?? ''} ${card.shortBio} ${card.kind}`}
 >
   <div class="flex gap-3">
     <Monogram

@@ -10,7 +10,9 @@ import { rehypeHeadingIds } from '@astrojs/markdown-remark'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeKatex from 'rehype-katex'
 import remarkEmoji from 'remark-emoji'
+import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
+import { rehypeEpicAlerts } from './src/lib/wiki/rehype-epic-alerts'
 import { rehypeWikiLinks } from './src/lib/wiki/rehype-wiki-links'
 
 import tailwindcss from '@tailwindcss/vite'
@@ -82,8 +84,9 @@ export default defineConfig({
       ],
       rehypeHeadingIds,
       rehypeKatex,
+      rehypeEpicAlerts,
       [rehypeWikiLinks, { base }],
     ],
-    remarkPlugins: [remarkMath, remarkEmoji],
+    remarkPlugins: [remarkGfm, remarkMath, remarkEmoji],
   },
 })

@@ -1,0 +1,229 @@
+---
+import { Icon } from '@/components/Icon'
+import { Button } from '@/components/ui/button'
+---
+
+<script is:inline data-astro-rerun>
+  ;(() => {
+    const size = localStorage?.getItem('sumi:reading-size') || 'md'
+    const measure = localStorage?.getItem('sumi:reading-measure') || 'default'
+    const leading = localStorage?.getItem('sumi:reading-leading') || 'default'
+    const atmosphere = localStorage?.getItem('sumi:atmosphere') || 'default'
+    const root = document.documentElement
+    root.setAttribute('data-reading-size', size)
+    root.setAttribute('data-reading-measure', measure)
+    root.setAttribute('data-reading-leading', leading)
+    root.setAttribute('data-atmosphere', atmosphere)
+  })()
+</script>
+
+<Button
+  id="reading-settings-toggle"
+  variant="ghost"
+  size="icon"
+  title="Reading settings"
+  className="-my-2 -me-2 size-8"
+  aria-haspopup="dialog"
+  aria-controls="reading-settings"
+>
+  <Icon name="settings" className="size-4" />
+  <span class="sr-only">Reading settings</span>
+</Button>
+
+<div
+  id="reading-settings"
+  class="bg-background/80 fixed inset-0 z-50 hidden items-end justify-center p-4 backdrop-blur-sm sm:items-center"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="reading-settings-title"
+>
+  <div class="bg-background w-full max-w-md rounded-xl border p-5 shadow-lg">
+    <div class="mb-4 flex items-center justify-between">
+      <h2 id="reading-settings-title" class="font-medium">Reading</h2>
+      <Button
+        id="reading-settings-close"
+        variant="ghost"
+        size="icon"
+        aria-label="Close reading settings"
+      >
+        <Icon name="x" className="size-4" />
+      </Button>
+    </div>
+
+    <div class="space-y-5 text-sm">
+      <fieldset class="space-y-2">
+        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
+          Type size
+        </legend>
+        <div class="flex flex-wrap gap-2" data-reading-group="size">
+          <button type="button" class="reading-chip" data-value="sm">S</button>
+          <button type="button" class="reading-chip" data-value="md">M</button>
+          <button type="button" class="reading-chip" data-value="lg">L</button>
+          <button type="button" class="reading-chip" data-value="xl">XL</button>
+        </div>
+      </fieldset>
+
+      <fieldset class="space-y-2">
+        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
+          Measure
+        </legend>
+        <div class="flex flex-wrap gap-2" data-reading-group="measure">
+          <button type="button" class="reading-chip" data-value="narrow"
+            >Narrow</button
+          >
+          <button type="button" class="reading-chip" data-value="default"
+            >Default</button
+          >
+          <button type="button" class="reading-chip" data-value="wide"
+            >Wide</button
+          >
+        </div>
+      </fieldset>
+
+      <fieldset class="space-y-2">
+        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
+          Leading
+        </legend>
+        <div class="flex flex-wrap gap-2" data-reading-group="leading">
+          <button type="button" class="reading-chip" data-value="snug"
+            >Snug</button
+          >
+          <button type="button" class="reading-chip" data-value="default"
+            >Default</button
+          >
+          <button type="button" class="reading-chip" data-value="loose"
+            >Loose</button
+          >
+        </div>
+      </fieldset>
+
+      <fieldset class="space-y-2">
+        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
+          Atmosphere
+        </legend>
+        <div class="flex flex-wrap gap-2" data-reading-group="atmosphere">
+          <button type="button" class="reading-chip" data-value="default"
+            >Ink</button
+          >
+          <button type="button" class="reading-chip" data-value="parchment"
+            >Parchment</button
+          >
+          <button type="button" class="reading-chip" data-value="bronze"
+            >Bronze</button
+          >
+          <button type="button" class="reading-chip" data-value="void"
+            >Void</button
+          >
+          <button type="button" class="reading-chip" data-value="starlight"
+            >Starlight</button
+          >
+        </div>
+      </fieldset>
+    </div>
+  </div>
+</div>
+
+<script>
+  import {
+    READING_KEYS,
+    isAtmosphere,
+    isReadingLeading,
+    isReadingMeasure,
+    isReadingSize,
+  } from '@/lib/reading'
+
+  const ATTR: Record<string, string> = {
+    size: 'data-reading-size',
+    measure: 'data-reading-measure',
+    leading: 'data-reading-leading',
+    atmosphere: 'data-atmosphere',
+  }
+
+  const STORAGE: Record<string, string> = {
+    size: READING_KEYS.size,
+    measure: READING_KEYS.measure,
+    leading: READING_KEYS.leading,
+    atmosphere: READING_KEYS.atmosphere,
+  }
+
+  function currentValue(group: string) {
+    if (group === 'size') {
+      const value = localStorage.getItem(READING_KEYS.size) || 'md'
+      return isReadingSize(value) ? value : 'md'
+    }
+    if (group === 'measure') {
+      const value = localStorage.getItem(READING_KEYS.measure) || 'default'
+      return isReadingMeasure(value) ? value : 'default'
+    }
+    if (group === 'leading') {
+      const value = localStorage.getItem(READING_KEYS.leading) || 'default'
+      return isReadingLeading(value) ? value : 'default'
+    }
+    const value = localStorage.getItem(READING_KEYS.atmosphere) || 'default'
+    return isAtmosphere(value) ? value : 'default'
+  }
+
+  function apply(group: string, value: string) {
+    document.documentElement.setAttribute(ATTR[group] || '', value)
+    localStorage.setItem(STORAGE[group] || '', value)
+    document
+      .querySelectorAll(`[data-reading-group="${group}"] .reading-chip`)
+      .forEach((chip) => {
+        chip.setAttribute(
+          'aria-pressed',
+          chip.getAttribute('data-value') === value ? 'true' : 'false',
+        )
+      })
+  }
+
+  function initReadingSettings() {
+    const panel = document.getElementById('reading-settings')
+    const toggle = document.getElementById('reading-settings-toggle')
+    const close = document.getElementById('reading-settings-close')
+    if (!panel || !toggle || !close) return
+
+    const open = () => {
+      panel.classList.remove('hidden')
+      panel.classList.add('flex')
+    }
+    const hide = () => {
+      panel.classList.add('hidden')
+      panel.classList.remove('flex')
+    }
+
+    toggle.addEventListener('click', open)
+    close.addEventListener('click', hide)
+    panel.addEventListener('click', (event) => {
+      if (event.target === panel) hide()
+    })
+
+    for (const group of ['size', 'measure', 'leading', 'atmosphere']) {
+      apply(group, currentValue(group))
+      document
+        .querySelectorAll(`[data-reading-group="${group}"] .reading-chip`)
+        .forEach((chip) => {
+          chip.addEventListener('click', () => {
+            const value = chip.getAttribute('data-value')
+            if (value) apply(group, value)
+          })
+        })
+    }
+  }
+
+  initReadingSettings()
+  document.addEventListener('astro:after-swap', initReadingSettings)
+</script>
+
+<style>
+  .reading-chip {
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 0.35rem 0.7rem;
+    background: transparent;
+  }
+
+  .reading-chip[aria-pressed='true'] {
+    background: var(--muted);
+    font-weight: 500;
+  }
+</style>

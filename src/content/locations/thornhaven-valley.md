@@ -6,6 +6,10 @@ era: "Age of Bronze"
 climate: "Temperate river-valley, oak forest, rich soil"
 government: "Village elders"
 shortBio: "A sheltered valley between two rivers, oak on the ridges, good earth in the floor. The kind of place where nothing is supposed to happen."
+coords:
+  map: "thornhaven-valley"
+  x: 50
+  y: 58
 tags: ["bronze-age", "home"]
 visibility: "public"
 draft: false

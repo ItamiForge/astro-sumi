@@ -26,7 +26,8 @@
 }
 
 @layer components {
-  .prose {
+  .prose,
+  .reading-content {
     color: hsl(var(--foreground));
     font-size: 1rem;
     line-height: 1.7;
@@ -172,9 +173,6 @@
 
   /* Reading-specific typography for chapter pages */
   .reading-content {
-    @apply prose;
-
-    /* Enhanced reading experience */
     line-height: 1.8;
     text-align: left;
     hyphens: none;
@@ -223,6 +221,10 @@
 
     a.wiki-link-missing {
       text-decoration-color: var(--destructive);
+    }
+
+    :where(aside.epic-alert):not(:where(.not-prose, .not-prose *)) {
+      @apply my-6 border-l-4 pl-0;
     }
 
     /* Responsive adjustments for reading content */

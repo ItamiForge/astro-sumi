@@ -8,12 +8,14 @@ A clean, minimal template for novel and book writing websites.
 ## Features
 
 * **Novel Organization**: Hierarchical structure with novels, volumes, and chapters
-* **Reading Interface**: Clean, distraction-free experience optimized for long-form content
+* **Reading Interface**: Type size, measure, leading, atmosphere skins, continue-reading, `j`/`k` chapter keys
+* **Codex**: Character folios, location dossiers, factions, kindreds, and `[[wiki]]` links in prose
+* **Atlas**: Region plates with pins from location `coords` (spoiler pins stay hidden until revealed)
+* **Epic markup**: GitHub-style callouts (`> [!PROPHECY]`) and scholar footnotes
 * **Multi-Author Support**: Author profiles with pen names, genres, and social links
 * **Content Management**: Draft mode, publication scheduling, and word count tracking
 * **Responsive Design**: Mobile-optimized reading experience
 * **SEO Optimized**: Built-in metadata management and RSS feed generation
-* **Codex (in progress)**: Character folios, location dossiers, factions, and wiki-links in prose — see [the vision](docs/VISION.md)
 
 ## Quick Start
 
@@ -85,7 +87,7 @@ A clean, minimal template for novel and book writing websites.
 
 ## Documentation
 
-* **[Epic Mythos Vision](docs/VISION.md)** - Wishlist, content model, and phased plan for the Codex
+* **[Epic Mythos Vision](docs/VISION.md)** - Wishlist, content model, and phased plan (Codex + Atlas are template features)
 * **[Setup Guide](docs/setup.md)** - Getting started and configuration
 * **[Complete Guide](docs/guide.md)** - Architecture, customization, and advanced features
 * **[Comments Setup](docs/giscus.md)** - GitHub Discussions integration

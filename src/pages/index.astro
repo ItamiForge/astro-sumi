@@ -1,4 +1,5 @@
 ---
+import ContinueReading from '@/components/ContinueReading.astro'
 import { Icon } from '@/components/Icon'
 import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
@@ -7,50 +8,77 @@ import { buttonVariants } from '@/components/ui/button'
 import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
 import { getAllNovels } from '@/lib/content/novels'
+import { getAllMaps } from '@/lib/content/world'
 import { formatDate } from '@/lib/utils'
 import { withBase } from '@/lib/utils/url'
 import { Image } from 'astro:assets'
 
 const novels = await getAllNovels()
-const featuredNovels = novels.slice(0, 3) // Show first 3 novels
+const featuredNovels = novels.slice(0, SITE.featuredNovelCount)
+const maps = await getAllMaps()
 ---
 
 <Layout containerType="wide">
   <PageHead slot="head" title="Home" />
-  <section class="rounded-lg border">
-    <div class="flex flex-col space-y-1.5 p-6">
-      <h3 class="text-3xl leading-none font-medium">{SITE.title}</h3>
-      <p class="text-muted-foreground text-sm">Novel Writing Template</p>
+
+  <section class="rounded-lg border p-6 sm:p-8">
+    <p class="text-muted-foreground text-sm">Novel writing template</p>
+    <h1 class="mt-2 text-3xl font-medium lg:text-4xl">{SITE.title}</h1>
+    <p class="text-muted-foreground mt-3 max-w-2xl text-base leading-relaxed">
+      Fork this repo, replace the sample books, and host your own long-form
+      world: novels, a Codex of people and places, and an atlas of maps. The
+      stories here are examples, not a single canon.
+    </p>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <Link href="/novels" class={buttonVariants({ variant: 'default' })}>
+        Browse novels
+      </Link>
+      <Link href="/codex" class={buttonVariants({ variant: 'outline' })}>
+        Open the Codex
+      </Link>
+      <Link href="/codex/atlas" class={buttonVariants({ variant: 'ghost' })}>
+        Open the Atlas
+      </Link>
     </div>
-    <div class="p-6 pt-0">
-      <p class="text-muted-foreground mb-2 text-sm">
-        {SITE.description}
+  </section>
+
+  <ContinueReading />
+
+  <section class="grid gap-4 sm:grid-cols-3">
+    <a
+      href={withBase('/novels')}
+      class="hover:bg-muted/40 rounded-lg border p-4"
+    >
+      <Icon name="book-open" className="mb-2 size-5" />
+      <p class="font-medium">Reading chamber</p>
+      <p class="text-muted-foreground mt-1 text-sm">
+        Volumes, chapters, type settings, and continue-where-you-left-off.
       </p>
-      <p class="text-muted-foreground mb-2 text-sm">
-        Built with <Link
-          href="https://astro.build"
-          class="text-foreground"
-          external
-          underline>Astro</Link
-        >, <Link
-          href="https://tailwindcss.com"
-          class="text-foreground"
-          external
-          underline>Tailwind</Link
-        >, and <Link
-          href="https://ui.shadcn.com"
-          class="text-foreground"
-          external
-          underline>shadcn/ui</Link
-        >, it provides an excellent foundation for creative writers.
+    </a>
+    <a
+      href={withBase('/codex')}
+      class="hover:bg-muted/40 rounded-lg border p-4"
+    >
+      <Icon name="users" className="mb-2 size-5" />
+      <p class="font-medium">Codex</p>
+      <p class="text-muted-foreground mt-1 text-sm">
+        Character cards, places, factions, and wiki-links in the prose.
       </p>
-      <p class="text-muted-foreground text-sm">
-        This template supports hierarchical content organization with novels,
-        volumes, and chapters, making it perfect for long-form storytelling. The
-        reading interface is optimized for distraction-free reading with clean
-        typography and intuitive navigation.
+    </a>
+    <a
+      href={withBase('/codex/atlas')}
+      class="hover:bg-muted/40 rounded-lg border p-4"
+    >
+      <Icon name="map" className="mb-2 size-5" />
+      <p class="font-medium">Atlas</p>
+      <p class="text-muted-foreground mt-1 text-sm">
+        {
+          maps.length > 0
+            ? `${maps.length} sample plate${maps.length === 1 ? '' : 's'} you can replace with your own.`
+            : 'Add maps in src/content/maps to pin your world.'
+        }
       </p>
-    </div>
+    </a>
   </section>
 
   {

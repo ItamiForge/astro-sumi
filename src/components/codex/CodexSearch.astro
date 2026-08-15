@@ -1,0 +1,53 @@
+---
+interface Props {
+  placeholder?: string
+}
+
+const { placeholder = 'Search people, places, factions…' } = Astro.props
+---
+
+<div class="relative">
+  <label class="sr-only" for="codex-search">Search the Codex</label>
+  <input
+    id="codex-search"
+    type="search"
+    placeholder={placeholder}
+    class="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+  />
+  <p id="codex-search-empty" class="text-muted-foreground mt-3 hidden text-sm">
+    No matching entries.
+  </p>
+</div>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const input = document.getElementById(
+      'codex-search',
+    ) as HTMLInputElement | null
+    const empty = document.getElementById('codex-search-empty')
+    if (!input) return
+
+    const filter = () => {
+      const query = input.value.trim().toLowerCase()
+      const cards = document.querySelectorAll<HTMLElement>('[data-codex-card]')
+      let visible = 0
+      cards.forEach((card) => {
+        const haystack = (
+          card.getAttribute('data-codex-search') || ''
+        ).toLowerCase()
+        const show = !query || haystack.includes(query)
+        card.classList.toggle('hidden', !show)
+        if (show) visible += 1
+      })
+      document
+        .querySelectorAll<HTMLElement>('[data-codex-section]')
+        .forEach((section) => {
+          const any = section.querySelector('[data-codex-card]:not(.hidden)')
+          section.classList.toggle('hidden', Boolean(query) && !any)
+        })
+      empty?.classList.toggle('hidden', visible > 0)
+    }
+
+    input.addEventListener('input', filter)
+  })
+</script>

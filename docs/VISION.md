@@ -1,8 +1,10 @@
 # Astro Sumi — Epic Mythos Vision
 
-A world-class writing and reading webapp for a high-fantasy space epic.
+A git-native **novel-site template**: fork it, replace the sample books, and host your own long-form world. The sample cycle *Echoes of Eternity* is design fiction, not the product.
 
-This is the north-star document: product thesis, exhaustive wishlist, content model, architecture, and a phased plan. Phase 1 begins immediately after this file lands. Later phases should be checked against this document, not invented ad hoc.
+This is the north-star document: product thesis, exhaustive wishlist, content model, architecture, and a phased plan. Later phases should be checked against this document, not invented ad hoc.
+
+**Shipped as template features:** Phase 1 (Codex), Phase 2 (reading chamber), Phase 3 (atlas v1). Homepage, About, and Codex copy stay kit-like so a forker is not locked into one cosmos.
 
 ---
 
@@ -574,19 +576,23 @@ Ship:
 
 ### Phase 2 — Reading chamber + identity
 
-* Mythos homepage (prophecy hero, not template copy)
-* Epic callouts; scholar footnotes panel
+**Shipped (as a template, not a single-epic homepage).** Forkers get a kit landing page, continue-reading, type/atmosphere settings, epic callouts, scholar footnotes, Codex search, and a mobile wiki sheet.
+
+* Template homepage (capability doors: novels, Codex, Atlas) — not a prophecy hero for one cosmos
+* Epic callouts (`> [!PROPHECY]` and kin); scholar footnotes panel
 * Reading settings + continue-reading
 * Focus-visible hover cards polish, mobile sheet instead of hover
 * Search/filter on Codex hub
-* Sigil + CSS tokens for bronze vs void (even if only two themes)
+* Atmosphere CSS tokens (ink / parchment / bronze / void / starlight)
 
 ### Phase 3 — Atlas v1
 
+**Shipped.** Sample Thornhaven valley plate is example content under `src/content/maps/`.
+
 * `maps` collection
 * `coords` on locations
-* One region map (Thornhaven valley + northern forest) with spoiler pins
-* Atlas index page
+* One region map (Thornhaven valley + northern forest) with spoiler pins and Reveal all
+* Atlas index + plate pages
 * Pin → dossier; optional path polyline later
 
 ### Phase 4 — Annals, glossary, library, relics

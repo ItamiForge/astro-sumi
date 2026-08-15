@@ -4,7 +4,7 @@
 
 ### Content Management
 
-* **Content Collections**: Astro's type-safe content system for novels, chapters, and authors
+* **Content Collections**: Astro's type-safe content system for novels, chapters, authors, Codex entities, and maps
 * **Hierarchical Structure**: Novels → Volumes → Chapters organization
 * **Draft System**: Content can be marked as draft and excluded from production builds
 * **Validation**: Runtime content validation with error handling and fallbacks
@@ -81,6 +81,52 @@ github: "https://github.com/yourusername"
 email: "your@email.com"
 ---
 ```
+
+### Codex (people, places, factions, kindreds)
+
+Create markdown under `src/content/characters/`, `locations/`, `factions/`, and `species/`. Public cards need a spoiler-safe `shortBio` (max 280 characters). Set `visibility: secret` to keep an entry out of the public site, or `spoiler` to hide it from listings and atlas pins until a reader chooses Reveal all.
+
+Link from chapters with wiki syntax:
+
+```md
+[[Kael]]
+[[character:lyssa|the healer]]
+[[location:thornhaven]]
+```
+
+Kinds: `character` (`people`), `location` (`places`), `faction`, `species` (`kindreds`). Unqualified `[[slug]]` resolves if the slug is unique.
+
+### Maps (Atlas)
+
+Add a plate in `src/content/maps/` and pin places with `coords`:
+
+```yaml
+coords:
+  map: "thornhaven-valley"
+  x: 44
+  y: 62
+```
+
+`x` and `y` are percentages from the top-left of the plate. The sample valley at `/codex/atlas` is example content — replace it when you fork.
+
+### Epic callouts and footnotes
+
+In chapter markdown:
+
+```md
+> [!PROPHECY]
+> Five names will wake in a valley that thinks itself small.
+
+A scholar note.[^1]
+
+[^1]: Footnotes open in the side panel on chapter pages.
+```
+
+Alert kinds: `NOTE`, `TIP`, `WARNING`, `IMPORTANT`, `PROPHECY`, `CODEX`, `SONG`, `LOG`, `TRANSLATION`, `FORBIDDEN`.
+
+### Reading settings
+
+The header gear stores type size, measure, leading, and atmosphere (`ink`, `parchment`, `bronze`, `void`, `starlight`) in `localStorage`. Opening a chapter also writes a continue-reading pointer so the homepage can resume. On chapter pages, `j` and `k` move next and previous.
 
 ## Configuration
 
