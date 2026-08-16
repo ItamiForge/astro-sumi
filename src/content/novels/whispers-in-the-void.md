@@ -3,7 +3,7 @@ title: "Whispers in the Void"
 description: "A science fiction thriller exploring the consequences of humanity's first contact with an alien intelligence. This example demonstrates the template's flexibility for different genres and shorter-form storytelling."
 genre: ["science fiction", "thriller", "first contact"]
 status: "completed"
-# coverImage: "/static/logo.png"
+coverImage: "../../assets/covers/cover-whispers-in-the-void.jpg"
 author: "template-author"
 startDate: 2023-08-01
 lastUpdated: 2024-01-20

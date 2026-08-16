@@ -3,6 +3,7 @@ title: "Starbound Academy"
 description: "A space opera following cadets at an elite military academy as they prepare for humanity's first contact with alien civilizations."
 genre: ["space-opera", "military-sci-fi", "adventure"]
 status: "ongoing"
+coverImage: "../../assets/covers/cover-starbound-academy.jpg"
 author: "template-author"
 startDate: 2023-11-20
 lastUpdated: 2024-10-30

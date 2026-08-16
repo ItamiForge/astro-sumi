@@ -3,6 +3,7 @@ title: "Shadows of Tomorrow"
 description: "A cyberpunk thriller set in Neo-Tokyo where a hacker uncovers a conspiracy that threatens the fabric of reality itself."
 genre: ["cyberpunk", "thriller", "sci-fi"]
 status: "completed"
+coverImage: "../../assets/covers/cover-shadows-of-tomorrow.jpg"
 author: "template-author"
 startDate: 2023-06-01
 lastUpdated: 2024-01-20

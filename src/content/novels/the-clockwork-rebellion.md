@@ -3,6 +3,7 @@ title: "The Clockwork Rebellion"
 description: "A steampunk adventure where sentient automatons fight for their freedom in Victorian London."
 genre: ["steampunk", "adventure", "historical-fantasy"]
 status: "ongoing"
+coverImage: "../../assets/covers/cover-clockwork-rebellion.jpg"
 author: "template-author"
 startDate: 2024-05-20
 lastUpdated: 2024-11-08

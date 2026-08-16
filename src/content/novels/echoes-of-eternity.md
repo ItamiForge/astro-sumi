@@ -3,6 +3,7 @@ title: "Echoes of Eternity"
 description: "An epic fantasy saga spanning millennia, following the reincarnations of five heroes destined to save the world in each age."
 genre: ["epic-fantasy", "reincarnation", "adventure"]
 status: "ongoing"
+coverImage: "../../assets/covers/cover-echoes-of-eternity.jpg"
 author: "template-author"
 startDate: 2023-08-10
 lastUpdated: 2024-11-01

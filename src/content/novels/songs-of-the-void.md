@@ -3,6 +3,7 @@ title: "Songs of the Void"
 description: "A cosmic horror story about a musician who discovers that the universe itself is a song—and something is trying to change the melody."
 genre: ["cosmic-horror", "sci-fi", "thriller"]
 status: "completed"
+coverImage: "../../assets/covers/cover-songs-of-the-void.jpg"
 author: "template-author"
 startDate: 2023-09-05
 lastUpdated: 2024-02-14

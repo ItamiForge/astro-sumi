@@ -3,6 +3,7 @@ title: "The Quantum Thief"
 description: "A mind-bending heist story where a thief can steal anything—including moments from time itself."
 genre: ["sci-fi", "heist", "thriller"]
 status: "hiatus"
+coverImage: "../../assets/covers/cover-quantum-thief.jpg"
 author: "template-author"
 startDate: 2024-01-05
 lastUpdated: 2024-06-15

@@ -3,6 +3,7 @@ title: "Beneath the Crimson Moon"
 description: "A dark fantasy romance where a vampire hunter falls for her prey in a world where the moon bleeds red every night."
 genre: ["dark-fantasy", "romance", "paranormal"]
 status: "completed"
+coverImage: "../../assets/covers/cover-crimson-moon.jpg"
 author: "template-author"
 startDate: 2023-03-15
 lastUpdated: 2023-12-10

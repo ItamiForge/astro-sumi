@@ -81,17 +81,28 @@ const rail = novels.slice(1, 5)
           {rail.map((novel, index) => (
             <a
               href={withBase(`/novels/${novel.id}`)}
-              class="hover:bg-muted/30 block border-b py-5 first:pt-0 last:border-b-0"
+              class="hover:bg-muted/30 flex items-start gap-4 border-b py-5 first:pt-0 last:border-b-0"
             >
-              <p class="text-primary text-xs tracking-[0.14em] uppercase">
-                [ {novel.data.status} ] · {index + 2}
-              </p>
-              <h2 class="mt-2 font-serif text-xl leading-tight font-semibold">
-                {novel.data.title}
-              </h2>
-              <p class="text-muted-foreground mt-2 line-clamp-3 text-sm leading-relaxed">
-                {novel.data.description}
-              </p>
+              <div class="min-w-0 flex-1">
+                <p class="text-primary text-xs tracking-[0.14em] uppercase">
+                  [ {novel.data.status} ] · {index + 2}
+                </p>
+                <h2 class="mt-2 font-serif text-xl leading-tight font-semibold">
+                  {novel.data.title}
+                </h2>
+                <p class="text-muted-foreground mt-2 line-clamp-3 text-sm leading-relaxed">
+                  {novel.data.description}
+                </p>
+              </div>
+              {novel.data.coverImage && (
+                <Image
+                  src={novel.data.coverImage}
+                  alt=""
+                  width={160}
+                  height={160}
+                  class="hero-frame size-20 shrink-0 object-cover"
+                />
+              )}
             </a>
           ))}
           {novels.length > 5 && (

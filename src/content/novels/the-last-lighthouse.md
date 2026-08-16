@@ -3,6 +3,7 @@ title: "The Last Lighthouse"
 description: "A haunting literary fiction about a lighthouse keeper who discovers messages from the future washing ashore."
 genre: ["literary-fiction", "mystery", "magical-realism"]
 status: "ongoing"
+coverImage: "../../assets/covers/cover-last-lighthouse.jpg"
 author: "template-author"
 startDate: 2024-02-10
 lastUpdated: 2024-11-05

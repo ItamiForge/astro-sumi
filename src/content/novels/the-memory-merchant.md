@@ -3,6 +3,7 @@ title: "The Memory Merchant"
 description: "A noir mystery where a detective who can read memories must solve a murder that never happened."
 genre: ["mystery", "noir", "urban-fantasy"]
 status: "completed"
+coverImage: "../../assets/covers/cover-memory-merchant.jpg"
 author: "template-author"
 startDate: 2023-04-12
 lastUpdated: 2023-10-28

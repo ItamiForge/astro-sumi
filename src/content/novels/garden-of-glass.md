@@ -3,6 +3,7 @@ title: "Garden of Glass"
 description: "A poetic fantasy about a gardener who grows impossible flowers in a world made entirely of glass."
 genre: ["fantasy", "literary-fiction", "slice-of-life"]
 status: "completed"
+coverImage: "../../assets/covers/cover-garden-of-glass.jpg"
 author: "template-author"
 startDate: 2024-03-01
 lastUpdated: 2024-08-15

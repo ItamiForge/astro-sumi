@@ -3,7 +3,7 @@ title: "The Chronicles of Aethermoor"
 description: "A fantasy epic following young mage Lyra as she discovers her destiny in a world where magic and technology collide. This example novel demonstrates the template's capabilities for organizing long-form fantasy storytelling."
 genre: ["fantasy", "adventure", "coming-of-age"]
 status: "ongoing"
-# coverImage: "/static/logo.png"
+coverImage: "../../assets/covers/cover-aethermoor.jpg"
 author: "template-author"
 startDate: 2024-01-15
 lastUpdated: 2024-03-10
