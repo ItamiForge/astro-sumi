@@ -1,4 +1,4 @@
-import type { IconMap, SocialLink, Site, FontConfig } from '@/types'
+import type { IconMap, SocialLink, Site } from '@/types'
 import { siteConfig, socialLinks } from '@/lib/env'
 
 // Use validated environment configuration from src/lib/env.ts
@@ -68,36 +68,3 @@ export const ICON_MAP: IconMap = {
   'Ko-fi': 'lucide:lightbulb', // Using lightbulb icon for Ko-fi
   RSS: 'lucide:rss',
 }
-
-// Font Configuration - Single Source of Truth
-// Add new fonts by adding one entry here. Everything else auto-generates.
-export const FONTS: FontConfig = {
-  geist: {
-    id: 'geist',
-    name: 'Geist',
-    cssName: 'Geist',
-    file: '/fonts/geist/geist.woff2',
-    format: 'woff2-variations',
-    variable: true,
-    fallback: 'system-ui, sans-serif',
-    default: true,
-  },
-  noto: {
-    id: 'noto',
-    name: 'Noto Sans',
-    cssName: 'Noto Sans',
-    file: '/fonts/noto-sans/noto-sans.woff2',
-    format: 'woff2-variations',
-    variable: true,
-    fallback: 'sans-serif',
-  },
-  handwritten: {
-    id: 'handwritten',
-    name: 'Messy Handwritten',
-    cssName: 'Messy Handwritten',
-    file: '/fonts/messy-handwritten/messy-handwritten.ttf',
-    format: 'truetype',
-    variable: false,
-    fallback: 'cursive, Comic Sans MS',
-  },
-} as const

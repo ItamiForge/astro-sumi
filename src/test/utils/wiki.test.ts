@@ -8,6 +8,7 @@ import {
 } from '@/lib/wiki/parse'
 import { resolveWikiKind } from '@/lib/wiki/resolve'
 import { rehypeWikiLinks, type HastNode } from '@/lib/wiki/rehype-wiki-links'
+import { rehypeEpicAlerts } from '@/lib/wiki/rehype-epic-alerts'
 
 describe('wiki parse', () => {
   test('parses unqualified, kinded, and labeled links', () => {
@@ -41,9 +42,9 @@ describe('wiki parse', () => {
     expect(normalizeKind('library')).toBe('document')
     expect(normalizeKind('relics')).toBe('relic')
     expect(slugifyWikiToken('Kael the Elder')).toBe('kael-the-elder')
-    expect(parseWikiLink('[[person:Kael the Elder|Kael the Elder]]')?.slug).toBe(
-      'kael-the-elder',
-    )
+    expect(
+      parseWikiLink('[[person:Kael the Elder|Kael the Elder]]')?.slug,
+    ).toBe('kael-the-elder')
   })
 
   test('builds Codex hrefs', () => {
@@ -86,7 +87,9 @@ describe('rehype wiki links', () => {
             {
               type: 'element',
               tagName: 'p',
-              children: [{ type: 'text', value: '[[character:kael|Kael]] hunts.' }],
+              children: [
+                { type: 'text', value: '[[character:kael|Kael]] hunts.' },
+              ],
             },
           ],
         },
@@ -129,8 +132,69 @@ describe('rehype wiki links', () => {
     const paragraph = tree.children?.[1]
     const anchor = paragraph?.children?.find((node) => node.tagName === 'a')
     expect(anchor?.properties?.['data-wiki-missing']).toBe('true')
-    expect((anchor?.properties?.['className'] as string[])).toContain(
+    expect(anchor?.properties?.['className'] as string[]).toContain(
       'wiki-link-missing',
     )
+  })
+})
+
+describe('rehype epic alerts', () => {
+  test('converts GitHub-style prophecy blockquotes', () => {
+    const tree: HastNode = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'blockquote',
+          children: [
+            {
+              type: 'element',
+              tagName: 'p',
+              children: [
+                {
+                  type: 'text',
+                  value: '[!PROPHECY]\nFive names will wake.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    rehypeEpicAlerts()(tree)
+
+    const alert = tree.children?.[0]
+    expect(alert?.tagName).toBe('aside')
+    expect(alert?.properties?.['data-alert']).toBe('prophecy')
+    expect(alert?.properties?.['className'] as string[]).toContain(
+      'epic-alert-prophecy',
+    )
+    expect(alert?.children?.[0]?.children?.[0]?.value).toBe('Prophecy')
+    expect(alert?.children?.[1]?.children?.[0]?.value).toBe(
+      'Five names will wake.',
+    )
+  })
+
+  test('leaves ordinary blockquotes alone', () => {
+    const tree: HastNode = {
+      type: 'root',
+      children: [
+        {
+          type: 'element',
+          tagName: 'blockquote',
+          children: [
+            {
+              type: 'element',
+              tagName: 'p',
+              children: [{ type: 'text', value: 'Just a quote.' }],
+            },
+          ],
+        },
+      ],
+    }
+
+    rehypeEpicAlerts()(tree)
+    expect(tree.children?.[0]?.tagName).toBe('blockquote')
   })
 })

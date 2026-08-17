@@ -11,6 +11,8 @@ import {
 import { withBase } from '@/lib/utils/url'
 import type { ComponentProps } from 'react'
 
+// Crumb hrefs must use withBase — raw paths drop the GitHub Pages prefix.
+
 type IconName = ComponentProps<typeof Icon>['name']
 
 export interface BreadcrumbItem {
@@ -48,7 +50,9 @@ const { items } = Astro.props
                 </span>
               </BreadcrumbPage>
             ) : (
-              <BreadcrumbLink href={item.href}>
+              <BreadcrumbLink
+                href={item.href ? withBase(item.href) : undefined}
+              >
                 <span class="flex items-center gap-x-2">
                   {item.icon && (
                     <Icon name={item.icon} className="size-4 shrink-0" />

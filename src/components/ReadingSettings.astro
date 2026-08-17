@@ -1,60 +1,89 @@
 ---
 import { Icon } from '@/components/Icon'
 import { Button } from '@/components/ui/button'
+import { PALETTES, TYPE_PAIRINGS } from '@/lib/appearance'
 ---
 
-<script is:inline data-astro-rerun>
-  ;(() => {
-    const size = localStorage?.getItem('sumi:reading-size') || 'md'
-    const measure = localStorage?.getItem('sumi:reading-measure') || 'default'
-    const leading = localStorage?.getItem('sumi:reading-leading') || 'default'
-    const atmosphere = localStorage?.getItem('sumi:atmosphere') || 'default'
-    const reader = localStorage?.getItem('sumi:reader') || 'first-time'
-    const immersive = localStorage?.getItem('sumi:immersive') === 'true'
-    const root = document.documentElement
-    root.setAttribute('data-reading-size', size)
-    root.setAttribute('data-reading-measure', measure)
-    root.setAttribute('data-reading-leading', leading)
-    root.setAttribute('data-atmosphere', atmosphere)
-    root.setAttribute('data-reader', reader)
-    if (immersive) root.setAttribute('data-immersive', '')
-  })()
-</script>
-
-<Button
-  id="reading-settings-toggle"
-  variant="ghost"
-  size="icon"
-  title="Reading settings"
-  className="-my-2 -me-2 size-8"
-  aria-haspopup="dialog"
-  aria-controls="reading-settings"
->
-  <Icon name="settings" className="size-4" />
-  <span class="sr-only">Reading settings</span>
-</Button>
-
+<!-- Body-level overlay so position:fixed is not clipped by the sticky header. -->
 <div
   id="reading-settings"
-  class="bg-background/80 fixed inset-0 z-50 hidden items-end justify-center p-4 backdrop-blur-sm sm:items-center"
+  class="bg-background/80 fixed inset-0 z-[80] hidden items-center justify-center p-4 backdrop-blur-sm"
   role="dialog"
   aria-modal="true"
   aria-labelledby="reading-settings-title"
 >
-  <div class="bg-background w-full max-w-md rounded-xl border p-5 shadow-lg">
+  <div
+    class="bg-background max-h-[min(36rem,calc(100dvh-2rem))] w-full max-w-md overflow-y-auto rounded-xl border p-5 shadow-lg"
+  >
     <div class="mb-4 flex items-center justify-between">
-      <h2 id="reading-settings-title" class="font-medium">Reading</h2>
+      <h2 id="reading-settings-title" class="font-medium">Appearance</h2>
       <Button
         id="reading-settings-close"
         variant="ghost"
         size="icon"
-        aria-label="Close reading settings"
+        aria-label="Close appearance settings"
       >
         <Icon name="x" className="size-4" />
       </Button>
     </div>
 
     <div class="space-y-5 text-sm">
+      <fieldset class="space-y-2">
+        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
+          Palette
+        </legend>
+        <div class="grid grid-cols-2 gap-2" data-reading-group="palette">
+          {
+            PALETTES.map((palette) => (
+              <button
+                type="button"
+                class="reading-chip palette-chip"
+                data-value={palette.id}
+              >
+                <span
+                  class="palette-swatch"
+                  style={`background:${palette.swatch};color:${palette.ink}`}
+                  aria-hidden="true"
+                />
+                {palette.name}
+              </button>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="space-y-2">
+        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
+          Type
+        </legend>
+        <div
+          class="grid grid-cols-1 gap-2 sm:grid-cols-2"
+          data-reading-group="type"
+        >
+          {
+            TYPE_PAIRINGS.map((pairing) => (
+              <button
+                type="button"
+                class="reading-chip type-card"
+                data-value={pairing.id}
+              >
+                <span
+                  class="type-card-aa"
+                  style={`font-family:${pairing.previewFamily}`}
+                  aria-hidden="true"
+                >
+                  Aa
+                </span>
+                <span class="type-card-copy">
+                  <span class="type-card-name">{pairing.name}</span>
+                  <span class="type-card-sample">{pairing.sample}</span>
+                </span>
+              </button>
+            ))
+          }
+        </div>
+      </fieldset>
+
       <fieldset class="space-y-2">
         <legend class="text-muted-foreground text-xs tracking-wide uppercase">
           Type size
@@ -103,29 +132,6 @@ import { Button } from '@/components/ui/button'
 
       <fieldset class="space-y-2">
         <legend class="text-muted-foreground text-xs tracking-wide uppercase">
-          Atmosphere
-        </legend>
-        <div class="flex flex-wrap gap-2" data-reading-group="atmosphere">
-          <button type="button" class="reading-chip" data-value="default"
-            >Ink</button
-          >
-          <button type="button" class="reading-chip" data-value="parchment"
-            >Parchment</button
-          >
-          <button type="button" class="reading-chip" data-value="bronze"
-            >Bronze</button
-          >
-          <button type="button" class="reading-chip" data-value="void"
-            >Void</button
-          >
-          <button type="button" class="reading-chip" data-value="starlight"
-            >Starlight</button
-          >
-        </div>
-      </fieldset>
-
-      <fieldset class="space-y-2">
-        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
           Spoilers
         </legend>
         <div class="flex flex-wrap gap-2" data-reading-group="reader">
@@ -157,69 +163,76 @@ import { Button } from '@/components/ui/button'
 
 <script>
   import {
-    READING_KEYS,
+    applyPalette,
+    applyTypePairing,
+    DEFAULT_PALETTE,
+    DEFAULT_TYPE,
+    isPalette,
+    isTypePairing,
+    restoreAppearance,
+  } from '@/lib/appearance'
+  import {
     applyImmersive,
     applyReaderMode,
-    isAtmosphere,
+    applyReadingLeading,
+    applyReadingMeasure,
+    applyReadingSize,
+    DEFAULT_LEADING,
+    DEFAULT_MEASURE,
+    DEFAULT_READER,
+    DEFAULT_SIZE,
     isReaderMode,
     isReadingLeading,
     isReadingMeasure,
     isReadingSize,
+    READING_KEYS,
+    restoreReadingPrefs,
+    storedOrDefault,
   } from '@/lib/reading'
 
-  const ATTR: Record<string, string> = {
-    size: 'data-reading-size',
-    measure: 'data-reading-measure',
-    leading: 'data-reading-leading',
-    atmosphere: 'data-atmosphere',
-    reader: 'data-reader',
-    immersive: 'data-immersive',
-  }
+  const GROUPS = [
+    'palette',
+    'type',
+    'size',
+    'measure',
+    'leading',
+    'reader',
+    'immersive',
+  ] as const
 
-  const STORAGE: Record<string, string> = {
-    size: READING_KEYS.size,
-    measure: READING_KEYS.measure,
-    leading: READING_KEYS.leading,
-    atmosphere: READING_KEYS.atmosphere,
-    reader: READING_KEYS.reader,
-    immersive: READING_KEYS.immersive,
-  }
-
-  function currentValue(group: string) {
+  function currentValue(group: (typeof GROUPS)[number]) {
+    if (group === 'palette') {
+      return storedOrDefault(READING_KEYS.palette, isPalette, DEFAULT_PALETTE)
+    }
+    if (group === 'type') {
+      return storedOrDefault(READING_KEYS.type, isTypePairing, DEFAULT_TYPE)
+    }
     if (group === 'size') {
-      const value = localStorage.getItem(READING_KEYS.size) || 'md'
-      return isReadingSize(value) ? value : 'md'
+      return storedOrDefault(READING_KEYS.size, isReadingSize, DEFAULT_SIZE)
     }
     if (group === 'measure') {
-      const value = localStorage.getItem(READING_KEYS.measure) || 'default'
-      return isReadingMeasure(value) ? value : 'default'
+      return storedOrDefault(
+        READING_KEYS.measure,
+        isReadingMeasure,
+        DEFAULT_MEASURE,
+      )
     }
     if (group === 'leading') {
-      const value = localStorage.getItem(READING_KEYS.leading) || 'default'
-      return isReadingLeading(value) ? value : 'default'
+      return storedOrDefault(
+        READING_KEYS.leading,
+        isReadingLeading,
+        DEFAULT_LEADING,
+      )
     }
     if (group === 'reader') {
-      const value = localStorage.getItem(READING_KEYS.reader) || 'first-time'
-      return isReaderMode(value) ? value : 'first-time'
+      return storedOrDefault(READING_KEYS.reader, isReaderMode, DEFAULT_READER)
     }
-    if (group === 'immersive') {
-      return localStorage.getItem(READING_KEYS.immersive) === 'true'
-        ? 'true'
-        : 'false'
-    }
-    const value = localStorage.getItem(READING_KEYS.atmosphere) || 'default'
-    return isAtmosphere(value) ? value : 'default'
+    return localStorage.getItem(READING_KEYS.immersive) === 'true'
+      ? 'true'
+      : 'false'
   }
 
-  function apply(group: string, value: string) {
-    if (group === 'reader' && isReaderMode(value)) {
-      applyReaderMode(value)
-    } else if (group === 'immersive') {
-      applyImmersive(value === 'true')
-    } else {
-      document.documentElement.setAttribute(ATTR[group] || '', value)
-      localStorage.setItem(STORAGE[group] || '', value)
-    }
+  function markPressed(group: string, value: string) {
     document
       .querySelectorAll(`[data-reading-group="${group}"] .reading-chip`)
       .forEach((chip) => {
@@ -228,6 +241,17 @@ import { Button } from '@/components/ui/button'
           chip.getAttribute('data-value') === value ? 'true' : 'false',
         )
       })
+  }
+
+  function apply(group: (typeof GROUPS)[number], value: string) {
+    if (group === 'palette') applyPalette(value)
+    else if (group === 'type') applyTypePairing(value)
+    else if (group === 'size') applyReadingSize(value)
+    else if (group === 'measure') applyReadingMeasure(value)
+    else if (group === 'leading') applyReadingLeading(value)
+    else if (group === 'reader') applyReaderMode(value)
+    else applyImmersive(value === 'true')
+    markPressed(group, value)
   }
 
   function initReadingSettings() {
@@ -239,10 +263,12 @@ import { Button } from '@/components/ui/button'
     const open = () => {
       panel.classList.remove('hidden')
       panel.classList.add('flex')
+      close.focus()
     }
     const hide = () => {
       panel.classList.add('hidden')
       panel.classList.remove('flex')
+      toggle.focus()
     }
 
     toggle.addEventListener('click', open)
@@ -251,15 +277,20 @@ import { Button } from '@/components/ui/button'
       if (event.target === panel) hide()
     })
 
-    for (const group of [
-      'size',
-      'measure',
-      'leading',
-      'atmosphere',
-      'reader',
-      'immersive',
-    ]) {
-      apply(group, currentValue(group))
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || panel.classList.contains('hidden')) return
+      event.preventDefault()
+      hide()
+    }
+    document.addEventListener('keydown', onKey)
+    document.addEventListener(
+      'astro:before-swap',
+      () => document.removeEventListener('keydown', onKey),
+      { once: true },
+    )
+
+    for (const group of GROUPS) {
+      markPressed(group, currentValue(group))
       document
         .querySelectorAll(`[data-reading-group="${group}"] .reading-chip`)
         .forEach((chip) => {
@@ -271,20 +302,68 @@ import { Button } from '@/components/ui/button'
     }
   }
 
+  restoreAppearance()
+  restoreReadingPrefs()
   initReadingSettings()
-  document.addEventListener('astro:after-swap', initReadingSettings)
+  document.addEventListener('astro:after-swap', () => {
+    restoreAppearance()
+    restoreReadingPrefs()
+    initReadingSettings()
+  })
 </script>
 
 <style>
   .reading-chip {
     border: 1px solid var(--border);
     border-radius: 0.5rem;
-    padding: 0.35rem 0.7rem;
-    background: transparent;
+    padding: 0.4rem 0.75rem;
+    background: var(--background);
+    color: var(--foreground);
   }
 
   .reading-chip[aria-pressed='true'] {
-    background: var(--muted);
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
     font-weight: 500;
+  }
+
+  .palette-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: flex-start;
+  }
+
+  .palette-swatch {
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklch, var(--foreground) 25%, transparent);
+    flex-shrink: 0;
+  }
+
+  .type-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: left;
+  }
+
+  .type-card-aa {
+    font-size: 1.35rem;
+    line-height: 1;
+    font-weight: 600;
+  }
+
+  .type-card-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .type-card-sample {
+    font-size: 0.7rem;
+    opacity: 0.75;
   }
 </style>

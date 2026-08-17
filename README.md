@@ -7,7 +7,7 @@ Fork it, replace the sample stories, and host your own.
 ## What you get
 
 * Novels → volumes → chapters, drafts, RSS, sitemap
-* Reading settings (type size, measure, leading, atmosphere), continue-reading with scroll restore, immersive mode
+* Reading settings (named palettes and type pairings, size, measure, leading), continue-reading with scroll restore, immersive mode
 * Codex: people, places, factions, kindreds, glossary, annals, library, relics
 * Atlas plates with spoiler-aware pins
 * `[[wiki]]` links in prose, hover cards, backlinks

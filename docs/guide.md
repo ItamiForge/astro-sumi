@@ -75,7 +75,7 @@ Alert kinds: `NOTE`, `TIP`, `WARNING`, `IMPORTANT`, `PROPHECY`, `CODEX`, `SONG`,
 
 ## Reading
 
-The header gear stores type size, measure, leading, atmosphere, spoiler mode (`first-time` / `scholar`), and immersive chrome in `localStorage`. Opening a chapter writes a continue-reading pointer, including scroll position.
+The header gear stores a site-wide palette and type pairing, plus type size, measure, leading, spoiler mode (`first-time` / `scholar`), and immersive chrome in `localStorage`. Opening a chapter writes a continue-reading pointer, including scroll position.
 
 Keys: `j` / `k` next and previous chapter, `m` atlas, `i` immersive, `?` help, `Esc` close overlays.
 

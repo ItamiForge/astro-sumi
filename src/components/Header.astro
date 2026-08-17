@@ -1,8 +1,7 @@
 ---
-import FontToggle from '@/components/FontToggle.astro'
+import { Icon } from '@/components/Icon'
 import Link from '@/components/Link.astro'
-import ReadingSettings from '@/components/ReadingSettings.astro'
-import ThemeToggle from '@/components/ThemeToggle.astro'
+import { Button } from '@/components/ui/button'
 import { NAV_LINKS, SITE } from '@/consts'
 import { withBase } from '@/lib/utils/url'
 
@@ -50,9 +49,18 @@ const homePath = withBase('/').replace(/\/$/, '') || '/'
           ))
         }
       </nav>
-      <ReadingSettings />
-      <FontToggle transition:persist />
-      <ThemeToggle transition:persist />
+      <Button
+        id="reading-settings-toggle"
+        variant="ghost"
+        size="icon"
+        title="Appearance"
+        className="-my-2 -me-2 size-8"
+        aria-haspopup="dialog"
+        aria-controls="reading-settings"
+      >
+        <Icon name="settings" className="size-4" />
+        <span class="sr-only">Appearance settings</span>
+      </Button>
     </div>
   </div>
 </div>

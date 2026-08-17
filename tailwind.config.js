@@ -5,16 +5,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: [
-          'Geist',
-          'ui-sans-serif',
-          'system-ui',
-          'sans-serif',
-          'Apple Color Emoji',
-          'Segoe UI Emoji',
-          'Segoe UI Symbol',
-          'Noto Color Emoji',
-        ],
+        sans: ['var(--font-ui)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-display)', 'Georgia', 'serif'],
         mono: [
           'Geist Mono',
           'ui-monospace',
@@ -28,22 +20,22 @@ export default {
         ],
       },
       colors: {
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: 'var(--primary)',
+          foreground: 'var(--primary-foreground)',
         },
         muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
+          DEFAULT: 'var(--muted)',
+          foreground: 'var(--muted-foreground)',
         },
         destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
+          DEFAULT: 'var(--destructive)',
+          foreground: 'var(--destructive-foreground)',
         },
-        border: 'hsl(var(--border))',
-        ring: 'hsl(var(--ring))',
+        border: 'var(--border)',
+        ring: 'var(--ring)',
       },
     },
   },

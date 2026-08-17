@@ -9,7 +9,9 @@ import Footer from '@/components/Footer.astro'
 import Head from '@/components/Head.astro'
 import Header from '@/components/Header.astro'
 import KeyboardHelp from '@/components/KeyboardHelp.astro'
+import ReadingSettings from '@/components/ReadingSettings.astro'
 import { SITE } from '@/consts'
+import { DEFAULT_PALETTE, DEFAULT_TYPE, paletteById } from '@/lib/appearance'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -18,21 +20,24 @@ interface Props {
 }
 
 const { class: className, containerType = 'responsive' } = Astro.props
-
-// Map container type to CSS class
 const containerClass = `container-${containerType}`
+const defaultPalette = paletteById(DEFAULT_PALETTE)
 ---
 
 <!doctype html>
 <html
-  class="bg-background text-foreground scheme-light-dark"
+  class="bg-background text-foreground"
   lang={SITE.locale}
+  data-palette={DEFAULT_PALETTE}
+  data-type={DEFAULT_TYPE}
+  data-theme={defaultPalette.scheme}
 >
   <Head>
     <slot name="head" />
   </Head>
   <FontStyles />
   <body class="flex h-fit min-h-screen flex-col gap-y-6 font-sans">
+    <!-- Fixed overlays stay outside this header: transform makes it a containing block. -->
     <header
       class="bg-background/50 sticky top-0 z-50 divide-y backdrop-blur-sm xl:divide-none"
       style="will-change: transform; transform: translateZ(0);"
@@ -45,6 +50,7 @@ const containerClass = `container-${containerType}`
       <slot />
     </main>
     <WikiHover />
+    <ReadingSettings />
     <KeyboardHelp />
     <Footer />
   </body>

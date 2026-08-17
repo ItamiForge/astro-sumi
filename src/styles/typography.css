@@ -28,7 +28,7 @@
 @layer components {
   .prose,
   .reading-content {
-    color: hsl(var(--foreground));
+    color: var(--foreground);
     font-size: 1rem;
     line-height: 1.7;
     text-align: left;
@@ -52,7 +52,7 @@
     }
 
     :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
-      color: hsl(var(--foreground));
+      color: var(--foreground);
       font-weight: 500;
       scroll-margin-top: 8rem;
     }
@@ -200,7 +200,7 @@
 
       &::before {
         content: '* * *';
-        color: hsl(var(--muted-foreground));
+        color: var(--muted-foreground);
         font-size: 1.2em;
         letter-spacing: 0.5em;
       }
@@ -210,7 +210,11 @@
       text-decoration: underline dotted;
       text-underline-offset: 0.22em;
       text-decoration-thickness: 1px;
-      text-decoration-color: color-mix(in oklch, var(--foreground) 35%, transparent);
+      text-decoration-color: color-mix(
+        in oklch,
+        var(--foreground) 35%,
+        transparent
+      );
     }
 
     a.wiki-link:hover,
@@ -674,7 +678,8 @@
     }
 
     /* Mobile heading optimizations */
-    .prose :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
+    .prose
+      :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
       margin-top: 1.5rem;
       margin-bottom: 1rem;
       line-height: 1.3;

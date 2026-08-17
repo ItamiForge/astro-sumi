@@ -1,11 +1,107 @@
 ---
+/**
+ * Blocking boot script: apply stored palette/type/reading prefs before first
+ * paint. Maps come from appearance.ts / reading.ts so the allow-list cannot drift.
+ */
 import { SITE } from '@/consts'
+import {
+  DEFAULT_PALETTE,
+  DEFAULT_TYPE,
+  LEGACY_APPEARANCE_KEYS,
+  PALETTE_SCHEMES,
+  TYPE_PAIRING_IDS,
+} from '@/lib/appearance'
+import {
+  DEFAULT_LEADING,
+  DEFAULT_MEASURE,
+  DEFAULT_READER,
+  DEFAULT_SIZE,
+  READER_MODES,
+  READING_KEYS,
+  READING_LEADINGS,
+  READING_MEASURES,
+  READING_SIZES,
+} from '@/lib/reading'
 import { withBase } from '@/lib/utils/url'
 import { ClientRouter } from 'astro:transitions'
 import Favicons from './Favicons.astro'
 ---
 
 <head>
+  <script
+    is:inline
+    define:vars={{
+      PALETTE_SCHEMES,
+      TYPE_PAIRING_IDS,
+      DEFAULT_PALETTE,
+      DEFAULT_TYPE,
+      DEFAULT_SIZE,
+      DEFAULT_MEASURE,
+      DEFAULT_LEADING,
+      DEFAULT_READER,
+      READING_KEYS,
+      LEGACY_APPEARANCE_KEYS,
+      READING_SIZES,
+      READING_MEASURES,
+      READING_LEADINGS,
+      READER_MODES,
+    }}
+  >
+    ;(() => {
+      const root = document.documentElement
+      const pick = (value, allowed, fallback) =>
+        allowed.includes(value) ? value : fallback
+      try {
+        const storedPalette = localStorage.getItem(READING_KEYS.palette) || ''
+        const scheme = PALETTE_SCHEMES[storedPalette]
+        const palette = scheme ? storedPalette : DEFAULT_PALETTE
+        const type = pick(
+          localStorage.getItem(READING_KEYS.type) || '',
+          TYPE_PAIRING_IDS,
+          DEFAULT_TYPE,
+        )
+        const size = pick(
+          localStorage.getItem(READING_KEYS.size) || '',
+          READING_SIZES,
+          DEFAULT_SIZE,
+        )
+        const measure = pick(
+          localStorage.getItem(READING_KEYS.measure) || '',
+          READING_MEASURES,
+          DEFAULT_MEASURE,
+        )
+        const leading = pick(
+          localStorage.getItem(READING_KEYS.leading) || '',
+          READING_LEADINGS,
+          DEFAULT_LEADING,
+        )
+        const reader = pick(
+          localStorage.getItem(READING_KEYS.reader) || '',
+          READER_MODES,
+          DEFAULT_READER,
+        )
+        const immersive =
+          localStorage.getItem(READING_KEYS.immersive) === 'true'
+        root.setAttribute('data-palette', palette)
+        root.setAttribute('data-theme', PALETTE_SCHEMES[palette])
+        root.style.colorScheme = PALETTE_SCHEMES[palette]
+        root.setAttribute('data-type', type)
+        root.setAttribute('data-reading-size', size)
+        root.setAttribute('data-reading-measure', measure)
+        root.setAttribute('data-reading-leading', leading)
+        root.setAttribute('data-reader', reader)
+        if (immersive) root.setAttribute('data-immersive', '')
+        else root.removeAttribute('data-immersive')
+        for (const key of LEGACY_APPEARANCE_KEYS) {
+          localStorage.removeItem(key)
+        }
+      } catch {
+        root.setAttribute('data-palette', DEFAULT_PALETTE)
+        root.setAttribute('data-theme', PALETTE_SCHEMES[DEFAULT_PALETTE])
+        root.setAttribute('data-type', DEFAULT_TYPE)
+      }
+    })()
+  </script>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta

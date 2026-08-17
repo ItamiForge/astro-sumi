@@ -11,9 +11,10 @@ Object.defineProperty(import.meta, 'env', {
     GISCUS_MAPPING: 'pathname',
     GISCUS_THEME: 'auto',
     GISCUS_LOADING: 'lazy',
-    GISCUS_EMIT_METADATA: 'false'
+    GISCUS_EMIT_METADATA: 'false',
+    BASE_URL: '/',
   },
-  writable: true
+  writable: true,
 })
 
 // Mock process.env for Node.js environment
@@ -23,5 +24,5 @@ Object.assign(global.process.env, {
   GISCUS_REPO: 'test/repo',
   GISCUS_REPO_ID: 'R_testRepoId',
   GISCUS_CATEGORY: 'Test Category',
-  GISCUS_CATEGORY_ID: 'DIC_testCategoryId'
+  GISCUS_CATEGORY_ID: 'DIC_testCategoryId',
 })

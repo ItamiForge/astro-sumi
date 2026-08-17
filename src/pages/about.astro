@@ -4,13 +4,20 @@ import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
 import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
+import { withBase } from '@/lib/utils/url'
+
+const aboutBackground = withBase('/static/background.webp')
 ---
 
 <Layout containerType="wide">
   <PageHead slot="head" title="About" />
 
   <!-- Background image with overlay -->
-  <div class="about-background"></div>
+  <div
+    class="about-background"
+    style={`background-image: url('${aboutBackground}')`}
+  >
+  </div>
 
   <Breadcrumbs items={[{ label: 'About', icon: 'lucide:info' }]} />
 
@@ -76,7 +83,6 @@ import Layout from '@/layouts/Layout.astro'
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('/static/background.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
