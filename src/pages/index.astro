@@ -3,6 +3,7 @@ import ContinueReading from '@/components/ContinueReading.astro'
 import { Icon } from '@/components/Icon'
 import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
+import PaperNoirBackdrop from '@/components/PaperNoirBackdrop.astro'
 import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
 import { getAllNovels } from '@/lib/content/novels'
@@ -17,6 +18,7 @@ const rail = novels.slice(1, 5)
 
 <Layout containerType="wide">
   <PageHead slot="head" title="Home" />
+  <PaperNoirBackdrop />
 
   <div class="issue-rule border-y py-3">
     <div class="editorial-cats flex flex-wrap items-center gap-x-5 gap-y-2">

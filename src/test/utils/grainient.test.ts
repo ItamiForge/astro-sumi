@@ -83,15 +83,20 @@ describe('shader backdrop wiring', () => {
     expect(backdrop).not.toContain('prefers-reduced-motion')
   })
 
-  test('authors and about pages mount the grain backdrop', () => {
-    const pages = [
+  test('only the home page mounts the grain backdrop', () => {
+    const home = readFileSync(resolve(root, 'src/pages/index.astro'), 'utf8')
+    expect(home).toContain('PaperNoirBackdrop')
+
+    const elsewhere = [
       'src/pages/about.astro',
       'src/pages/authors/index.astro',
       'src/pages/authors/[...id].astro',
+      'src/pages/novels/[...page].astro',
+      'src/pages/codex/index.astro',
     ]
-    for (const page of pages) {
+    for (const page of elsewhere) {
       const source = readFileSync(resolve(root, page), 'utf8')
-      expect(source, page).toContain('PaperNoirBackdrop')
+      expect(source, page).not.toContain('PaperNoirBackdrop')
       expect(source, page).not.toContain('background.webp')
     }
   })

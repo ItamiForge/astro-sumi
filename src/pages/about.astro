@@ -2,15 +2,12 @@
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
 import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
-import PaperNoirBackdrop from '@/components/PaperNoirBackdrop.astro'
 import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
 ---
 
 <Layout containerType="wide">
   <PageHead slot="head" title="About" />
-
-  <PaperNoirBackdrop />
 
   <Breadcrumbs items={[{ label: 'About', icon: 'lucide:info' }]} />
 

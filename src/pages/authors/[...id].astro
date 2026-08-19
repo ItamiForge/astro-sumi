@@ -3,7 +3,6 @@ import AuthorCard from '@/components/AuthorCard.astro'
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
 import { Icon } from '@/components/Icon'
 import PageHead from '@/components/PageHead.astro'
-import PaperNoirBackdrop from '@/components/PaperNoirBackdrop.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import Layout from '@/layouts/Layout.astro'
 import { formatDate } from '@/lib/utils'
@@ -35,7 +34,6 @@ const authorNovels = allNovels
     description={author.data.bio || `Profile of ${author.data.name}.`}
     noindex
   />
-  <PaperNoirBackdrop />
   <Breadcrumbs
     items={[
       { href: '/authors', label: 'Authors', icon: 'lucide:users' },
