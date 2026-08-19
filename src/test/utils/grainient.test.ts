@@ -79,13 +79,23 @@ describe('shader backdrop wiring', () => {
       'utf8',
     )
     expect(backdrop).toContain('background: #c4a882')
+    expect(backdrop).toContain('z-index: 0')
+    expect(backdrop).not.toContain('z-index: -1')
     expect(backdrop).not.toContain('opacity: 0.12')
     expect(backdrop).not.toContain('prefers-reduced-motion')
   })
 
-  test('only the home page mounts the grain backdrop', () => {
+  test('only the home page mounts the grain backdrop at body level', () => {
     const home = readFileSync(resolve(root, 'src/pages/index.astro'), 'utf8')
     expect(home).toContain('PaperNoirBackdrop')
+    expect(home).toContain('slot="backdrop"')
+
+    const layout = readFileSync(
+      resolve(root, 'src/layouts/Layout.astro'),
+      'utf8',
+    )
+    expect(layout).toContain('slot name="backdrop"')
+    expect(layout).toContain('relative z-10')
 
     const elsewhere = [
       'src/pages/about.astro',

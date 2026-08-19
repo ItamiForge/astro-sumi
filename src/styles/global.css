@@ -84,12 +84,6 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  body {
-    /* GPU acceleration for smooth scrolling */
-    transform: translateZ(0);
-    backface-visibility: hidden;
-  }
-
   *,
   ::after,
   ::before,
@@ -708,7 +702,8 @@ html[data-preset='myth'] {
 
 html[data-preset='starfarer'] {
   --font-ui: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
   --font-body: 'Source Serif 4 Variable', Georgia, 'Times New Roman', serif;
   --background: oklch(0.17 0.03 250);
   --foreground: oklch(0.93 0.02 230);
