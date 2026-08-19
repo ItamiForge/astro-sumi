@@ -75,7 +75,14 @@ Alert kinds: `NOTE`, `TIP`, `WARNING`, `IMPORTANT`, `PROPHECY`, `CODEX`, `SONG`,
 
 ## Reading
 
-The header gear stores a site-wide palette and type pairing, plus type size, measure, leading, spoiler mode (`first-time` / `scholar`), and immersive chrome in `localStorage`. Opening a chapter writes a continue-reading pointer, including scroll position.
+The header gear stores one look preset (color, type, and shape together) plus spoiler mode (`first-time` / `scholar`). Immersive chrome is still the `i` key. Opening a chapter writes a continue-reading pointer, including scroll position.
+
+Comfort presets (eyes and access): **Daylight**, **Dusk** (warm night),
+**Clear** (high-contrast light), **Beacon** (high-contrast night).
+Story presets: **Manuscript** (literary), **Myth** (fantasy),
+**Starfarer** (science fiction), **Nocturne** (horror),
+**Lantern** (YA, fairy tale, anime), **Broadsheet** (pulp, comics, serials).
+Each look sets color, fonts, type size, measure, and corners together.
 
 Keys: `j` / `k` next and previous chapter, `m` atlas, `i` immersive, `?` help, `Esc` close overlays.
 

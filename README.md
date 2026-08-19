@@ -2,12 +2,14 @@
 
 A git-native template for serial novels: markdown in the repo, a reading chamber on the web, and a Codex beside the books.
 
+> Catalog: [ItamiForge](https://itamiforge.github.io/itamiforge/docs/projects/#astro-sumi)
+
 Fork it, replace the sample stories, and host your own.
 
 ## What you get
 
 * Novels → volumes → chapters, drafts, RSS, sitemap
-* Reading settings (named palettes and type pairings, size, measure, leading), continue-reading with scroll restore, immersive mode
+* Reading settings (named look presets plus spoiler mode), continue-reading with scroll restore, immersive mode
 * Codex: people, places, factions, kindreds, glossary, annals, library, relics
 * Atlas plates with spoiler-aware pins
 * `[[wiki]]` links in prose, hover cards, backlinks

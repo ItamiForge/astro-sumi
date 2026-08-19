@@ -1,7 +1,12 @@
 ---
 import { Icon } from '@/components/Icon'
 import { Button } from '@/components/ui/button'
-import { PALETTES, TYPE_PAIRINGS } from '@/lib/appearance'
+import { PRESET_GROUPS, presetsInGroup } from '@/lib/appearance'
+
+const groupLabel = {
+  comfort: 'Reading comfort',
+  world: 'Story worlds',
+} as const
 ---
 
 <!-- Body-level overlay so position:fixed is not clipped by the sticky header. -->
@@ -13,10 +18,15 @@ import { PALETTES, TYPE_PAIRINGS } from '@/lib/appearance'
   aria-labelledby="reading-settings-title"
 >
   <div
-    class="bg-background max-h-[min(36rem,calc(100dvh-2rem))] w-full max-w-md overflow-y-auto rounded-xl border p-5 shadow-lg"
+    class="bg-background max-h-[min(40rem,calc(100dvh-2rem))] w-full max-w-lg overflow-y-auto rounded-xl border p-5 shadow-lg"
   >
     <div class="mb-4 flex items-center justify-between">
-      <h2 id="reading-settings-title" class="font-medium">Appearance</h2>
+      <div>
+        <h2 id="reading-settings-title" class="font-serif font-medium">Look</h2>
+        <p class="text-muted-foreground mt-1 text-xs">
+          One preset for color, type, size, and corners.
+        </p>
+      </div>
       <Button
         id="reading-settings-close"
         variant="ghost"
@@ -28,107 +38,34 @@ import { PALETTES, TYPE_PAIRINGS } from '@/lib/appearance'
     </div>
 
     <div class="space-y-5 text-sm">
-      <fieldset class="space-y-2">
-        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
-          Palette
-        </legend>
-        <div class="grid grid-cols-2 gap-2" data-reading-group="palette">
-          {
-            PALETTES.map((palette) => (
-              <button
-                type="button"
-                class="reading-chip palette-chip"
-                data-value={palette.id}
-              >
-                <span
-                  class="palette-swatch"
-                  style={`background:${palette.swatch};color:${palette.ink}`}
-                  aria-hidden="true"
-                />
-                {palette.name}
-              </button>
-            ))
-          }
-        </div>
-      </fieldset>
-
-      <fieldset class="space-y-2">
-        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
-          Type
-        </legend>
-        <div
-          class="grid grid-cols-1 gap-2 sm:grid-cols-2"
-          data-reading-group="type"
-        >
-          {
-            TYPE_PAIRINGS.map((pairing) => (
-              <button
-                type="button"
-                class="reading-chip type-card"
-                data-value={pairing.id}
-              >
-                <span
-                  class="type-card-aa"
-                  style={`font-family:${pairing.previewFamily}`}
-                  aria-hidden="true"
+      {
+        PRESET_GROUPS.map((group) => (
+          <fieldset class="space-y-2">
+            <legend class="text-muted-foreground text-xs tracking-wide uppercase">
+              {groupLabel[group]}
+            </legend>
+            <div class="grid gap-2" data-reading-group="preset">
+              {presetsInGroup(group).map((preset) => (
+                <button
+                  type="button"
+                  class="reading-chip preset-card"
+                  data-value={preset.id}
                 >
-                  Aa
-                </span>
-                <span class="type-card-copy">
-                  <span class="type-card-name">{pairing.name}</span>
-                  <span class="type-card-sample">{pairing.sample}</span>
-                </span>
-              </button>
-            ))
-          }
-        </div>
-      </fieldset>
-
-      <fieldset class="space-y-2">
-        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
-          Type size
-        </legend>
-        <div class="flex flex-wrap gap-2" data-reading-group="size">
-          <button type="button" class="reading-chip" data-value="sm">S</button>
-          <button type="button" class="reading-chip" data-value="md">M</button>
-          <button type="button" class="reading-chip" data-value="lg">L</button>
-          <button type="button" class="reading-chip" data-value="xl">XL</button>
-        </div>
-      </fieldset>
-
-      <fieldset class="space-y-2">
-        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
-          Measure
-        </legend>
-        <div class="flex flex-wrap gap-2" data-reading-group="measure">
-          <button type="button" class="reading-chip" data-value="narrow"
-            >Narrow</button
-          >
-          <button type="button" class="reading-chip" data-value="default"
-            >Default</button
-          >
-          <button type="button" class="reading-chip" data-value="wide"
-            >Wide</button
-          >
-        </div>
-      </fieldset>
-
-      <fieldset class="space-y-2">
-        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
-          Leading
-        </legend>
-        <div class="flex flex-wrap gap-2" data-reading-group="leading">
-          <button type="button" class="reading-chip" data-value="snug"
-            >Snug</button
-          >
-          <button type="button" class="reading-chip" data-value="default"
-            >Default</button
-          >
-          <button type="button" class="reading-chip" data-value="loose"
-            >Loose</button
-          >
-        </div>
-      </fieldset>
+                  <span
+                    class="palette-swatch"
+                    style={`background:${preset.swatch};color:${preset.ink}`}
+                    aria-hidden="true"
+                  />
+                  <span class="preset-copy">
+                    <span class="preset-name">{preset.name}</span>
+                    <span class="preset-blurb">{preset.blurb}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </fieldset>
+        ))
+      }
 
       <fieldset class="space-y-2">
         <legend class="text-muted-foreground text-xs tracking-wide uppercase">
@@ -143,93 +80,32 @@ import { PALETTES, TYPE_PAIRINGS } from '@/lib/appearance'
           >
         </div>
       </fieldset>
-
-      <fieldset class="space-y-2">
-        <legend class="text-muted-foreground text-xs tracking-wide uppercase">
-          Chrome
-        </legend>
-        <div class="flex flex-wrap gap-2" data-reading-group="immersive">
-          <button type="button" class="reading-chip" data-value="false"
-            >Full site</button
-          >
-          <button type="button" class="reading-chip" data-value="true"
-            >Immersive</button
-          >
-        </div>
-      </fieldset>
     </div>
   </div>
 </div>
 
 <script>
   import {
-    applyPalette,
-    applyTypePairing,
-    DEFAULT_PALETTE,
-    DEFAULT_TYPE,
-    isPalette,
-    isTypePairing,
+    applyPreset,
+    DEFAULT_PRESET,
+    isPreset,
     restoreAppearance,
+    storedPresetId,
   } from '@/lib/appearance'
   import {
-    applyImmersive,
     applyReaderMode,
-    applyReadingLeading,
-    applyReadingMeasure,
-    applyReadingSize,
-    DEFAULT_LEADING,
-    DEFAULT_MEASURE,
     DEFAULT_READER,
-    DEFAULT_SIZE,
     isReaderMode,
-    isReadingLeading,
-    isReadingMeasure,
-    isReadingSize,
     READING_KEYS,
     restoreReadingPrefs,
     storedOrDefault,
   } from '@/lib/reading'
 
-  const GROUPS = [
-    'palette',
-    'type',
-    'size',
-    'measure',
-    'leading',
-    'reader',
-    'immersive',
-  ] as const
+  const GROUPS = ['preset', 'reader'] as const
 
   function currentValue(group: (typeof GROUPS)[number]) {
-    if (group === 'palette') {
-      return storedOrDefault(READING_KEYS.palette, isPalette, DEFAULT_PALETTE)
-    }
-    if (group === 'type') {
-      return storedOrDefault(READING_KEYS.type, isTypePairing, DEFAULT_TYPE)
-    }
-    if (group === 'size') {
-      return storedOrDefault(READING_KEYS.size, isReadingSize, DEFAULT_SIZE)
-    }
-    if (group === 'measure') {
-      return storedOrDefault(
-        READING_KEYS.measure,
-        isReadingMeasure,
-        DEFAULT_MEASURE,
-      )
-    }
-    if (group === 'leading') {
-      return storedOrDefault(
-        READING_KEYS.leading,
-        isReadingLeading,
-        DEFAULT_LEADING,
-      )
-    }
-    if (group === 'reader') {
-      return storedOrDefault(READING_KEYS.reader, isReaderMode, DEFAULT_READER)
-    }
-    return localStorage.getItem(READING_KEYS.immersive) === 'true'
-      ? 'true'
-      : 'false'
+    if (group === 'preset') return storedPresetId()
+    return storedOrDefault(READING_KEYS.reader, isReaderMode, DEFAULT_READER)
   }
 
   function markPressed(group: string, value: string) {
@@ -244,13 +120,11 @@ import { PALETTES, TYPE_PAIRINGS } from '@/lib/appearance'
   }
 
   function apply(group: (typeof GROUPS)[number], value: string) {
-    if (group === 'palette') applyPalette(value)
-    else if (group === 'type') applyTypePairing(value)
-    else if (group === 'size') applyReadingSize(value)
-    else if (group === 'measure') applyReadingMeasure(value)
-    else if (group === 'leading') applyReadingLeading(value)
-    else if (group === 'reader') applyReaderMode(value)
-    else applyImmersive(value === 'true')
+    if (group === 'preset') {
+      applyPreset(isPreset(value) ? value : DEFAULT_PRESET)
+    } else {
+      applyReaderMode(value)
+    }
     markPressed(group, value)
   }
 
@@ -312,58 +186,52 @@ import { PALETTES, TYPE_PAIRINGS } from '@/lib/appearance'
   })
 </script>
 
-<style>
-  .reading-chip {
+<style is:global>
+  #reading-settings .reading-chip {
     border: 1px solid var(--border);
-    border-radius: 0.5rem;
-    padding: 0.4rem 0.75rem;
+    border-radius: var(--shape-lg);
+    padding: 0.5rem 0.75rem;
     background: var(--background);
     color: var(--foreground);
+    text-align: left;
   }
 
-  .reading-chip[aria-pressed='true'] {
+  #reading-settings .reading-chip[aria-pressed='true'] {
     background: var(--primary);
     color: var(--primary-foreground);
     border-color: var(--primary);
     font-weight: 500;
   }
 
-  .palette-chip {
+  #reading-settings .preset-card {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 0.75rem;
   }
 
-  .palette-swatch {
-    width: 1.1rem;
-    height: 1.1rem;
+  #reading-settings .palette-swatch {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.15rem;
     border-radius: 999px;
     border: 1px solid color-mix(in oklch, var(--foreground) 25%, transparent);
     flex-shrink: 0;
   }
 
-  .type-card {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    text-align: left;
-  }
-
-  .type-card-aa {
-    font-size: 1.35rem;
-    line-height: 1;
-    font-weight: 600;
-  }
-
-  .type-card-copy {
+  #reading-settings .preset-copy {
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
+    gap: 0.15rem;
+    min-width: 0;
   }
 
-  .type-card-sample {
-    font-size: 0.7rem;
-    opacity: 0.75;
+  #reading-settings .preset-name {
+    font-weight: 550;
+  }
+
+  #reading-settings .preset-blurb {
+    font-size: 0.75rem;
+    line-height: 1.35;
+    opacity: 0.8;
   }
 </style>

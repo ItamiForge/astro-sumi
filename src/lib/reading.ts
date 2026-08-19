@@ -1,11 +1,12 @@
 /**
- * Chamber preferences that stay independent of palette and type:
- * size, measure, leading, spoiler mode, immersive chrome, continue-reading.
+ * Chamber preferences that stay independent of the look preset:
+ * spoiler mode, immersive chrome, continue-reading.
  */
 export const READING_KEYS = {
   size: 'sumi:reading-size',
   measure: 'sumi:reading-measure',
   leading: 'sumi:reading-leading',
+  preset: 'sumi:preset',
   palette: 'sumi:palette',
   type: 'sumi:type',
   continue: 'sumi:continue',
@@ -102,15 +103,6 @@ export function applyImmersive(on: boolean) {
 }
 
 export function restoreReadingPrefs() {
-  applyReadingSize(
-    storedOrDefault(READING_KEYS.size, isReadingSize, DEFAULT_SIZE),
-  )
-  applyReadingMeasure(
-    storedOrDefault(READING_KEYS.measure, isReadingMeasure, DEFAULT_MEASURE),
-  )
-  applyReadingLeading(
-    storedOrDefault(READING_KEYS.leading, isReadingLeading, DEFAULT_LEADING),
-  )
   applyReaderMode(
     storedOrDefault(READING_KEYS.reader, isReaderMode, DEFAULT_READER),
   )

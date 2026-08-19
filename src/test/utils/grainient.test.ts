@@ -23,27 +23,70 @@ describe('grainient color parsing', () => {
   })
 })
 
-describe('paper noir palette', () => {
-  test('keeps raw paper/ink hex and grain in range', () => {
+describe('paper grain palette', () => {
+  test('keeps paper/ink hex and a quiet still grain', () => {
     for (const palette of [PAPER_NOIR_LIGHT, PAPER_NOIR_DARK]) {
       expect(palette.color1).toMatch(hex)
       expect(palette.color2).toMatch(hex)
       expect(palette.color3).toMatch(hex)
-      expect(palette.grainAmount).toBeGreaterThan(0.2)
-      expect(palette.saturation).toBeLessThan(0.5)
-      expect(palette.timeSpeed).toBeLessThan(0.3)
+      expect(palette.grainAmount).toBeLessThan(0.04)
+      expect(palette.grainAnimated).toBe(false)
+      expect(palette.timeSpeed).toBe(0)
+      expect(palette.warpSpeed).toBe(0)
+      expect(palette.saturation).toBeLessThan(0.2)
     }
 
     const light = hexToRgb(PAPER_NOIR_LIGHT.color1)
     const dark = hexToRgb(PAPER_NOIR_DARK.color3)
     const lightLuma = light[0]! * 0.2 + light[1]! * 0.7 + light[2]! * 0.1
     const darkLuma = dark[0]! * 0.2 + dark[1]! * 0.7 + dark[2]! * 0.1
-    expect(lightLuma).toBeGreaterThan(0.7)
-    expect(darkLuma).toBeLessThan(0.1)
+    expect(lightLuma).toBeGreaterThan(0.8)
+    expect(darkLuma).toBeLessThan(0.2)
+    expect(darkLuma).toBeGreaterThan(0.05)
   })
 })
 
 describe('shader backdrop wiring', () => {
+  test('shader uses soft paper noise instead of hash static', () => {
+    const source = readFileSync(
+      resolve(root, 'src/components/Grainient.tsx'),
+      'utf8',
+    )
+    expect(source).toContain('float paper=noise(')
+    expect(source).not.toContain('fract(sin(dot(grainUv,vec2(12.9898,78.233)))')
+  })
+
+  test('footer sits on an opaque bar above the grain', () => {
+    const footer = readFileSync(
+      resolve(root, 'src/components/Footer.astro'),
+      'utf8',
+    )
+    expect(footer).toContain('bg-background')
+    expect(footer).toContain('text-foreground')
+    expect(footer).toContain('relative z-10')
+    expect(footer).not.toContain('text-muted-foreground')
+  })
+
+  test('footer sits on an opaque bar above the grain', () => {
+    const footer = readFileSync(
+      resolve(root, 'src/components/Footer.astro'),
+      'utf8',
+    )
+    expect(footer).toContain('bg-background')
+    expect(footer).toContain('text-foreground')
+    expect(footer).toContain('relative z-10')
+    expect(footer).not.toContain('text-muted-foreground')
+  })
+
+  test('backdrop stays a quiet wash over the page color', () => {
+    const backdrop = readFileSync(
+      resolve(root, 'src/components/PaperNoirBackdrop.astro'),
+      'utf8',
+    )
+    expect(backdrop).toContain('opacity: 0.12')
+    expect(backdrop).toContain('prefers-reduced-motion')
+  })
+
   test('authors and about pages mount the grain backdrop', () => {
     const pages = [
       'src/pages/about.astro',

@@ -2,32 +2,24 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { extname, join, resolve } from 'node:path'
 import { describe, expect, test } from 'vitest'
 import {
-  DEFAULT_PALETTE,
-  DEFAULT_TYPE,
-  PALETTES,
-  PALETTE_SCHEMES,
-  TYPE_PAIRING_IDS,
-  TYPE_PAIRINGS,
-  applyPalette,
-  applyTypePairing,
+  DEFAULT_PRESET,
+  LEGACY_PALETTE_TO_PRESET,
+  PRESET_IDS,
+  PRESET_READING,
+  PRESET_SCHEMES,
+  PRESETS,
+  applyPreset,
   forgetLegacyAppearance,
-  isPalette,
-  isTypePairing,
+  isPreset,
   oklchLightness,
   restoreAppearance,
+  storedPresetId,
 } from '@/lib/appearance'
 import {
   DEFAULT_READER,
-  DEFAULT_SIZE,
   applyImmersive,
   applyReaderMode,
-  applyReadingLeading,
-  applyReadingMeasure,
-  applyReadingSize,
   isReaderMode,
-  isReadingLeading,
-  isReadingMeasure,
-  isReadingSize,
   restoreReadingPrefs,
   storedOrDefault,
 } from '@/lib/reading'
@@ -72,53 +64,50 @@ function walkSource(dir: string): string[] {
 
 describe('reading tokens', () => {
   test('accepts known tokens and rejects others', () => {
-    expect(isReadingSize('lg')).toBe(true)
-    expect(isReadingSize('xxl')).toBe(false)
-    expect(isReadingMeasure('narrow')).toBe(true)
-    expect(isReadingLeading('loose')).toBe(true)
-    expect(isPalette('paper')).toBe(true)
-    expect(isPalette('neon')).toBe(false)
-    expect(isTypePairing('book')).toBe(true)
-    expect(isTypePairing('comic')).toBe(false)
+    expect(isPreset('manuscript')).toBe(true)
+    expect(isPreset('neon')).toBe(false)
     expect(isReaderMode('scholar')).toBe(true)
     expect(isReaderMode('caught-up')).toBe(false)
   })
 
   test('storedOrDefault keeps valid values and falls back', () => {
-    mockStorage({ 'sumi:reading-size': 'xl' })
-    expect(
-      storedOrDefault('sumi:reading-size', isReadingSize, DEFAULT_SIZE),
-    ).toBe('xl')
-    mockStorage({ 'sumi:reading-size': 'huge' })
-    expect(
-      storedOrDefault('sumi:reading-size', isReadingSize, DEFAULT_SIZE),
-    ).toBe(DEFAULT_SIZE)
+    mockStorage({ 'sumi:reader': 'scholar' })
+    expect(storedOrDefault('sumi:reader', isReaderMode, DEFAULT_READER)).toBe(
+      'scholar',
+    )
+    mockStorage({ 'sumi:reader': 'caught-up' })
+    expect(storedOrDefault('sumi:reader', isReaderMode, DEFAULT_READER)).toBe(
+      DEFAULT_READER,
+    )
   })
 })
 
-describe('appearance presets', () => {
-  test('ships unique named palettes and type pairings', () => {
-    const paletteIds = PALETTES.map((palette) => palette.id)
-    const typeIds = TYPE_PAIRINGS.map((pairing) => pairing.id)
-    expect(paletteIds).toHaveLength(10)
-    expect(typeIds).toHaveLength(5)
-    expect(new Set(paletteIds).size).toBe(paletteIds.length)
-    expect(new Set(typeIds).size).toBe(typeIds.length)
-    expect(DEFAULT_PALETTE).toBe('ink')
-    expect(DEFAULT_TYPE).toBe('book')
-    expect(PALETTE_SCHEMES['ink']).toBe('light')
-    expect(PALETTE_SCHEMES['night']).toBe('dark')
-    expect(TYPE_PAIRING_IDS).toEqual(typeIds)
+describe('look presets', () => {
+  test('ships unique named presets with fonts and reading measure', () => {
+    const ids = PRESETS.map((preset) => preset.id)
+    expect(ids).toHaveLength(10)
+    expect(new Set(ids).size).toBe(ids.length)
+    expect(DEFAULT_PRESET).toBe('manuscript')
+    expect(PRESET_SCHEMES['manuscript']).toBe('light')
+    expect(PRESET_SCHEMES['dusk']).toBe('dark')
+    expect(PRESET_SCHEMES['beacon']).toBe('dark')
+    expect(PRESET_IDS).toEqual(ids)
+    for (const preset of PRESETS) {
+      expect(preset.fonts.ui.length).toBeGreaterThan(0)
+      expect(preset.fonts.display.length).toBeGreaterThan(0)
+      expect(preset.fonts.body.length).toBeGreaterThan(0)
+      expect(PRESET_READING[preset.id]).toEqual(preset.reading)
+    }
   })
 
   test('keeps body ink far from the page swatch', () => {
-    for (const palette of PALETTES) {
-      const paper = oklchLightness(palette.swatch)
-      const ink = oklchLightness(palette.ink)
+    for (const preset of PRESETS) {
+      const paper = oklchLightness(preset.swatch)
+      const ink = oklchLightness(preset.ink)
       expect(paper).not.toBeNaN()
       expect(ink).not.toBeNaN()
       expect(Math.abs(paper - ink)).toBeGreaterThan(0.45)
-      if (palette.scheme === 'light') {
+      if (preset.scheme === 'light') {
         expect(paper).toBeGreaterThan(0.85)
         expect(ink).toBeLessThan(0.4)
       } else {
@@ -128,28 +117,42 @@ describe('appearance presets', () => {
     }
   })
 
-  test('CSS defines tokens for every palette and type pairing', () => {
+  test('settings panel is presets plus spoilers only', () => {
+    const settings = readFileSync(
+      resolve(root, 'src/components/ReadingSettings.astro'),
+      'utf8',
+    )
+    expect(settings).toContain('data-reading-group="preset"')
+    expect(settings).toContain('data-reading-group="reader"')
+    expect(settings).not.toContain('data-reading-group="size"')
+    expect(settings).not.toContain('data-reading-group="palette"')
+    expect(settings).not.toContain('data-reading-group="type"')
+  })
+
+  test('CSS defines tokens for every preset', () => {
     const css = readFileSync(resolve(root, 'src/styles/global.css'), 'utf8')
-    for (const palette of PALETTES) {
-      expect(css).toContain(`html[data-palette='${palette.id}']`)
+    for (const preset of PRESETS) {
+      expect(css).toContain(`html[data-preset='${preset.id}']`)
     }
-    for (const pairing of TYPE_PAIRINGS) {
-      expect(css).toContain(`html[data-type='${pairing.id}']`)
-    }
+    expect(css).toContain("html[data-preset='beacon']")
     expect(css).toContain('font-family: var(--font-body)')
+    expect(css).toContain('font-family: var(--font-display)')
     expect(css).toContain('--font-ui:')
-    expect(css).toContain('--font-display:')
+    expect(css).toContain("html[data-reading-size='xl']")
+    expect(css).not.toContain("html[data-palette='ink']")
+    expect(css).not.toContain("html[data-type='book']")
     expect(css).not.toContain('data-atmosphere')
   })
 
-  test('FOUC boot reads the shared appearance config', () => {
+  test('FOUC boot reads the shared preset config', () => {
     const head = readFileSync(
       resolve(root, 'src/components/Head.astro'),
       'utf8',
     )
     expect(head).toContain("from '@/lib/appearance'")
-    expect(head).toContain('PALETTE_SCHEMES')
-    expect(head).toContain('TYPE_PAIRING_IDS')
+    expect(head).toContain('PRESET_SCHEMES')
+    expect(head).toContain('PRESET_IDS')
+    expect(head).toContain('PRESET_READING')
     expect(head).toContain('LEGACY_APPEARANCE_KEYS')
     expect(head).toContain('define:vars')
   })
@@ -169,102 +172,83 @@ describe('appearance presets', () => {
     expect(crumbs).toContain('withBase(item.href)')
   })
 
-  test('applyPalette writes data-palette and matching data-theme', () => {
+  test('applyPreset writes data-preset, theme, and reading measure', () => {
     const store = mockStorage()
-    applyPalette('night')
-    expect(document.documentElement.getAttribute('data-palette')).toBe('night')
+    applyPreset('dusk')
+    expect(document.documentElement.getAttribute('data-preset')).toBe('dusk')
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
     expect(document.documentElement.style.colorScheme).toBe('dark')
-    expect(store.get('sumi:palette')).toBe('night')
+    expect(document.documentElement.getAttribute('data-reading-size')).toBe(
+      'lg',
+    )
+    expect(store.get('sumi:preset')).toBe('dusk')
 
-    applyPalette('unknown')
-    expect(document.documentElement.getAttribute('data-palette')).toBe('ink')
+    applyPreset('unknown')
+    expect(document.documentElement.getAttribute('data-preset')).toBe(
+      'manuscript',
+    )
     expect(document.documentElement.getAttribute('data-theme')).toBe('light')
   })
 
-  test('applyTypePairing writes data-type', () => {
-    mockStorage()
-    applyTypePairing('clear')
-    expect(document.documentElement.getAttribute('data-type')).toBe('clear')
-    applyTypePairing('comic-sans')
-    expect(document.documentElement.getAttribute('data-type')).toBe('book')
-  })
-
-  test('restoreAppearance applies stored prefs and drops leftover keys', () => {
+  test('restoreAppearance migrates old palette keys and drops leftovers', () => {
     const store = mockStorage({
-      'sumi:palette': 'coffee',
+      'sumi:palette': 'nord',
       'sumi:type': 'news',
       font: 'geist',
       theme: 'dark',
       'sumi:atmosphere': 'parchment',
     })
     restoreAppearance()
-    expect(document.documentElement.getAttribute('data-palette')).toBe('coffee')
+    expect(storedPresetId()).toBe('starfarer')
+    expect(document.documentElement.getAttribute('data-preset')).toBe(
+      'starfarer',
+    )
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
-    expect(document.documentElement.getAttribute('data-type')).toBe('news')
     expect(store.has('font')).toBe(false)
     expect(store.has('theme')).toBe(false)
     expect(store.has('sumi:atmosphere')).toBe(false)
+    expect(store.has('sumi:palette')).toBe(false)
+  })
+
+  test('clear type pairing migrates to the Clear preset', () => {
+    mockStorage({ 'sumi:type': 'clear', 'sumi:palette': 'ink' })
+    restoreAppearance()
+    expect(document.documentElement.getAttribute('data-preset')).toBe('clear')
+  })
+
+  test('legacy palette map covers the retired palette ids', () => {
+    expect(Object.keys(LEGACY_PALETTE_TO_PRESET).length).toBe(10)
   })
 
   test('forgetLegacyAppearance is a no-op when those keys are absent', () => {
-    const store = mockStorage({ 'sumi:palette': 'ink' })
+    const store = mockStorage({ 'sumi:preset': 'manuscript' })
     forgetLegacyAppearance()
-    expect(store.get('sumi:palette')).toBe('ink')
+    expect(store.get('sumi:preset')).toBe('manuscript')
   })
 })
 
 describe('reading prefs', () => {
-  test('size, measure, leading, reader, and immersive write html + storage', () => {
+  test('reader and immersive write html + storage', () => {
     const store = mockStorage()
-    applyReadingSize('lg')
-    applyReadingMeasure('wide')
-    applyReadingLeading('snug')
     applyReaderMode('scholar')
     applyImmersive(true)
 
-    expect(document.documentElement.getAttribute('data-reading-size')).toBe(
-      'lg',
-    )
-    expect(document.documentElement.getAttribute('data-reading-measure')).toBe(
-      'wide',
-    )
-    expect(document.documentElement.getAttribute('data-reading-leading')).toBe(
-      'snug',
-    )
     expect(document.documentElement.getAttribute('data-reader')).toBe('scholar')
     expect(document.documentElement.hasAttribute('data-immersive')).toBe(true)
-    expect(store.get('sumi:reading-size')).toBe('lg')
     expect(store.get('sumi:atlas-reveal')).toBe('true')
 
-    applyReadingSize('nope')
     applyReaderMode('nope')
-    expect(document.documentElement.getAttribute('data-reading-size')).toBe(
-      DEFAULT_SIZE,
-    )
     expect(document.documentElement.getAttribute('data-reader')).toBe(
       DEFAULT_READER,
     )
   })
 
-  test('restoreReadingPrefs hydrates from storage', () => {
+  test('restoreReadingPrefs hydrates reader and immersive only', () => {
     mockStorage({
-      'sumi:reading-size': 'sm',
-      'sumi:reading-measure': 'narrow',
-      'sumi:reading-leading': 'loose',
       'sumi:reader': 'first-time',
       'sumi:immersive': 'true',
     })
     restoreReadingPrefs()
-    expect(document.documentElement.getAttribute('data-reading-size')).toBe(
-      'sm',
-    )
-    expect(document.documentElement.getAttribute('data-reading-measure')).toBe(
-      'narrow',
-    )
-    expect(document.documentElement.getAttribute('data-reading-leading')).toBe(
-      'loose',
-    )
     expect(document.documentElement.getAttribute('data-reader')).toBe(
       'first-time',
     )
@@ -294,7 +278,7 @@ describe('leftover appearance files', () => {
 
   test('source does not reference removed appearance APIs', () => {
     const banned =
-      /FontToggle|ThemeToggle|data-atmosphere|messy-handwritten|data-font=/
+      /FontToggle|ThemeToggle|data-atmosphere|messy-handwritten|data-font=|html\[data-palette/
     for (const file of walkSource(resolve(root, 'src'))) {
       const text = readFileSync(file, 'utf8')
       expect(text, file).not.toMatch(banned)

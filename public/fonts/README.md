@@ -10,4 +10,4 @@ fonts/
     └── geist-mono.woff2
 ```
 
-Site-wide appearance is `html[data-palette]` plus `html[data-type]`. Pairings live in `src/lib/appearance.ts`.
+Site-wide appearance is one `html[data-preset]` look. Pairings live in `src/lib/appearance.ts`.

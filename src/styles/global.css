@@ -21,6 +21,11 @@
 
   --color-border: var(--border);
   --color-ring: var(--ring);
+
+  --radius-sm: var(--shape-sm);
+  --radius-md: var(--shape-md);
+  --radius-lg: var(--shape-lg);
+  --radius-xl: var(--shape-xl);
 }
 
 :root {
@@ -28,16 +33,21 @@
   --font-display: 'Literata Variable', Georgia, 'Times New Roman', serif;
   --font-body: 'Literata Variable', Georgia, 'Times New Roman', serif;
 
-  --background: oklch(0.99 0.002 90);
-  --foreground: oklch(0.22 0.01 70);
-  --primary: oklch(0.32 0.04 250);
+  --background: oklch(0.97 0.018 85);
+  --foreground: oklch(0.24 0.03 60);
+  --primary: oklch(0.34 0.05 250);
   --primary-foreground: oklch(0.99 0 0);
-  --muted: oklch(0.96 0.005 90);
-  --muted-foreground: oklch(0.45 0.01 70);
-  --destructive: oklch(0.55 0.2 25);
+  --muted: oklch(0.94 0.015 85);
+  --muted-foreground: oklch(0.38 0.02 60);
+  --destructive: oklch(0.5 0.18 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.9 0.01 90);
-  --ring: oklch(0.32 0.04 250);
+  --border: oklch(0.86 0.02 85);
+  --ring: oklch(0.34 0.05 250);
+
+  --shape-sm: 0.25rem;
+  --shape-md: 0.375rem;
+  --shape-lg: 0.5rem;
+  --shape-xl: 0.75rem;
 
   /* Responsive breakpoints */
   --breakpoint-mobile: 768px;
@@ -85,7 +95,19 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    @apply border-border outline-ring/50 tracking-tight;
+    @apply border-border outline-ring/50;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+  }
+
+  .prose,
+  .reading-content {
+    font-family: var(--font-body);
   }
 
   /* Optimize images and media for performance */
@@ -522,25 +544,30 @@
   }
 }
 
-/* Reading chamber: size, measure, leading */
-.reading-content {
+/* Reading chamber: size, measure, leading (owned by the look preset) */
+.reading-content,
+.prose {
   font-family: var(--font-body);
 }
 
-html[data-reading-size='sm'] .reading-content {
-  font-size: 0.9375rem;
+.font-body {
+  font-family: var(--font-body);
 }
 
-html[data-reading-size='md'] .reading-content {
-  font-size: 1.0625rem;
+html[data-reading-size='sm'] {
+  font-size: 93.75%;
 }
 
-html[data-reading-size='lg'] .reading-content {
-  font-size: 1.1875rem;
+html[data-reading-size='md'] {
+  font-size: 100%;
 }
 
-html[data-reading-size='xl'] .reading-content {
-  font-size: 1.3125rem;
+html[data-reading-size='lg'] {
+  font-size: 112.5%;
+}
+
+html[data-reading-size='xl'] {
+  font-size: 125%;
 }
 
 html[data-reading-measure='narrow'] .container-reading {
@@ -555,159 +582,200 @@ html[data-reading-measure='wide'] .container-reading {
   max-width: 64rem;
 }
 
-html[data-reading-leading='snug'] .reading-content {
-  line-height: 1.55;
+html[data-reading-leading='snug'] .reading-content,
+html[data-reading-leading='snug'] .prose {
+  line-height: 1.65;
 }
 
-html[data-reading-leading='default'] .reading-content {
+html[data-reading-leading='default'] .reading-content,
+html[data-reading-leading='default'] .prose {
   line-height: 1.8;
 }
 
-html[data-reading-leading='loose'] .reading-content {
+html[data-reading-leading='loose'] .reading-content,
+html[data-reading-leading='loose'] .prose {
   line-height: 2.05;
 }
 
-/* Type pairings: UI chrome, masthead/display, long-form body */
-html[data-type='book'] {
+/* Look presets: color, type, and corner shape together */
+html[data-preset='daylight'] {
   --font-ui: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Literata Variable', Georgia, 'Times New Roman', serif;
   --font-body: 'Literata Variable', Georgia, 'Times New Roman', serif;
+  --background: oklch(0.985 0.012 90);
+  --foreground: oklch(0.22 0.03 60);
+  --primary: oklch(0.36 0.05 250);
+  --primary-foreground: oklch(0.99 0 0);
+  --muted: oklch(0.95 0.012 90);
+  --muted-foreground: oklch(0.36 0.02 60);
+  --border: oklch(0.88 0.02 85);
+  --ring: oklch(0.36 0.05 250);
+  --shape-sm: 0.25rem;
+  --shape-md: 0.375rem;
+  --shape-lg: 0.5rem;
+  --shape-xl: 0.75rem;
 }
 
-html[data-type='classic'] {
+html[data-preset='dusk'] {
   --font-ui: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
-  --font-body: 'Source Serif 4 Variable', Georgia, 'Times New Roman', serif;
+  --font-display: 'Literata Variable', Georgia, 'Times New Roman', serif;
+  --font-body: 'Literata Variable', Georgia, 'Times New Roman', serif;
+  --background: oklch(0.18 0.02 60);
+  --foreground: oklch(0.92 0.02 80);
+  --primary: oklch(0.82 0.06 75);
+  --primary-foreground: oklch(0.18 0.02 50);
+  --muted: oklch(0.26 0.02 60);
+  --muted-foreground: oklch(0.78 0.03 75);
+  --border: oklch(0.34 0.03 55);
+  --ring: oklch(0.82 0.06 75);
+  --shape-sm: 0.25rem;
+  --shape-md: 0.375rem;
+  --shape-lg: 0.5rem;
+  --shape-xl: 0.75rem;
 }
 
-html[data-type='news'] {
-  --font-ui: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
-  --font-body: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
-}
-
-html[data-type='quiet'] {
-  --font-ui: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-display:
-    'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-body: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
-}
-
-html[data-type='clear'] {
+html[data-preset='clear'] {
   --font-ui: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
   --font-body: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.12 0 0);
+  --primary: oklch(0.28 0.08 250);
+  --primary-foreground: oklch(1 0 0);
+  --muted: oklch(0.94 0 0);
+  --muted-foreground: oklch(0.28 0 0);
+  --border: oklch(0.2 0 0);
+  --ring: oklch(0.28 0.08 250);
+  --shape-sm: 0.125rem;
+  --shape-md: 0.2rem;
+  --shape-lg: 0.25rem;
+  --shape-xl: 0.35rem;
 }
 
-/* Named palettes. Each also sets data-theme via JS for Tailwind `dark:`. */
-html[data-palette='ink'] {
-  --background: oklch(0.99 0.002 90);
-  --foreground: oklch(0.22 0.01 70);
-  --primary: oklch(0.32 0.04 250);
+html[data-preset='beacon'] {
+  --font-ui: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
+  --background: oklch(0.1 0 0);
+  --foreground: oklch(0.97 0 0);
+  --primary: oklch(0.86 0.08 85);
+  --primary-foreground: oklch(0.12 0 0);
+  --muted: oklch(0.18 0 0);
+  --muted-foreground: oklch(0.86 0 0);
+  --border: oklch(0.88 0 0);
+  --ring: oklch(0.86 0.08 85);
+  --shape-sm: 0.125rem;
+  --shape-md: 0.2rem;
+  --shape-lg: 0.25rem;
+  --shape-xl: 0.35rem;
+}
+
+html[data-preset='manuscript'] {
+  --font-ui: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Literata Variable', Georgia, 'Times New Roman', serif;
+  --font-body: 'Literata Variable', Georgia, 'Times New Roman', serif;
+  --background: oklch(0.97 0.018 85);
+  --foreground: oklch(0.24 0.03 60);
+  --primary: oklch(0.34 0.05 250);
   --primary-foreground: oklch(0.99 0 0);
-  --muted: oklch(0.96 0.005 90);
-  --muted-foreground: oklch(0.45 0.01 70);
-  --border: oklch(0.9 0.01 90);
-  --ring: oklch(0.32 0.04 250);
+  --muted: oklch(0.94 0.015 85);
+  --muted-foreground: oklch(0.36 0.02 60);
+  --border: oklch(0.86 0.02 85);
+  --ring: oklch(0.34 0.05 250);
+  --shape-sm: 0.25rem;
+  --shape-md: 0.375rem;
+  --shape-lg: 0.5rem;
+  --shape-xl: 0.75rem;
 }
 
-html[data-palette='paper'] {
-  --background: oklch(0.95 0.03 85);
-  --foreground: oklch(0.28 0.04 55);
-  --primary: oklch(0.4 0.08 50);
+html[data-preset='myth'] {
+  --font-ui: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+  --font-body: 'Literata Variable', Georgia, 'Times New Roman', serif;
+  --background: oklch(0.94 0.04 80);
+  --foreground: oklch(0.26 0.05 50);
+  --primary: oklch(0.4 0.08 70);
   --primary-foreground: oklch(0.98 0.02 85);
-  --muted: oklch(0.9 0.03 80);
-  --muted-foreground: oklch(0.42 0.04 55);
-  --border: oklch(0.82 0.04 75);
-  --ring: oklch(0.45 0.08 50);
+  --muted: oklch(0.89 0.035 78);
+  --muted-foreground: oklch(0.38 0.04 50);
+  --border: oklch(0.8 0.04 70);
+  --ring: oklch(0.4 0.08 70);
+  --shape-sm: 0.4rem;
+  --shape-md: 0.65rem;
+  --shape-lg: 0.9rem;
+  --shape-xl: 1.15rem;
 }
 
-html[data-palette='silk'] {
-  --background: oklch(0.975 0.012 350);
-  --foreground: oklch(0.26 0.04 320);
-  --primary: oklch(0.45 0.1 330);
-  --primary-foreground: oklch(0.99 0.01 350);
-  --muted: oklch(0.94 0.02 345);
-  --muted-foreground: oklch(0.42 0.04 320);
-  --border: oklch(0.88 0.03 340);
-  --ring: oklch(0.45 0.1 330);
+html[data-preset='starfarer'] {
+  --font-ui: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Source Serif 4 Variable', Georgia, 'Times New Roman', serif;
+  --background: oklch(0.17 0.03 250);
+  --foreground: oklch(0.93 0.02 230);
+  --primary: oklch(0.78 0.08 230);
+  --primary-foreground: oklch(0.16 0.03 250);
+  --muted: oklch(0.26 0.03 250);
+  --muted-foreground: oklch(0.8 0.03 230);
+  --border: oklch(0.36 0.03 250);
+  --ring: oklch(0.78 0.08 230);
+  --shape-sm: 0.1rem;
+  --shape-md: 0.15rem;
+  --shape-lg: 0.2rem;
+  --shape-xl: 0.3rem;
 }
 
-html[data-palette='garden'] {
-  --background: oklch(0.97 0.02 145);
-  --foreground: oklch(0.24 0.05 145);
-  --primary: oklch(0.38 0.1 145);
-  --primary-foreground: oklch(0.98 0.02 145);
-  --muted: oklch(0.93 0.03 145);
-  --muted-foreground: oklch(0.4 0.05 145);
-  --border: oklch(0.85 0.04 145);
-  --ring: oklch(0.38 0.1 145);
+html[data-preset='nocturne'] {
+  --font-ui: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+  --font-body: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
+  --background: oklch(0.13 0.02 40);
+  --foreground: oklch(0.9 0.03 75);
+  --primary: oklch(0.78 0.08 55);
+  --primary-foreground: oklch(0.14 0.02 40);
+  --muted: oklch(0.22 0.025 40);
+  --muted-foreground: oklch(0.78 0.03 70);
+  --border: oklch(0.3 0.03 40);
+  --ring: oklch(0.78 0.08 55);
+  --shape-sm: 0.1rem;
+  --shape-md: 0.15rem;
+  --shape-lg: 0.2rem;
+  --shape-xl: 0.3rem;
 }
 
-html[data-palette='caramel'] {
-  --background: oklch(0.94 0.035 70);
-  --foreground: oklch(0.26 0.06 50);
-  --primary: oklch(0.45 0.1 50);
-  --primary-foreground: oklch(0.98 0.02 80);
-  --muted: oklch(0.89 0.04 70);
-  --muted-foreground: oklch(0.4 0.05 50);
-  --border: oklch(0.8 0.05 65);
-  --ring: oklch(0.45 0.1 50);
+html[data-preset='lantern'] {
+  --font-ui: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+  --font-body: 'Literata Variable', Georgia, 'Times New Roman', serif;
+  --background: oklch(0.975 0.035 45);
+  --foreground: oklch(0.28 0.07 20);
+  --primary: oklch(0.5 0.16 25);
+  --primary-foreground: oklch(0.99 0.01 40);
+  --muted: oklch(0.94 0.04 45);
+  --muted-foreground: oklch(0.38 0.06 25);
+  --border: oklch(0.84 0.06 35);
+  --ring: oklch(0.5 0.16 25);
+  --shape-sm: 0.45rem;
+  --shape-md: 0.7rem;
+  --shape-lg: 1rem;
+  --shape-xl: 1.25rem;
 }
 
-html[data-palette='night'] {
-  --background: oklch(0.16 0.01 260);
-  --foreground: oklch(0.93 0.01 260);
-  --primary: oklch(0.78 0.04 250);
-  --primary-foreground: oklch(0.16 0.02 260);
-  --muted: oklch(0.24 0.015 260);
-  --muted-foreground: oklch(0.72 0.02 260);
-  --border: oklch(0.32 0.02 260);
-  --ring: oklch(0.72 0.04 250);
-}
-
-html[data-palette='coffee'] {
-  --background: oklch(0.2 0.03 50);
-  --foreground: oklch(0.91 0.03 80);
-  --primary: oklch(0.78 0.08 70);
-  --primary-foreground: oklch(0.18 0.03 50);
-  --muted: oklch(0.28 0.03 50);
-  --muted-foreground: oklch(0.74 0.04 70);
-  --border: oklch(0.36 0.04 50);
-  --ring: oklch(0.78 0.08 70);
-}
-
-html[data-palette='forest'] {
-  --background: oklch(0.18 0.035 150);
-  --foreground: oklch(0.91 0.03 145);
-  --primary: oklch(0.78 0.08 145);
-  --primary-foreground: oklch(0.16 0.04 150);
-  --muted: oklch(0.26 0.04 150);
-  --muted-foreground: oklch(0.74 0.04 145);
-  --border: oklch(0.34 0.04 150);
-  --ring: oklch(0.78 0.08 145);
-}
-
-html[data-palette='luxury'] {
-  --background: oklch(0.14 0.02 80);
-  --foreground: oklch(0.88 0.06 85);
-  --primary: oklch(0.78 0.12 85);
-  --primary-foreground: oklch(0.14 0.02 80);
-  --muted: oklch(0.22 0.03 80);
-  --muted-foreground: oklch(0.72 0.05 85);
-  --border: oklch(0.32 0.04 80);
-  --ring: oklch(0.78 0.12 85);
-}
-
-html[data-palette='nord'] {
-  --background: oklch(0.22 0.025 250);
-  --foreground: oklch(0.9 0.02 230);
-  --primary: oklch(0.75 0.08 230);
-  --primary-foreground: oklch(0.18 0.03 250);
-  --muted: oklch(0.3 0.03 250);
-  --muted-foreground: oklch(0.72 0.03 230);
-  --border: oklch(0.38 0.03 250);
-  --ring: oklch(0.75 0.08 230);
+html[data-preset='broadsheet'] {
+  --font-ui: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
+  --font-body: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
+  --background: oklch(0.96 0.02 95);
+  --foreground: oklch(0.16 0.02 60);
+  --primary: oklch(0.3 0.08 40);
+  --primary-foreground: oklch(0.98 0.01 95);
+  --muted: oklch(0.91 0.02 95);
+  --muted-foreground: oklch(0.32 0.02 60);
+  --border: oklch(0.22 0.02 60);
+  --ring: oklch(0.3 0.08 40);
+  --shape-sm: 0.1rem;
+  --shape-md: 0.15rem;
+  --shape-lg: 0.2rem;
+  --shape-xl: 0.3rem;
 }
 
 .epic-alert {
@@ -822,11 +890,18 @@ html[data-immersive] #immersive-exit {
   font-family: var(--font-serif);
 }
 
+html[data-preset='clear'] .prose :where(p),
+html[data-preset='beacon'] .prose :where(p),
+html[data-preset='clear'] .reading-content :where(p),
+html[data-preset='beacon'] .reading-content :where(p) {
+  color: var(--foreground);
+}
+
 .editorial-nav a {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   font-size: 0.72rem;
-  color: color-mix(in oklch, var(--foreground) 55%, transparent);
+  color: color-mix(in oklch, var(--foreground) 78%, transparent);
   text-decoration: none;
   position: relative;
   padding-bottom: 0.2rem;
@@ -836,7 +911,7 @@ html[data-immersive] #immersive-exit {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: 0.72rem;
-  color: color-mix(in oklch, var(--foreground) 60%, transparent);
+  color: color-mix(in oklch, var(--foreground) 80%, transparent);
 }
 
 .editorial-nav a:hover,

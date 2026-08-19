@@ -1,27 +1,18 @@
 ---
 /**
- * Blocking boot script: apply stored palette/type/reading prefs before first
- * paint. Maps come from appearance.ts / reading.ts so the allow-list cannot drift.
+ * Blocking boot script: apply the stored look preset before first paint.
+ * Maps come from appearance.ts so the allow-list cannot drift.
  */
 import { SITE } from '@/consts'
 import {
-  DEFAULT_PALETTE,
-  DEFAULT_TYPE,
+  DEFAULT_PRESET,
   LEGACY_APPEARANCE_KEYS,
-  PALETTE_SCHEMES,
-  TYPE_PAIRING_IDS,
+  LEGACY_PALETTE_TO_PRESET,
+  PRESET_IDS,
+  PRESET_READING,
+  PRESET_SCHEMES,
 } from '@/lib/appearance'
-import {
-  DEFAULT_LEADING,
-  DEFAULT_MEASURE,
-  DEFAULT_READER,
-  DEFAULT_SIZE,
-  READER_MODES,
-  READING_KEYS,
-  READING_LEADINGS,
-  READING_MEASURES,
-  READING_SIZES,
-} from '@/lib/reading'
+import { DEFAULT_READER, READER_MODES, READING_KEYS } from '@/lib/reading'
 import { withBase } from '@/lib/utils/url'
 import { ClientRouter } from 'astro:transitions'
 import Favicons from './Favicons.astro'
@@ -31,19 +22,14 @@ import Favicons from './Favicons.astro'
   <script
     is:inline
     define:vars={{
-      PALETTE_SCHEMES,
-      TYPE_PAIRING_IDS,
-      DEFAULT_PALETTE,
-      DEFAULT_TYPE,
-      DEFAULT_SIZE,
-      DEFAULT_MEASURE,
-      DEFAULT_LEADING,
+      PRESET_SCHEMES,
+      PRESET_IDS,
+      PRESET_READING,
+      DEFAULT_PRESET,
       DEFAULT_READER,
       READING_KEYS,
       LEGACY_APPEARANCE_KEYS,
-      READING_SIZES,
-      READING_MEASURES,
-      READING_LEADINGS,
+      LEGACY_PALETTE_TO_PRESET,
       READER_MODES,
     }}
   >
@@ -52,29 +38,17 @@ import Favicons from './Favicons.astro'
       const pick = (value, allowed, fallback) =>
         allowed.includes(value) ? value : fallback
       try {
-        const storedPalette = localStorage.getItem(READING_KEYS.palette) || ''
-        const scheme = PALETTE_SCHEMES[storedPalette]
-        const palette = scheme ? storedPalette : DEFAULT_PALETTE
-        const type = pick(
-          localStorage.getItem(READING_KEYS.type) || '',
-          TYPE_PAIRING_IDS,
-          DEFAULT_TYPE,
-        )
-        const size = pick(
-          localStorage.getItem(READING_KEYS.size) || '',
-          READING_SIZES,
-          DEFAULT_SIZE,
-        )
-        const measure = pick(
-          localStorage.getItem(READING_KEYS.measure) || '',
-          READING_MEASURES,
-          DEFAULT_MEASURE,
-        )
-        const leading = pick(
-          localStorage.getItem(READING_KEYS.leading) || '',
-          READING_LEADINGS,
-          DEFAULT_LEADING,
-        )
+        let preset = localStorage.getItem(READING_KEYS.preset) || ''
+        if (!PRESET_IDS.includes(preset)) {
+          const type = localStorage.getItem('sumi:type') || ''
+          const palette = localStorage.getItem('sumi:palette') || ''
+          preset =
+            type === 'clear'
+              ? 'clear'
+              : LEGACY_PALETTE_TO_PRESET[palette] || DEFAULT_PRESET
+        }
+        const scheme = PRESET_SCHEMES[preset] || PRESET_SCHEMES[DEFAULT_PRESET]
+        const reading = PRESET_READING[preset] || PRESET_READING[DEFAULT_PRESET]
         const reader = pick(
           localStorage.getItem(READING_KEYS.reader) || '',
           READER_MODES,
@@ -82,13 +56,12 @@ import Favicons from './Favicons.astro'
         )
         const immersive =
           localStorage.getItem(READING_KEYS.immersive) === 'true'
-        root.setAttribute('data-palette', palette)
-        root.setAttribute('data-theme', PALETTE_SCHEMES[palette])
-        root.style.colorScheme = PALETTE_SCHEMES[palette]
-        root.setAttribute('data-type', type)
-        root.setAttribute('data-reading-size', size)
-        root.setAttribute('data-reading-measure', measure)
-        root.setAttribute('data-reading-leading', leading)
+        root.setAttribute('data-preset', preset)
+        root.setAttribute('data-theme', scheme)
+        root.style.colorScheme = scheme
+        root.setAttribute('data-reading-size', reading.size)
+        root.setAttribute('data-reading-measure', reading.measure)
+        root.setAttribute('data-reading-leading', reading.leading)
         root.setAttribute('data-reader', reader)
         if (immersive) root.setAttribute('data-immersive', '')
         else root.removeAttribute('data-immersive')
@@ -96,9 +69,14 @@ import Favicons from './Favicons.astro'
           localStorage.removeItem(key)
         }
       } catch {
-        root.setAttribute('data-palette', DEFAULT_PALETTE)
-        root.setAttribute('data-theme', PALETTE_SCHEMES[DEFAULT_PALETTE])
-        root.setAttribute('data-type', DEFAULT_TYPE)
+        root.setAttribute('data-preset', DEFAULT_PRESET)
+        root.setAttribute('data-theme', PRESET_SCHEMES[DEFAULT_PRESET])
+        const reading = PRESET_READING[DEFAULT_PRESET]
+        if (reading) {
+          root.setAttribute('data-reading-size', reading.size)
+          root.setAttribute('data-reading-measure', reading.measure)
+          root.setAttribute('data-reading-leading', reading.leading)
+        }
       }
     })()
   </script>
@@ -126,7 +104,7 @@ import Favicons from './Favicons.astro'
   />
   <meta
     name="theme-color"
-    content="#121212"
+    content="#f7f1e6"
     media="(prefers-color-scheme: light)"
   />
 

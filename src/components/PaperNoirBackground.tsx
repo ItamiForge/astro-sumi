@@ -1,44 +1,43 @@
 import { useEffect, useState } from 'react'
 import Grainient from '@/components/Grainient'
 
-const shared = {
-  timeSpeed: 0.1,
-  warpStrength: 0.45,
-  warpFrequency: 2.8,
-  warpSpeed: 0.55,
-  warpAmplitude: 80,
-  blendAngle: 22,
-  blendSoftness: 0.28,
-  rotationAmount: 90,
-  noiseScale: 1.15,
-  grainScale: 1.4,
-  grainAnimated: true,
-  gamma: 1.02,
-  centerX: 0.04,
-  centerY: -0.06,
-  zoom: 1.05,
+/** Still paper wash: value-noise fiber, no flicker, no drift. */
+const quiet = {
+  timeSpeed: 0,
+  warpStrength: 0.08,
+  warpFrequency: 1.1,
+  warpSpeed: 0,
+  warpAmplitude: 180,
+  blendAngle: 12,
+  blendSoftness: 0.55,
+  rotationAmount: 18,
+  noiseScale: 0.4,
+  grainScale: 1.35,
+  grainAmount: 0.028,
+  grainAnimated: false,
+  contrast: 1,
+  gamma: 1,
+  saturation: 0.14,
+  centerX: 0.02,
+  centerY: -0.03,
+  zoom: 1.15,
 }
 
 export const PAPER_NOIR_LIGHT = {
-  ...shared,
-  color1: '#E6D5B8',
-  color2: '#6A4E38',
-  color3: '#1C1612',
-  colorBalance: 0.32,
-  grainAmount: 0.28,
-  contrast: 1.22,
-  saturation: 0.34,
+  ...quiet,
+  color1: '#F7F1E6',
+  color2: '#EDE4D4',
+  color3: '#DFD3C0',
+  colorBalance: 0.48,
 }
 
 export const PAPER_NOIR_DARK = {
-  ...shared,
-  color1: '#C4B08C',
-  color2: '#3A3228',
-  color3: '#070605',
-  colorBalance: -0.08,
-  grainAmount: 0.34,
-  contrast: 1.32,
-  saturation: 0.22,
+  ...quiet,
+  color1: '#2C2822',
+  color2: '#221F1B',
+  color3: '#1A1814',
+  colorBalance: 0.22,
+  grainAmount: 0.02,
 }
 
 export default function PaperNoirBackground() {

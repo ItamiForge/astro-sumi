@@ -12,10 +12,13 @@ import PaperNoirBackground from '@/components/PaperNoirBackground'
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background: #e6d5b8;
+    background: var(--background);
+    opacity: 0.12;
   }
 
-  :global([data-theme='dark']) .paper-noir-bg {
-    background: #070605;
+  @media (prefers-reduced-motion: reduce) {
+    .paper-noir-bg {
+      opacity: 0;
+    }
   }
 </style>
