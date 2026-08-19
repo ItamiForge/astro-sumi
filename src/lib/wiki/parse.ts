@@ -106,16 +106,16 @@ function refFromMatch(match: RegExpExecArray): WikiRef {
   }
 }
 
-export function wikiHref(
-  kind: WikiKind,
-  slug: string,
-  base = '/',
-): string {
+export function wikiHref(kind: WikiKind, slug: string, base = '/'): string {
   const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base
   return `${cleanBase}/codex/${KIND_ROUTE[kind]}/${slug}`
 }
 
-export function accentFromSlug(slug: string): { hue: number; background: string; foreground: string } {
+export function accentFromSlug(slug: string): {
+  hue: number
+  background: string
+  foreground: string
+} {
   let hash = 0
   for (const char of slug) {
     hash = char.charCodeAt(0) + ((hash << 5) - hash)

@@ -1,0 +1,21 @@
+---
+import PaperNoirBackground from '@/components/PaperNoirBackground'
+---
+
+<div class="paper-noir-bg" aria-hidden="true">
+  <PaperNoirBackground client:only="react" />
+</div>
+
+<style>
+  .paper-noir-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: #e6d5b8;
+  }
+
+  :global([data-theme='dark']) .paper-noir-bg {
+    background: #070605;
+  }
+</style>

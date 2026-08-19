@@ -1,10 +1,10 @@
 import { describe, test, expect } from 'vitest'
-import { 
-  formatDate, 
-  calculateWordCountFromHtml, 
-  readingTime, 
+import {
+  formatDate,
+  calculateWordCountFromHtml,
+  readingTime,
   getHeadingMargin,
-  cn 
+  cn,
 } from '@/lib/utils'
 
 describe('Core Utility Functions', () => {
@@ -29,7 +29,8 @@ describe('Core Utility Functions', () => {
     })
 
     test('strips HTML tags and counts words', () => {
-      const html = '<div><p>This is a <strong>test</strong> with <em>HTML</em> tags.</p></div>'
+      const html =
+        '<div><p>This is a <strong>test</strong> with <em>HTML</em> tags.</p></div>'
       expect(calculateWordCountFromHtml(html)).toBe(7)
     })
 
@@ -105,7 +106,11 @@ describe('Core Utility Functions', () => {
     })
 
     test('handles conditional classes', () => {
-      expect(cn('base', true && 'conditional', false && 'hidden')).toBe('base conditional')
+      const shown = true
+      const hidden = false
+      expect(cn('base', shown && 'conditional', hidden && 'hidden')).toBe(
+        'base conditional',
+      )
     })
 
     test('handles Tailwind merge conflicts', () => {

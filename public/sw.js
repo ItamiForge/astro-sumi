@@ -18,7 +18,6 @@ const STATIC_ASSETS = [
   '/static/logo-96.webp',
   '/static/dark_logo-48.webp',
   '/static/dark_logo-96.webp',
-  '/static/background.webp',
   '/static/1200x630.webp',
   '/favicon.svg',
   '/favicon.ico',

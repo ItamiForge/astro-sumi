@@ -15,14 +15,14 @@ import type { ComponentProps } from 'react'
 
 type IconName = ComponentProps<typeof Icon>['name']
 
-export interface BreadcrumbItem {
+export interface CrumbItem {
   href?: string
   label: string
   icon?: IconName
 }
 
 interface Props {
-  items: BreadcrumbItem[]
+  items: CrumbItem[]
 }
 
 const { items } = Astro.props

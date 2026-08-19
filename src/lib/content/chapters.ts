@@ -16,7 +16,7 @@ export async function getAllChapters(): Promise<CollectionEntry<'chapters'>[]> {
   return safeContentLoad(
     async () => {
       const chapters = await getCollection('chapters')
-      
+
       const validChapters = validateContentIntegrity(
         chapters,
         (chapter) => {
@@ -30,9 +30,9 @@ export async function getAllChapters(): Promise<CollectionEntry<'chapters'>[]> {
             chapter.data.publishDate
           )
         },
-        'chapters'
+        'chapters',
       )
-      
+
       return validChapters
         .filter((chapter) => !chapter.data.draft)
         .sort((a, b) => {
@@ -46,11 +46,13 @@ export async function getAllChapters(): Promise<CollectionEntry<'chapters'>[]> {
         })
     },
     [],
-    'getAllChapters'
+    'getAllChapters',
   )
 }
 
-export async function getChaptersByNovel(novelId: string): Promise<CollectionEntry<'chapters'>[]> {
+export async function getChaptersByNovel(
+  novelId: string,
+): Promise<CollectionEntry<'chapters'>[]> {
   return safeContentLoad(
     async () => {
       const chapters = await getAllChapters()
@@ -65,29 +67,31 @@ export async function getChaptersByNovel(novelId: string): Promise<CollectionEnt
     },
     [],
     'getChaptersByNovel',
-    { novelId }
+    { novelId },
   )
 }
 
-export async function getChapterById(chapterId: string): Promise<CollectionEntry<'chapters'> | null> {
+export async function getChapterById(
+  chapterId: string,
+): Promise<CollectionEntry<'chapters'> | null> {
   return safeContentLoad(
     async () => {
       const chapters = await getAllChapters()
       const chapter = chapters.find((chapter) => chapter.id === chapterId)
-      
+
       if (!chapter) {
         throw new ContentError(
           `Chapter not found: ${chapterId}`,
           'CONTENT_NOT_FOUND',
-          { chapterId }
+          { chapterId },
         )
       }
-      
+
       return chapter
     },
     null,
     'getChapterById',
-    { chapterId }
+    { chapterId },
   )
 }
 
@@ -103,24 +107,32 @@ export async function getAdjacentChapters(currentChapterId: string): Promise<{
       }
 
       const novelChapters = await getChaptersByNovel(currentChapter.data.novel)
-      const currentIndex = novelChapters.findIndex((chapter) => chapter.id === currentChapterId)
+      const currentIndex = novelChapters.findIndex(
+        (chapter) => chapter.id === currentChapterId,
+      )
 
       if (currentIndex === -1) {
         return { newer: null, older: null }
       }
 
       return {
-        newer: currentIndex < novelChapters.length - 1 ? (novelChapters[currentIndex + 1] ?? null) : null,
-        older: currentIndex > 0 ? (novelChapters[currentIndex - 1] ?? null) : null,
+        newer:
+          currentIndex < novelChapters.length - 1
+            ? (novelChapters[currentIndex + 1] ?? null)
+            : null,
+        older:
+          currentIndex > 0 ? (novelChapters[currentIndex - 1] ?? null) : null,
       }
     },
     { newer: null, older: null },
     'getAdjacentChapters',
-    { currentChapterId }
+    { currentChapterId },
   )
 }
 
-export async function getChapterReadingTime(chapterId: string): Promise<string> {
+export async function getChapterReadingTime(
+  chapterId: string,
+): Promise<string> {
   return safeContentLoad(
     async () => {
       const chapter = await getChapterById(chapterId)
@@ -131,7 +143,7 @@ export async function getChapterReadingTime(chapterId: string): Promise<string> 
     },
     '0 min read',
     'getChapterReadingTime',
-    { chapterId }
+    { chapterId },
   )
 }
 
@@ -156,6 +168,6 @@ export async function getChapterTOC(chapterId: string): Promise<TOCHeading[]> {
     },
     [],
     'getChapterTOC',
-    { chapterId }
+    { chapterId },
   )
 }

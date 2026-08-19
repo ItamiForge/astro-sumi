@@ -21,7 +21,8 @@ let cachedIndex: WikiSlugIndex | null = null
 export function loadWikiSlugIndex(
   contentRoot = path.join(process.cwd(), 'src/content'),
 ): WikiSlugIndex {
-  if (cachedIndex && process.env['NODE_ENV'] === 'production') return cachedIndex
+  if (cachedIndex && process.env['NODE_ENV'] === 'production')
+    return cachedIndex
 
   const index: WikiSlugIndex = new Map()
   for (const kind of WIKI_KINDS) {

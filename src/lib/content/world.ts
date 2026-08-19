@@ -169,7 +169,9 @@ export async function getAllEvents(): Promise<CollectionEntry<'events'>[]> {
   )
 }
 
-export async function getAllDocuments(): Promise<CollectionEntry<'documents'>[]> {
+export async function getAllDocuments(): Promise<
+  CollectionEntry<'documents'>[]
+> {
   return safeContentLoad(
     async () => {
       const entries = await getCollection('documents')
@@ -227,7 +229,10 @@ export async function getMapById(id: string) {
 export async function getPinsForMap(mapId: string) {
   const locations = await getCollection('locations')
   return locations
-    .filter((location) => !location.data.draft && location.data.visibility !== 'secret')
+    .filter(
+      (location) =>
+        !location.data.draft && location.data.visibility !== 'secret',
+    )
     .filter((location) => location.data.coords?.map === mapId)
     .map((location) => ({
       id: location.id,
@@ -294,17 +299,25 @@ export async function getMapsByNovel(novelId: string) {
 }
 
 export async function getWikiCardIndex(): Promise<WikiCard[]> {
-  const [characters, locations, factions, species, terms, events, documents, relics] =
-    await Promise.all([
-      getAllCharacters(),
-      getAllLocations(),
-      getAllFactions(),
-      getAllSpecies(),
-      getAllTerms(),
-      getAllEvents(),
-      getAllDocuments(),
-      getAllRelics(),
-    ])
+  const [
+    characters,
+    locations,
+    factions,
+    species,
+    terms,
+    events,
+    documents,
+    relics,
+  ] = await Promise.all([
+    getAllCharacters(),
+    getAllLocations(),
+    getAllFactions(),
+    getAllSpecies(),
+    getAllTerms(),
+    getAllEvents(),
+    getAllDocuments(),
+    getAllRelics(),
+  ])
 
   const card = (
     kind: WikiKind,
@@ -495,18 +508,27 @@ export async function backlinksForSlug(
   slug: string,
   kind?: WikiKind,
 ): Promise<CodexBacklink[]> {
-  const [chapters, characters, locations, factions, species, terms, events, documents, relics] =
-    await Promise.all([
-      appearancesForSlug(slug, kind),
-      getAllCharacters(),
-      getAllLocations(),
-      getAllFactions(),
-      getAllSpecies(),
-      getAllTerms(),
-      getAllEvents(),
-      getAllDocuments(),
-      getAllRelics(),
-    ])
+  const [
+    chapters,
+    characters,
+    locations,
+    factions,
+    species,
+    terms,
+    events,
+    documents,
+    relics,
+  ] = await Promise.all([
+    appearancesForSlug(slug, kind),
+    getAllCharacters(),
+    getAllLocations(),
+    getAllFactions(),
+    getAllSpecies(),
+    getAllTerms(),
+    getAllEvents(),
+    getAllDocuments(),
+    getAllRelics(),
+  ])
 
   const links: CodexBacklink[] = chapters.map((chapter) => ({
     title: `Chapter ${chapter.data.chapter} · ${chapter.data.title}`,
@@ -514,56 +536,57 @@ export async function backlinksForSlug(
     kicker: chapter.data.novel,
   }))
 
-  const entries: { id: string; kind: WikiKind; name: string; body?: string }[] = [
-    ...characters.map((entry) => ({
-      id: entry.id,
-      kind: 'character' as const,
-      name: entry.data.name,
-      body: entry.body,
-    })),
-    ...locations.map((entry) => ({
-      id: entry.id,
-      kind: 'location' as const,
-      name: entry.data.name,
-      body: entry.body,
-    })),
-    ...factions.map((entry) => ({
-      id: entry.id,
-      kind: 'faction' as const,
-      name: entry.data.name,
-      body: entry.body,
-    })),
-    ...species.map((entry) => ({
-      id: entry.id,
-      kind: 'species' as const,
-      name: entry.data.name,
-      body: entry.body,
-    })),
-    ...terms.map((entry) => ({
-      id: entry.id,
-      kind: 'term' as const,
-      name: entry.data.name,
-      body: entry.body,
-    })),
-    ...events.map((entry) => ({
-      id: entry.id,
-      kind: 'event' as const,
-      name: entry.data.name,
-      body: entry.body,
-    })),
-    ...documents.map((entry) => ({
-      id: entry.id,
-      kind: 'document' as const,
-      name: entry.data.name,
-      body: entry.body,
-    })),
-    ...relics.map((entry) => ({
-      id: entry.id,
-      kind: 'relic' as const,
-      name: entry.data.name,
-      body: entry.body,
-    })),
-  ]
+  const entries: { id: string; kind: WikiKind; name: string; body?: string }[] =
+    [
+      ...characters.map((entry) => ({
+        id: entry.id,
+        kind: 'character' as const,
+        name: entry.data.name,
+        body: entry.body,
+      })),
+      ...locations.map((entry) => ({
+        id: entry.id,
+        kind: 'location' as const,
+        name: entry.data.name,
+        body: entry.body,
+      })),
+      ...factions.map((entry) => ({
+        id: entry.id,
+        kind: 'faction' as const,
+        name: entry.data.name,
+        body: entry.body,
+      })),
+      ...species.map((entry) => ({
+        id: entry.id,
+        kind: 'species' as const,
+        name: entry.data.name,
+        body: entry.body,
+      })),
+      ...terms.map((entry) => ({
+        id: entry.id,
+        kind: 'term' as const,
+        name: entry.data.name,
+        body: entry.body,
+      })),
+      ...events.map((entry) => ({
+        id: entry.id,
+        kind: 'event' as const,
+        name: entry.data.name,
+        body: entry.body,
+      })),
+      ...documents.map((entry) => ({
+        id: entry.id,
+        kind: 'document' as const,
+        name: entry.data.name,
+        body: entry.body,
+      })),
+      ...relics.map((entry) => ({
+        id: entry.id,
+        kind: 'relic' as const,
+        name: entry.data.name,
+        body: entry.body,
+      })),
+    ]
 
   for (const entry of entries) {
     if (entry.id === slug && (!kind || entry.kind === kind)) continue

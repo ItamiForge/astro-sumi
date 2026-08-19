@@ -6,14 +6,14 @@ type HastNode = {
   children?: HastNode[]
 }
 
-const ALERTS: Record<
-  string,
-  { label: string; className: string }
-> = {
+const ALERTS: Record<string, { label: string; className: string }> = {
   NOTE: { label: 'Note', className: 'epic-alert epic-alert-note' },
   TIP: { label: 'Tip', className: 'epic-alert epic-alert-tip' },
   WARNING: { label: 'Warning', className: 'epic-alert epic-alert-warning' },
-  IMPORTANT: { label: 'Important', className: 'epic-alert epic-alert-important' },
+  IMPORTANT: {
+    label: 'Important',
+    className: 'epic-alert epic-alert-important',
+  },
   PROPHECY: { label: 'Prophecy', className: 'epic-alert epic-alert-prophecy' },
   CODEX: { label: 'Codex', className: 'epic-alert epic-alert-codex' },
   SONG: { label: 'Song', className: 'epic-alert epic-alert-song' },
@@ -22,7 +22,10 @@ const ALERTS: Record<
     label: 'Translation',
     className: 'epic-alert epic-alert-translation',
   },
-  FORBIDDEN: { label: 'Forbidden', className: 'epic-alert epic-alert-forbidden' },
+  FORBIDDEN: {
+    label: 'Forbidden',
+    className: 'epic-alert epic-alert-forbidden',
+  },
 }
 
 const MARKER = /^\s*\[!([A-Z]+)\]\s*$/
@@ -46,7 +49,9 @@ function convertBlockquote(node: HastNode) {
   const firstParagraph = children.find((child) => child.tagName === 'p')
   if (!firstParagraph?.children) return
 
-  const firstText = firstParagraph.children.find((child) => child.type === 'text')
+  const firstText = firstParagraph.children.find(
+    (child) => child.type === 'text',
+  )
   if (!firstText?.value) return
 
   const lines = firstText.value.split('\n')

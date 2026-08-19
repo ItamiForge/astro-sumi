@@ -25,3 +25,5 @@ Add a novel in `src/content/novels/` and chapters in `src/content/chapters/` nam
 ## Deploy
 
 Build command: `bun run build`. Output: `dist/`. Set `SITE_URL` (and Giscus values if you use comments) on the host.
+
+GitHub Pages is the included workflow: `bun run verify` (format, lint, tests, types, security) then `bun run build`. The same `verify` script runs as a pre-push hook. Pre-commit formats only staged files.

@@ -1,7 +1,7 @@
 /**
  * Lazy-loaded Avatar component for better performance with error boundary
  */
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, type ReactNode } from 'react'
 import { UIErrorBoundary } from './error-boundary'
 
 // Lazy load the Avatar component
@@ -14,7 +14,7 @@ interface LazyAvatarProps {
   alt?: string
   fallback?: string
   className?: string
-  children?: React.ReactNode
+  children?: ReactNode
 }
 
 export function LazyAvatar({

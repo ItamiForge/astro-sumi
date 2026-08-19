@@ -4,7 +4,7 @@ import type { APIRoute } from 'astro'
 export const GET: APIRoute = () => {
   const base = import.meta.env.BASE_URL
   const baseUrl = base.endsWith('/') ? base : `${base}/`
-  
+
   const manifest = {
     name: SITE.title,
     short_name: SITE.title,

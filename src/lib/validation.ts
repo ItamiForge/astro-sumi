@@ -1,6 +1,6 @@
 /**
  * Content validation utilities
- * 
+ *
  * This module provides validation functions for content integrity checking.
  */
 
@@ -12,7 +12,7 @@ import { Logger } from './errors'
 export function validateContentIntegrity<T>(
   content: T[],
   validator: (item: T) => boolean,
-  contentType: string
+  contentType: string,
 ): T[] {
   const validContent: T[] = []
   const invalidItems: unknown[] = []
@@ -34,7 +34,7 @@ export function validateContentIntegrity<T>(
     Logger.warn(`Found ${invalidItems.length} invalid ${contentType} items`, {
       invalidCount: invalidItems.length,
       totalCount: content.length,
-      contentType
+      contentType,
     })
   }
 

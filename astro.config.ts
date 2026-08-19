@@ -5,7 +5,6 @@ import mdx from '@astrojs/mdx'
 import react from '@astrojs/react'
 import sitemap from '@astrojs/sitemap'
 
-
 import { rehypeHeadingIds } from '@astrojs/markdown-remark'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeKatex from 'rehype-katex'
@@ -29,11 +28,7 @@ const base = process.env['NODE_ENV'] === 'production' ? '/astro-sumi' : '/'
 export default defineConfig({
   site: siteUrl,
   base: base,
-  integrations: [
-    mdx(),
-    react(),
-    sitemap(),
-  ],
+  integrations: [mdx(), react(), sitemap()],
   build: {
     inlineStylesheets: 'auto',
     assets: '_astro',

@@ -6,7 +6,7 @@ export async function getAllAuthors(): Promise<CollectionEntry<'authors'>[]> {
   return safeContentLoad(
     async () => {
       const authors = await getCollection('authors')
-      
+
       const validAuthors = validateContentIntegrity(
         authors,
         (author) => {
@@ -16,13 +16,13 @@ export async function getAllAuthors(): Promise<CollectionEntry<'authors'>[]> {
             (author.data.name || author.data.penName)
           )
         },
-        'authors'
+        'authors',
       )
-      
+
       return validAuthors
     },
     [],
-    'getAllAuthors'
+    'getAllAuthors',
   )
 }
 
@@ -46,6 +46,6 @@ export async function parseAuthors(authorIds: string[] = []) {
     },
     [],
     'parseAuthors',
-    { authorIds }
+    { authorIds },
   )
 }

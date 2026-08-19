@@ -10,7 +10,9 @@ interface Props {
 
 const { chapter, novel } = Astro.props
 
-const title = `${chapter.data.title} - ${novel.data.title}` || SITE.title
+const title =
+  [chapter.data.title, novel.data.title].filter(Boolean).join(' - ') ||
+  SITE.title
 const description =
   chapter.data.summary || novel.data.description || SITE.description
 const image = new URL(withBase('/static/1200x630.webp'), Astro.site)

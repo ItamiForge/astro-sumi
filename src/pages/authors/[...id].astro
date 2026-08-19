@@ -3,6 +3,7 @@ import AuthorCard from '@/components/AuthorCard.astro'
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
 import { Icon } from '@/components/Icon'
 import PageHead from '@/components/PageHead.astro'
+import PaperNoirBackdrop from '@/components/PaperNoirBackdrop.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import Layout from '@/layouts/Layout.astro'
 import { formatDate } from '@/lib/utils'
@@ -34,6 +35,7 @@ const authorNovels = allNovels
     description={author.data.bio || `Profile of ${author.data.name}.`}
     noindex
   />
+  <PaperNoirBackdrop />
   <Breadcrumbs
     items={[
       { href: '/authors', label: 'Authors', icon: 'lucide:users' },
@@ -51,7 +53,7 @@ const authorNovels = allNovels
       authorNovels.length > 0 ? (
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {authorNovels.map((novel) => (
-            <article class="group bg-card text-card-foreground relative overflow-hidden rounded-lg border shadow-sm transition-all hover:shadow-md">
+            <article class="group bg-background/80 text-card-foreground relative overflow-hidden rounded-lg border shadow-sm backdrop-blur-[2px] transition-all hover:shadow-md">
               <a href={withBase(`/novels/${novel.id}`)} class="block">
                 {novel.data.coverImage ? (
                   <div class="aspect-[3/4] overflow-hidden">

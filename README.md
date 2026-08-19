@@ -42,9 +42,10 @@ bun run fresh -- --yes
 | `bun run preview` | Preview the build |
 | `bun run setup` | Interactive `.env.local` |
 | `bun run fresh` | Delete sample content |
+| `bun run verify` | Format, lint, tests, types, security — same gate as CI and pre-push |
 | `bun run test:run` | Tests once |
 | `bun run prettier` | Format code |
-| `bun run lint` | CSS + markdown lint |
+| `bun run lint` | JS, CSS, and markdown lint |
 
 ## Docs
 

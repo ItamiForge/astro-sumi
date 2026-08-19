@@ -1,6 +1,6 @@
 /**
  * Centralized error handling system for Astro Sumi
- * 
+ *
  * This module provides error classes, logging utilities, and safe content loading
  * functions with graceful degradation for missing or invalid content.
  */
@@ -11,8 +11,11 @@
 export class ContentError extends Error {
   constructor(
     message: string,
-    public type: 'CONTENT_NOT_FOUND' | 'CONTENT_INVALID' | 'CONTENT_LOAD_FAILED',
-    public context?: Record<string, unknown>
+    public type:
+      | 'CONTENT_NOT_FOUND'
+      | 'CONTENT_INVALID'
+      | 'CONTENT_LOAD_FAILED',
+    public context?: Record<string, unknown>,
   ) {
     super(message)
     this.name = 'ContentError'
@@ -26,7 +29,7 @@ export class ValidationError extends Error {
   constructor(
     message: string,
     public field: string,
-    public value: unknown
+    public value: unknown,
   ) {
     super(message)
     this.name = 'ValidationError'
@@ -39,7 +42,11 @@ export class ValidationError extends Error {
 export class Logger {
   private static isDevelopment = import.meta.env.DEV
 
-  static error(message: string, error?: Error, context?: Record<string, unknown>) {
+  static error(
+    message: string,
+    error?: Error,
+    context?: Record<string, unknown>,
+  ) {
     const logData = {
       message,
       error: error?.message,
@@ -47,7 +54,7 @@ export class Logger {
       context,
       timestamp: new Date().toISOString(),
     }
-    
+
     console.error('[Astro Sumi Error]', logData)
   }
 
@@ -57,7 +64,7 @@ export class Logger {
       context,
       timestamp: new Date().toISOString(),
     }
-    
+
     console.warn('[Astro Sumi Warning]', logData)
   }
 
@@ -68,7 +75,7 @@ export class Logger {
         context,
         timestamp: new Date().toISOString(),
       }
-      
+
       console.info('[Astro Sumi Info]', logData)
     }
   }
@@ -81,7 +88,7 @@ export async function safeContentLoad<T>(
   operation: () => Promise<T>,
   fallback: T,
   operationName: string,
-  context?: Record<string, unknown>
+  context?: Record<string, unknown>,
 ): Promise<T> {
   try {
     return await operation()
@@ -89,10 +96,9 @@ export async function safeContentLoad<T>(
     Logger.error(
       `Content loading failed for ${operationName}`,
       error instanceof Error ? error : new Error(String(error)),
-      context
+      context,
     )
-    
+
     return fallback
   }
 }
-

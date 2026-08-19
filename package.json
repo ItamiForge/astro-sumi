@@ -12,7 +12,9 @@
     "setup": "node scripts/setup.js",
     "fresh": "node scripts/fresh.js",
     "prettier": "prettier --write **/*.{ts,tsx,astro} --ignore-path .gitignore",
-    "lint": "bun run lint:css && bun run lint:md",
+    "format:check": "prettier --check **/*.{ts,tsx,astro} --ignore-path .gitignore",
+    "lint": "bun run lint:js && bun run lint:css && bun run lint:md",
+    "lint:js": "eslint src",
     "lint:css": "stylelint \"src/**/*.css\" --formatter verbose",
     "lint:md": "rumdl check .",
     "format": "bun run prettier && bun run format:css && bun run format:md",
@@ -26,6 +28,7 @@
     "test:run": "vitest --run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
+    "verify": "bun run format:check && bun run lint && bun run test:run && astro check && bun run security:check",
     "prepare": "husky"
   },
   "dependencies": {
@@ -49,6 +52,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.469.0",
+    "ogl": "^1.0.11",
     "picocolors": "^1.1.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
@@ -77,10 +81,12 @@
     "globals": "^15.14.0",
     "husky": "^9.1.7",
     "jsdom": "^27.1.0",
+    "lint-staged": "^17.3.0",
     "prettier": "^3.4.2",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-astro-organize-imports": "^0.4.11",
     "prettier-plugin-tailwindcss": "^0.7.1",
+    "rumdl": "^0.2.57",
     "sharp": "^0.34.5",
     "stylelint": "^16.12.0",
     "stylelint-config-standard": "^39.0.1",
@@ -88,7 +94,13 @@
     "vitest": "^4.0.8"
   },
   "resolutions": {
-    "form-data": "^4.0.4"
+    "form-data": "^4.0.4",
+    "fast-xml-parser": "^5.3.5"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,astro}": "prettier --write",
+    "*.css": "stylelint --fix",
+    "*.md": "rumdl fmt"
   },
   "prettier": {
     "semi": false,

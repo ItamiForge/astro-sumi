@@ -7,7 +7,7 @@ export async function getAllNovels(): Promise<CollectionEntry<'novels'>[]> {
   return safeContentLoad(
     async () => {
       const novels = await getCollection('novels')
-      
+
       const validNovels = validateContentIntegrity(
         novels,
         (novel) => {
@@ -19,41 +19,45 @@ export async function getAllNovels(): Promise<CollectionEntry<'novels'>[]> {
             novel.data.startDate
           )
         },
-        'novels'
+        'novels',
       )
-      
+
       return validNovels
         .filter((novel) => !novel.data.draft)
         .sort((a, b) => b.data.startDate.valueOf() - a.data.startDate.valueOf())
     },
     [],
-    'getAllNovels'
+    'getAllNovels',
   )
 }
 
-export async function getNovelById(novelId: string): Promise<CollectionEntry<'novels'> | null> {
+export async function getNovelById(
+  novelId: string,
+): Promise<CollectionEntry<'novels'> | null> {
   return safeContentLoad(
     async () => {
       const novels = await getAllNovels()
       const novel = novels.find((novel) => novel.id === novelId)
-      
+
       if (!novel) {
         throw new ContentError(
           `Novel not found: ${novelId}`,
           'CONTENT_NOT_FOUND',
-          { novelId }
+          { novelId },
         )
       }
-      
+
       return novel
     },
     null,
     'getNovelById',
-    { novelId }
+    { novelId },
   )
 }
 
-export async function getNovelsByAuthor(authorId: string): Promise<CollectionEntry<'novels'>[]> {
+export async function getNovelsByAuthor(
+  authorId: string,
+): Promise<CollectionEntry<'novels'>[]> {
   return safeContentLoad(
     async () => {
       const novels = await getAllNovels()
@@ -61,11 +65,13 @@ export async function getNovelsByAuthor(authorId: string): Promise<CollectionEnt
     },
     [],
     'getNovelsByAuthor',
-    { authorId }
+    { authorId },
   )
 }
 
-export async function getNovelsByTag(tag: string): Promise<CollectionEntry<'novels'>[]> {
+export async function getNovelsByTag(
+  tag: string,
+): Promise<CollectionEntry<'novels'>[]> {
   return safeContentLoad(
     async () => {
       const novels = await getAllNovels()
@@ -73,11 +79,13 @@ export async function getNovelsByTag(tag: string): Promise<CollectionEntry<'nove
     },
     [],
     'getNovelsByTag',
-    { tag }
+    { tag },
   )
 }
 
-export async function getRecentNovels(count: number): Promise<CollectionEntry<'novels'>[]> {
+export async function getRecentNovels(
+  count: number,
+): Promise<CollectionEntry<'novels'>[]> {
   return safeContentLoad(
     async () => {
       const novels = await getAllNovels()
@@ -85,7 +93,7 @@ export async function getRecentNovels(count: number): Promise<CollectionEntry<'n
     },
     [],
     'getRecentNovels',
-    { count }
+    { count },
   )
 }
 
@@ -101,11 +109,13 @@ export async function getAllTags(): Promise<Map<string, number>> {
       }, new Map<string, number>())
     },
     new Map<string, number>(),
-    'getAllTags'
+    'getAllTags',
   )
 }
 
-export async function getSortedTags(): Promise<{ tag: string; count: number }[]> {
+export async function getSortedTags(): Promise<
+  { tag: string; count: number }[]
+> {
   return safeContentLoad(
     async () => {
       const tagCounts = await getAllTags()
@@ -117,7 +127,7 @@ export async function getSortedTags(): Promise<{ tag: string; count: number }[]>
         })
     },
     [],
-    'getSortedTags'
+    'getSortedTags',
   )
 }
 
@@ -136,6 +146,6 @@ export async function getNovelReadingTime(novelId: string): Promise<string> {
     },
     '0 min read',
     'getNovelReadingTime',
-    { novelId }
+    { novelId },
   )
 }
