@@ -11,14 +11,13 @@ import PaperNoirBackground from '@/components/PaperNoirBackground'
     position: fixed;
     inset: 0;
     z-index: -1;
+    width: 100vw;
+    min-height: 100vh;
     pointer-events: none;
-    background: var(--background);
-    opacity: 0.12;
+    background: #c4a882;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .paper-noir-bg {
-      opacity: 0;
-    }
+  :global([data-theme='dark']) .paper-noir-bg {
+    background: #14110e;
   }
 </style>
