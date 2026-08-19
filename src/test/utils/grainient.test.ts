@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { describe, expect, test } from 'vitest'
 import { hexToRgb } from '@/components/Grainient'
 import {
+  PAPER_NOIR,
   PAPER_NOIR_DARK,
   PAPER_NOIR_LIGHT,
 } from '@/components/PaperNoirBackground'
@@ -24,42 +25,49 @@ describe('grainient color parsing', () => {
 })
 
 describe('paper grain palette', () => {
-  test('keeps a visible paper-noir range with quiet motion', () => {
-    for (const palette of [PAPER_NOIR_LIGHT, PAPER_NOIR_DARK]) {
-      expect(palette.color1).toMatch(hex)
-      expect(palette.color2).toMatch(hex)
-      expect(palette.color3).toMatch(hex)
-      expect(palette.grainAmount).toBeGreaterThan(0.05)
-      expect(palette.grainAmount).toBeLessThan(0.16)
-      expect(palette.grainAnimated).toBe(false)
-      expect(palette.timeSpeed).toBeGreaterThan(0)
-      expect(palette.timeSpeed).toBeLessThan(0.08)
-      expect(palette.warpSpeed).toBeGreaterThan(0)
-      expect(palette.warpSpeed).toBeLessThan(0.25)
-    }
-
-    const lightHi = hexToRgb(PAPER_NOIR_LIGHT.color1)
-    const lightLo = hexToRgb(PAPER_NOIR_LIGHT.color3)
-    const lightHiLuma =
-      lightHi[0]! * 0.2 + lightHi[1]! * 0.7 + lightHi[2]! * 0.1
-    const lightLoLuma =
-      lightLo[0]! * 0.2 + lightLo[1]! * 0.7 + lightLo[2]! * 0.1
-    expect(lightHiLuma - lightLoLuma).toBeGreaterThan(0.35)
-
-    const dark = hexToRgb(PAPER_NOIR_DARK.color3)
-    const darkLuma = dark[0]! * 0.2 + dark[1]! * 0.7 + dark[2]! * 0.1
-    expect(darkLuma).toBeLessThan(0.15)
+  test('uses the chosen Grainient look on home', () => {
+    expect(PAPER_NOIR_LIGHT).toEqual(PAPER_NOIR)
+    expect(PAPER_NOIR_DARK).toEqual(PAPER_NOIR)
+    expect(PAPER_NOIR).toMatchObject({
+      color1: '#e7b28c',
+      color2: '#4d4238',
+      color3: '#867368',
+      timeSpeed: 1.1,
+      colorBalance: 0.29,
+      warpStrength: 1.5,
+      warpFrequency: 2.3,
+      warpSpeed: 2.7,
+      warpAmplitude: 56,
+      blendAngle: 12,
+      blendSoftness: 0.44,
+      rotationAmount: 1160,
+      noiseScale: 1.7,
+      grainAmount: 0.14,
+      grainScale: 3.5,
+      grainAnimated: false,
+      contrast: 1.3,
+      gamma: 1.05,
+      saturation: 1.4,
+      centerX: 0.13,
+      centerY: 0.28,
+      zoom: 0.9,
+    })
+    expect(PAPER_NOIR.color1).toMatch(hex)
+    expect(PAPER_NOIR.color2).toMatch(hex)
+    expect(PAPER_NOIR.color3).toMatch(hex)
   })
 })
 
 describe('shader backdrop wiring', () => {
-  test('shader uses soft paper noise instead of hash static', () => {
+  test('shader uses the stock Grainient hash grain', () => {
     const source = readFileSync(
       resolve(root, 'src/components/Grainient.tsx'),
       'utf8',
     )
-    expect(source).toContain('float paper=noise(')
-    expect(source).not.toContain('fract(sin(dot(grainUv,vec2(12.9898,78.233)))')
+    expect(source).toContain(
+      'fract(sin(dot(grainUv,vec2(12.9898,78.233)))*43758.5453)',
+    )
+    expect(source).not.toContain('float paper=noise(')
   })
 
   test('footer sits on an opaque bar above the grain', () => {
@@ -78,7 +86,7 @@ describe('shader backdrop wiring', () => {
       resolve(root, 'src/components/PaperNoirBackdrop.astro'),
       'utf8',
     )
-    expect(backdrop).toContain('background: #c4a882')
+    expect(backdrop).toContain('background: #4d4238')
     expect(backdrop).toContain('z-index: 0')
     expect(backdrop).not.toContain('z-index: -1')
     expect(backdrop).not.toContain('opacity: 0.12')

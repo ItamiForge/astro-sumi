@@ -124,11 +124,10 @@ void mainImage(out vec4 o, vec2 C){
   vec3 layer2=mix(colOrg,colLav,S(edge0,edge1,blendX));
   vec3 col=mix(layer1,layer2,S(v0,v1,tuv.y));
 
-  vec2 grainUv=uv*max(uGrainScale,0.001)*vec2(ratio,1.0);
-  if(uGrainAnimated>0.5){grainUv+=vec2(t*0.25);}
-  float paper=noise(grainUv*5.5);
-  float fiber=noise(grainUv*16.0+vec2(2.1,7.3));
-  col+=(paper*0.72+fiber*0.28-0.5)*uGrainAmount;
+  vec2 grainUv=uv*max(uGrainScale,0.001);
+  if(uGrainAnimated>0.5){grainUv+=vec2(iTime*0.05);}
+  float grain=fract(sin(dot(grainUv,vec2(12.9898,78.233)))*43758.5453);
+  col+=(grain-0.5)*uGrainAmount;
 
   col=(col-0.5)*uContrast+0.5;
   float luma=dot(col,vec3(0.2126,0.7152,0.0722));
