@@ -97,6 +97,7 @@ describe('shader backdrop wiring', () => {
     const home = readFileSync(resolve(root, 'src/pages/index.astro'), 'utf8')
     expect(home).toContain('PaperNoirBackdrop')
     expect(home).toContain('slot="backdrop"')
+    expect(home).toContain('home-sheet')
 
     const layout = readFileSync(
       resolve(root, 'src/layouts/Layout.astro'),
@@ -104,6 +105,9 @@ describe('shader backdrop wiring', () => {
     )
     expect(layout).toContain('slot name="backdrop"')
     expect(layout).toContain('relative z-10')
+
+    const css = readFileSync(resolve(root, 'src/styles/global.css'), 'utf8')
+    expect(css).toContain('.home-sheet')
 
     const elsewhere = [
       'src/pages/about.astro',

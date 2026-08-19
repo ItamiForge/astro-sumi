@@ -28,8 +28,8 @@ export const PRESETS = [
     swatch: 'oklch(0.985 0.012 90)',
     ink: 'oklch(0.22 0.03 60)',
     fonts: {
-      ui: 'Source Sans 3',
-      display: 'Literata',
+      ui: 'Bricolage Grotesque',
+      display: 'Fraunces',
       body: 'Literata',
     },
     reading: {
@@ -43,13 +43,13 @@ export const PRESETS = [
     id: 'dusk',
     name: 'Dusk',
     group: 'comfort',
-    blurb: 'Warm night, low blue light, slightly larger Literata.',
+    blurb: 'Warm night, low blue light, slightly larger type.',
     scheme: 'dark' as const,
     swatch: 'oklch(0.18 0.02 60)',
     ink: 'oklch(0.92 0.02 80)',
     fonts: {
-      ui: 'Source Sans 3',
-      display: 'Literata',
+      ui: 'Bricolage Grotesque',
+      display: 'Fraunces',
       body: 'Literata',
     },
     reading: {
@@ -103,13 +103,13 @@ export const PRESETS = [
     id: 'manuscript',
     name: 'Manuscript',
     group: 'world',
-    blurb: 'Literary cream paper. Source Sans with Literata.',
+    blurb: 'Fraunces titles, Literata prose, Bricolage UI.',
     scheme: 'light' as const,
     swatch: 'oklch(0.97 0.018 85)',
     ink: 'oklch(0.24 0.03 60)',
     fonts: {
-      ui: 'Source Sans 3',
-      display: 'Literata',
+      ui: 'Bricolage Grotesque',
+      display: 'Fraunces',
       body: 'Literata',
     },
     reading: {
@@ -128,7 +128,7 @@ export const PRESETS = [
     swatch: 'oklch(0.94 0.04 80)',
     ink: 'oklch(0.26 0.05 50)',
     fonts: {
-      ui: 'Source Sans 3',
+      ui: 'Bricolage Grotesque',
       display: 'Fraunces',
       body: 'Literata',
     },
@@ -168,7 +168,7 @@ export const PRESETS = [
     swatch: 'oklch(0.13 0.02 40)',
     ink: 'oklch(0.9 0.03 75)',
     fonts: {
-      ui: 'Source Sans 3',
+      ui: 'Bricolage Grotesque',
       display: 'Fraunces',
       body: 'Newsreader',
     },
@@ -188,7 +188,7 @@ export const PRESETS = [
     swatch: 'oklch(0.975 0.035 45)',
     ink: 'oklch(0.28 0.07 20)',
     fonts: {
-      ui: 'Source Sans 3',
+      ui: 'Bricolage Grotesque',
       display: 'Fraunces',
       body: 'Literata',
     },

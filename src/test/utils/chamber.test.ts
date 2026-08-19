@@ -92,6 +92,12 @@ describe('look presets', () => {
     expect(PRESET_SCHEMES['dusk']).toBe('dark')
     expect(PRESET_SCHEMES['beacon']).toBe('dark')
     expect(PRESET_IDS).toEqual(ids)
+    const manuscript = PRESETS.find((preset) => preset.id === 'manuscript')
+    expect(manuscript?.fonts).toEqual({
+      ui: 'Bricolage Grotesque',
+      display: 'Fraunces',
+      body: 'Literata',
+    })
     for (const preset of PRESETS) {
       expect(preset.fonts.ui.length).toBeGreaterThan(0)
       expect(preset.fonts.display.length).toBeGreaterThan(0)
@@ -135,6 +141,8 @@ describe('look presets', () => {
       expect(css).toContain(`html[data-preset='${preset.id}']`)
     }
     expect(css).toContain("html[data-preset='beacon']")
+    expect(css).toContain("'Fraunces Variable'")
+    expect(css).toContain("'Bricolage Grotesque Variable'")
     expect(css).toContain('font-family: var(--font-body)')
     expect(css).toContain('font-family: var(--font-display)')
     expect(css).toContain('--font-ui:')

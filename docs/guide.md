@@ -4,20 +4,20 @@ Astro Sumi is a static novel-site template. Canon lives in markdown under `src/c
 
 ## Content
 
-| Folder | Route |
-| --- | --- |
-| `src/content/novels/` | `/novels/:id` |
-| `src/content/chapters/` | `/novels/:novel/:volume/:chapter` |
-| `src/content/authors/` | `/authors/:id` |
-| `src/content/characters/` | `/codex/people/:id` |
-| `src/content/locations/` | `/codex/places/:id` |
-| `src/content/factions/` | `/codex/factions/:id` |
-| `src/content/species/` | `/codex/kindreds/:id` |
-| `src/content/maps/` | `/codex/atlas/:id` |
-| `src/content/terms/` | `/codex/glossary/:id` |
-| `src/content/events/` | `/codex/annals/:id` |
-| `src/content/documents/` | `/codex/library/:id` |
-| `src/content/relics/` | `/codex/relics/:id` |
+| Folder                    | Route                             |
+| ------------------------- | --------------------------------- |
+| `src/content/novels/`     | `/novels/:id`                     |
+| `src/content/chapters/`   | `/novels/:novel/:volume/:chapter` |
+| `src/content/authors/`    | `/authors/:id`                    |
+| `src/content/characters/` | `/codex/people/:id`               |
+| `src/content/locations/`  | `/codex/places/:id`               |
+| `src/content/factions/`   | `/codex/factions/:id`             |
+| `src/content/species/`    | `/codex/kindreds/:id`             |
+| `src/content/maps/`       | `/codex/atlas/:id`                |
+| `src/content/terms/`      | `/codex/glossary/:id`             |
+| `src/content/events/`     | `/codex/annals/:id`               |
+| `src/content/documents/`  | `/codex/library/:id`              |
+| `src/content/relics/`     | `/codex/relics/:id`               |
 
 Filename slug is the id (`kael.md` → `kael`). Set `draft: true` to keep a file out of production. Codex entities also take `visibility`: `public`, `spoiler` (hidden on indexes until Scholar mode), or `secret` (never built). `shortBio` is the card text and should stay spoiler-safe.
 
@@ -25,10 +25,10 @@ Chapter files use `novel-slug-v1-c1.md`:
 
 ```yaml
 ---
-title: "Chapter Title"
-novel: "novel-slug"
+title: 'Chapter Title'
+novel: 'novel-slug'
 volume: 1
-volumeTitle: "The Age of Bronze"
+volumeTitle: 'The Age of Bronze'
 chapter: 1
 publishDate: 2024-01-01
 draft: false
@@ -55,7 +55,7 @@ Pin a place on a plate with percentages from the top-left:
 
 ```yaml
 coords:
-  map: "thornhaven-valley"
+  map: 'thornhaven-valley'
   x: 44
   y: 62
 ```
@@ -79,8 +79,8 @@ The header gear stores one look preset (color, type, and shape together) plus sp
 
 Comfort presets (eyes and access): **Daylight**, **Dusk** (warm night),
 **Clear** (high-contrast light), **Beacon** (high-contrast night).
-Story presets: **Manuscript** (literary), **Myth** (fantasy),
-**Starfarer** (science fiction), **Nocturne** (horror),
+Story presets: **Manuscript** (Fraunces titles, Literata prose; default),
+**Myth** (fantasy), **Starfarer** (science fiction), **Nocturne** (horror),
 **Lantern** (YA, fairy tale, anime), **Broadsheet** (pulp, comics, serials).
 Each look sets color, fonts, type size, measure, and corners together.
 
