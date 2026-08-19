@@ -1,0 +1,14 @@
+catalog: true
+slug: astro-sumi
+title: Astro Sumi
+summary: Git-native template for serial novels with a reading chamber, Codex, and GitHub Pages hosting.
+status: active
+category: app
+featured: true
+visibility: public
+tags:
+  - astro
+  - template
+  - writing
+  - github-pages
+live: https://itamiforge.github.io/astro-sumi/
